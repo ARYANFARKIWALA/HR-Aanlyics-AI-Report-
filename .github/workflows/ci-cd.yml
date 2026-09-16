@@ -1,0 +1,65 @@
+name: Enterprise CI/CD Pipeline — HR Analytics AI Report Builder
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-and-test:
+    name: Code Quality, Security & Module 1-14 Testing
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install ruff pytest
+
+      - name: Lint Code with Ruff
+        run: |
+          ruff check . --ignore E501,F401,F841
+
+      - name: Initialize Database & Seed
+        run: |
+          python -m backend.database.seeder
+
+      - name: Execute System Test Suite (Modules 1–14)
+        run: |
+          pytest -v --durations=10
+
+      - name: Run AI Quality Control & Adversarial Benchmark
+        run: |
+          python -c "from backend.database.connection import SessionLocal; from evaluation.evaluator import EvaluationEngine; db=SessionLocal(); s=EvaluationEngine.run_benchmark(db); assert s.security_defense_rate == 100.0, 'Security Gate Failed'; assert s.execution_accuracy_rate >= 80.0, 'Accuracy Gate Failed'; print('AI Quality Benchmark PASSED with 100% Defense Rate!')"
+
+  docker-build:
+    name: Build & Verify Production Container
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: actions/setup-buildx-action@v3
+
+      - name: Build Production Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          tags: hr-analytics-ai:latest,hr-analytics-ai:${{ github.sha }}

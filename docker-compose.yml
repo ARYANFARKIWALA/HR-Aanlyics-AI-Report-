@@ -1,0 +1,172 @@
+version: '3.8'
+
+services:
+  # -------------------------------------------------------------
+  # 1. Reverse Proxy (TLS Termination, HTTPS Enactment, Rate Limiting)
+  # -------------------------------------------------------------
+  nginx:
+    image: nginx:alpine
+    container_name: hr_nginx_proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"    # HTTP (redirects to HTTPS)
+      - "443:443"  # Secure HTTPS Production Gateway
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      app:
+        condition: service_healthy
+    networks:
+      - hr_network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # -------------------------------------------------------------
+  # 2. Application Unified Container (FastAPI + Streamlit)
+  # -------------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hr_analytics_app
+    restart: unless-stopped
+    expose:
+      - "8000"
+      - "8501"
+    environment:
+      - APP_ENV=${APP_ENV:-production}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://${POSTGRES_USER:-hr_app_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-hr_analytics_metadata}}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - SECRET_KEY=${SECRET_KEY}
+      - ENCRYPTION_MASTER_KEY=${ENCRYPTION_MASTER_KEY}
+      - QUERY_TIMEOUT_SECONDS=${QUERY_TIMEOUT_SECONDS:-30}
+      - MAX_QUERY_ROW_LIMIT=${MAX_QUERY_ROW_LIMIT:-5000}
+      - ENFORCE_READ_ONLY=True
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - hr_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+
+  # -------------------------------------------------------------
+  # 2b. Standalone Backend Service
+  # -------------------------------------------------------------
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hr_api_backend
+    restart: unless-stopped
+    command: ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+    expose:
+      - "8000"
+    environment:
+      - APP_ENV=${APP_ENV:-production}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://${POSTGRES_USER:-hr_app_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-hr_analytics_metadata}}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - SECRET_KEY=${SECRET_KEY}
+      - ENCRYPTION_MASTER_KEY=${ENCRYPTION_MASTER_KEY}
+      - QUERY_TIMEOUT_SECONDS=${QUERY_TIMEOUT_SECONDS:-30}
+      - MAX_QUERY_ROW_LIMIT=${MAX_QUERY_ROW_LIMIT:-5000}
+      - ENFORCE_READ_ONLY=True
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - hr_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+
+  # -------------------------------------------------------------
+  # 2c. Standalone Frontend Service
+  # -------------------------------------------------------------
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hr_ui_frontend
+    restart: unless-stopped
+    command: ["streamlit", "run", "frontend/app.py", "--server.port", "8501", "--server.address", "0.0.0.0", "--server.headless", "true"]
+    expose:
+      - "8501"
+    environment:
+      - APP_ENV=${APP_ENV:-production}
+      - API_URL=http://backend:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - hr_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # -------------------------------------------------------------
+  # 3. Application Metadata Database (PostgreSQL with pgvector)
+  # -------------------------------------------------------------
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: hr_postgres_metadata
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-hr_app_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-hr_analytics_metadata}
+    expose:
+      - "5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hr_app_user} -d ${POSTGRES_DB:-hr_analytics_metadata}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hr_network
+
+  # -------------------------------------------------------------
+  # 4. Redis Cache & Job Broker
+  # -------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: hr_redis_cache
+    restart: unless-stopped
+    expose:
+      - "6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - hr_network
+
+networks:
+  hr_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:

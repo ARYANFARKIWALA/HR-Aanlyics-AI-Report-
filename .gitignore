@@ -1,0 +1,53 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment variables & secrets (NEVER COMMIT RAW CREDENTIALS)
+.env
+.env.*
+!.env.example
+
+# Local database files and WAL/journals
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.sqlite-journal
+
+# Pytest cache & test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local backups and export dumps
+storage/backups/*.bak.gz
+storage/backups/manifest.json
+storage/exports/*
+*.bak
+*.restoring
+*.old
+
+# Vector store local cache
+data/vector_store/
+chroma_db/
+
+# Streamlit local settings
+.streamlit/secrets.toml
+
+# Editor and OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
