@@ -8,15 +8,13 @@ Produces boardroom-ready executive reports featuring:
 - Governance, SQL Lineage, and Effective-Dating Audit
 """
 
-import os
 import io
-from typing import Optional
-from reportlab.lib.pagesizes import letter, landscape
+
 from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import (
-    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, KeepTogether
-)
+from reportlab.lib.pagesizes import landscape, letter
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+
 from .builder import ReportData
 
 
@@ -24,7 +22,7 @@ class PDFReportExporter:
     """Generates styled enterprise HR PDF reports."""
 
     @classmethod
-    def generate_pdf(cls, report: ReportData, output_path: Optional[str] = None) -> bytes:
+    def generate_pdf(cls, report: ReportData, output_path: str | None = None) -> bytes:
         buffer = io.BytesIO()
         doc = SimpleDocTemplate(
             output_path or buffer,

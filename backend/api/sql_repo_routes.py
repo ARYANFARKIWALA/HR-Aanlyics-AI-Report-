@@ -1,13 +1,14 @@
 """Enterprise SQL Knowledge Repository API routes."""
 
-from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
+
+from rag.retrieval import rag_retriever
+
+from ..auth.dependencies import require_role
 from ..database.connection import get_db
 from ..database.models import SQLRepository, User
-from ..auth.dependencies import get_current_user, require_role
-from rag.retrieval import rag_retriever
 
 router = APIRouter(prefix="/api/sql-repo", tags=["SQL Knowledge Repository"])
 
@@ -30,7 +31,7 @@ class SQLSearchRequest(BaseModel):
 
 @router.get("/")
 def list_sql_templates(
-    category: Optional[str] = None,
+    category: str | None = None,
     db: Session = Depends(get_db)
 ):
     """Lists all verified enterprise SQL report templates in the repository."""

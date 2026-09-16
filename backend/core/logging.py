@@ -2,11 +2,11 @@
 
 import logging
 import sys
-from typing import Optional
+
 from config.settings import settings
 
 
-def setup_logging(log_level: Optional[str] = None) -> None:
+def setup_logging(log_level: str | None = None) -> None:
     """Configures structured console logging across the entire platform."""
     level_name = (log_level or settings.log_level).upper()
     level = getattr(logging, level_name, logging.INFO)

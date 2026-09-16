@@ -14,23 +14,22 @@ PROJECT_ROOT = os.path.dirname(CURRENT_DIR)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-import streamlit as st
 import pandas as pd
-import plotly.express as px
+import streamlit as st
 from sqlalchemy.orm import Session
+
+from analytics.metrics import HRMetricsCalculator
+from analytics.visualization import HRVisualizer
 
 # Import Core Domain Modules
 from backend.database.connection import SessionLocal, init_db
-from backend.database.seeder import seed_database
-from backend.database.models import User, SQLRepository, AuditLog
 from backend.database.connection_manager import connection_manager
+from backend.database.models import SQLRepository, User
+from backend.database.seeder import seed_database
 from backend.services.query_service import QueryService
 from backend.services.report_service import ReportService
-from analytics.metrics import HRMetricsCalculator
-from analytics.visualization import HRVisualizer
-from sql.parser import SQLParser
-from sql.validator import SQLValidator
 from rag.retrieval import rag_retriever
+from sql.parser import SQLParser
 
 # Page Setup
 st.set_page_config(
@@ -342,7 +341,7 @@ with tabs[1]:
 
             col_btn1, col_btn2 = st.columns([2, 4])
             with col_btn1:
-                if st.button(f"▶️ Run This Report", key=f"run_tmpl_{t.id}"):
+                if st.button("▶️ Run This Report", key=f"run_tmpl_{t.id}"):
                     st.session_state.active_prompt = t.report_title
                     st.rerun()
             with col_btn2:

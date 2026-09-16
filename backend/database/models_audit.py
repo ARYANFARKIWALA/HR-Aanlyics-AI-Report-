@@ -1,9 +1,9 @@
 """SQLAlchemy ORM Data Models for Lifecycle Audit Logging (Module 13)."""
 
 import datetime
-from sqlalchemy import (
-    Column, Integer, String, Float, DateTime, Text, Index
-)
+
+from sqlalchemy import Column, DateTime, Float, Index, Integer, String, Text
+
 from .connection import Base
 
 

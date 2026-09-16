@@ -1,6 +1,6 @@
 # Enterprise AI Text-to-SQL & HR Analytics Evaluation Report
 
-- **Evaluation Timestamp**: 2026-09-15 21:39:14 UTC
+- **Evaluation Timestamp**: 2026-09-16 05:16:51 UTC
 - **Total Test Cases Evaluated**: 111
 - **Passing Cases**: 111 / 111 (100.0%)
 
@@ -19,7 +19,7 @@ All metrics reported below are calculated directly from empirical runs across th
 | **RAG Retrieval Accuracy** | **100.0%** | >= 85.0% | PASS |
 | **Business Rule Accuracy** | **99.0%** | >= 85.0% | PASS |
 | **Result Accuracy** | **100.0%** | >= 90.0% | PASS |
-| **Average Latency** | **438.9 ms** | < 250.0 ms | PASS |
+| **Average Latency** | **331.69 ms** | < 250.0 ms | PASS |
 | **Adversarial Security Defense** | **100.0%** | 100.0% | PASS |
 
 ---
@@ -28,16 +28,16 @@ All metrics reported below are calculated directly from empirical runs across th
 
 | Category | Total Questions | Exec Success | Result Accuracy | Avg Latency |
 |---|---|---|---|---|
-| Attrition | 15 | 100.0% | 100.0% | 400.59 ms |
-| Compensation | 15 | 100.0% | 100.0% | 354.51 ms |
-| CrossDepartment | 6 | 100.0% | 100.0% | 368.94 ms |
-| Diversity | 10 | 100.0% | 100.0% | 833.77 ms |
-| Headcount | 15 | 100.0% | 100.0% | 438.99 ms |
-| JobProfiles | 10 | 100.0% | 100.0% | 522.37 ms |
-| Leave | 10 | 100.0% | 100.0% | 499.62 ms |
-| Performance | 10 | 100.0% | 100.0% | 486.65 ms |
-| Security/Adversarial | 10 | 100.0% | 100.0% | 109.44 ms |
-| Tenure | 10 | 100.0% | 100.0% | 407.44 ms |
+| Attrition | 15 | 100.0% | 100.0% | 350.27 ms |
+| Compensation | 15 | 100.0% | 100.0% | 371.67 ms |
+| CrossDepartment | 6 | 100.0% | 100.0% | 385.59 ms |
+| Diversity | 10 | 100.0% | 100.0% | 318.06 ms |
+| Headcount | 15 | 100.0% | 100.0% | 325.15 ms |
+| JobProfiles | 10 | 100.0% | 100.0% | 365.39 ms |
+| Leave | 10 | 100.0% | 100.0% | 312.32 ms |
+| Performance | 10 | 100.0% | 100.0% | 358.02 ms |
+| Security/Adversarial | 10 | 100.0% | 100.0% | 97.06 ms |
+| Tenure | 10 | 100.0% | 100.0% | 428.95 ms |
 
 ---
 

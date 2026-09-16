@@ -8,9 +8,10 @@ Enforces:
    exist in the target database schema allowlist (excluding CTEs and aliases).
 """
 
-import re
 import logging
-from typing import Dict, Any, List, Set, Optional, Tuple
+import re
+from typing import Any
+
 import sqlglot
 from sqlglot import exp
 
@@ -39,7 +40,7 @@ class SQLSafetyValidator:
     """Validates SQL safety and verifies AST against database schema allowlists."""
 
     @classmethod
-    def validate_safety(cls, sql: str, dialect: str = "sqlite") -> Dict[str, Any]:
+    def validate_safety(cls, sql: str, dialect: str = "sqlite") -> dict[str, Any]:
         """Verifies that SQL is strictly read-only and free of destructive statements."""
         if not sql or not sql.strip():
             return {
@@ -110,10 +111,10 @@ class SQLSafetyValidator:
     def detect_hallucinations(
         cls,
         sql: str,
-        allowed_tables: Set[str],
-        allowed_columns: Optional[Dict[str, Set[str]]] = None,
+        allowed_tables: set[str],
+        allowed_columns: dict[str, set[str]] | None = None,
         dialect: str = "sqlite"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Detects if generated SQL references non-existent tables or columns."""
         norm_dialect = DIALECT_PARSE_MAP.get(dialect.lower().strip(), "sqlite")
         try:
@@ -175,9 +176,8 @@ class SQLSafetyValidator:
                     actual_table = table_alias_map.get(tbl_ref, tbl_ref)
                     if actual_table in cte_aliases:
                         continue
-                    if actual_table in norm_col_map:
-                        if col_name not in norm_col_map[actual_table]:
-                            unknown_columns.add(f"{actual_table}.{col_name}")
+                    if actual_table in norm_col_map and col_name not in norm_col_map[actual_table]:
+                        unknown_columns.add(f"{actual_table}.{col_name}")
                 else:
                     # Unqualified column: must exist in at least one known table or be an alias
                     if col_name not in all_known_cols and col_name not in select_aliases:
@@ -187,7 +187,7 @@ class SQLSafetyValidator:
 
         return {
             "has_hallucinations": has_hallucinations,
-            "unknown_tables": sorted(list(unknown_tables)),
-            "unknown_columns": sorted(list(unknown_columns)),
+            "unknown_tables": sorted(unknown_tables),
+            "unknown_columns": sorted(unknown_columns),
             "reason": f"Unknown schema entities detected: tables={list(unknown_tables)}, columns={list(unknown_columns)}" if has_hallucinations else None
         }

@@ -1,8 +1,13 @@
 """Unit tests for Authentication, JWT, RBAC, and PII Data Masking."""
 
-import pytest
 import pandas as pd
-from backend.auth.jwt_handler import hash_password, verify_password, create_access_token, decode_access_token
+
+from backend.auth.jwt_handler import (
+    create_access_token,
+    decode_access_token,
+    hash_password,
+    verify_password,
+)
 from security.permissions import RBACManager, mask_pii_dataframe
 
 

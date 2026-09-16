@@ -1,29 +1,31 @@
 """Authentication and Authorization API routes (Module 11)."""
 
 import datetime
-from typing import List, Optional, Dict, Any
-from fastapi import APIRouter, Depends, HTTPException, status, Request
-from pydantic import BaseModel, EmailStr
+
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from ..database.connection import get_db
-from ..database.models import User, Department
-from ..database.models_auth import (
-    Role,
-    Permission,
-    RolePermission,
-    UserDatabaseAccess,
-    ColumnPermission,
-    RowAccessRule,
-    UserSession,
-    SecurityAuditLog,
+from ..auth.authorization import (
+    DEFAULT_ROLE_PERMISSIONS,
+    SYSTEM_PERMISSIONS,
 )
+from ..auth.dependencies import get_current_user, require_permission, require_role
 from ..auth.jwt_handler import create_access_token
-from ..auth.password import verify_password, hash_password, validate_password_strength
-from ..auth.sessions import SessionManager
-from ..auth.authorization import AuthorizationService, SYSTEM_PERMISSIONS, DEFAULT_ROLE_PERMISSIONS
+from ..auth.password import hash_password, validate_password_strength, verify_password
 from ..auth.security_audit import SecurityAuditService
-from ..auth.dependencies import get_current_user, require_role, require_permission
+from ..auth.sessions import SessionManager
+from ..database.connection import get_db
+from ..database.models import User
+from ..database.models_auth import (
+    ColumnPermission,
+    Permission,
+    Role,
+    RolePermission,
+    RowAccessRule,
+    SecurityAuditLog,
+    UserDatabaseAccess,
+)
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication & Authorization"])
 
@@ -36,13 +38,13 @@ class LoginRequest(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
-    session_token: Optional[str] = None
+    session_token: str | None = None
     user_id: int
     username: str
     full_name: str
     role: str
-    department_id: Optional[int] = None
-    permissions: List[str] = []
+    department_id: int | None = None
+    permissions: list[str] = []
 
 
 class CreateUserRequest(BaseModel):
@@ -51,7 +53,7 @@ class CreateUserRequest(BaseModel):
     password: str
     full_name: str
     role: str = "hr_analyst"
-    department_id: Optional[int] = None
+    department_id: int | None = None
 
 
 class DatabaseAccessRequest(BaseModel):
@@ -66,8 +68,8 @@ class ColumnPermissionRequest(BaseModel):
     database_id: str
     table_name: str
     column_name: str
-    role_id: Optional[int] = None
-    user_id: Optional[int] = None
+    role_id: int | None = None
+    user_id: int | None = None
     is_allowed: bool = True
     is_masked: bool = False
     mask_type: str = "partial"
@@ -77,9 +79,9 @@ class RowAccessRuleRequest(BaseModel):
     database_id: str
     table_name: str
     filter_expression: str
-    description: Optional[str] = None
-    role_id: Optional[int] = None
-    user_id: Optional[int] = None
+    description: str | None = None
+    role_id: int | None = None
+    user_id: int | None = None
 
 
 @router.post("/login", response_model=TokenResponse)

@@ -2,12 +2,12 @@
 
 import pytest
 from fastapi import HTTPException
-from backend.database.connection import SessionLocal, init_db
-from backend.database.models import User
+
 from backend.auth.authorization import AuthorizationService
 from backend.auth.password import PasswordManager
 from backend.auth.sessions import SessionManager
-from backend.auth.security_audit import SecurityAuditService
+from backend.database.connection import SessionLocal, init_db
+from backend.database.models import User
 
 
 @pytest.fixture(scope="module")

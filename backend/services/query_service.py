@@ -1,14 +1,16 @@
 """Query Service orchestrating Text-to-SQL, Validation, Execution, Masking, and Auditing."""
 
 import time
-from typing import Dict, Any, Optional
+from typing import Any
+
 from sqlalchemy.orm import Session
-from ..database.models import User
+
 from ai.text_to_sql import TextToSQLService
-from sql.validator import SQLValidator
-from sql.executor import SQLExecutor
-from security.permissions import mask_pii_dataframe
 from security.audit import AuditLogger
+from security.permissions import mask_pii_dataframe
+from sql.executor import SQLExecutor
+
+from ..database.models import User
 
 
 class QueryService:
@@ -20,7 +22,7 @@ class QueryService:
         natural_query: str,
         user: User,
         session: Session
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         start_time = time.time()
 
         # 1. Generate SQL using RAG + AI

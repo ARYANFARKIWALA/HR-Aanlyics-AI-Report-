@@ -1,22 +1,25 @@
 """FastAPI Routes for Module 7 - SQL Validator & Security Engine."""
 
-import json
 import datetime
-from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status
+import json
+
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from backend.auth.dependencies import get_current_user, require_permission
 from backend.database.connection import get_db
 from backend.database.models import User
 from backend.database.models_validation import SQLValidationAuditLog
-from backend.auth.dependencies import get_current_user, require_permission
+from sql_validator.policy_engine import (
+    DEFAULT_POLICY,
+    FORBIDDEN_FUNCTIONS,
+    SAFE_FUNCTIONS,
+)
 from sql_validator.schemas import (
     SQLValidationRequest,
     SQLValidationResponse,
-    ValidationPolicy,
 )
 from sql_validator.service import SQLValidatorService
-from sql_validator.policy_engine import DEFAULT_POLICY, SAFE_FUNCTIONS, FORBIDDEN_FUNCTIONS
 
 router = APIRouter(prefix="/api/sql-validator", tags=["SQL Validator & Security Gate"])
 
@@ -131,6 +134,6 @@ def get_policies(current_user: User = Depends(get_current_user)):
     """Returns active security policies and safe function allowlists."""
     return {
         "policy": DEFAULT_POLICY.model_dump(),
-        "safe_functions": sorted(list(SAFE_FUNCTIONS)),
-        "forbidden_functions": sorted(list(FORBIDDEN_FUNCTIONS))
+        "safe_functions": sorted(SAFE_FUNCTIONS),
+        "forbidden_functions": sorted(FORBIDDEN_FUNCTIONS)
     }

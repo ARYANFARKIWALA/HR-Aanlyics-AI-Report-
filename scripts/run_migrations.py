@@ -1,9 +1,8 @@
 """Database migration and schema synchronization runner for Phase 16."""
 
-import os
-import sys
 from sqlalchemy import text
-from backend.database.connection import init_db, engine, SessionLocal
+
+from backend.database.connection import engine, init_db
 from backend.database.connection_manager import connection_manager
 
 

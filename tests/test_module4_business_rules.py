@@ -14,14 +14,13 @@ Tests:
 
 import pytest
 from fastapi.testclient import TestClient
-from backend.main import app
+
 from backend.database.connection import SessionLocal, init_db
-from backend.database.models import User
-from backend.database.models_rules import BusinessRule, BusinessRuleVersion, BusinessRuleAudit
-from business_rules.service import BusinessRuleService
-from business_rules.validator import RuleValidator, RuleValidationError
+from backend.main import app
 from business_rules.conflict_detector import RuleConflictDetector
 from business_rules.duplicate_detector import RuleDuplicateDetector
+from business_rules.service import BusinessRuleService
+from business_rules.validator import RuleValidationError
 
 
 @pytest.fixture(scope="module")

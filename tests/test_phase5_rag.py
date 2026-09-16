@@ -27,20 +27,14 @@ Verifies:
 
 import pytest
 from fastapi.testclient import TestClient
-from backend.main import app
+
 from backend.database.connection import SessionLocal, init_db
-from backend.database.seeder import seed_database
-from backend.database.models import User, Department, Employee
-from backend.database.models_rules import BusinessRule
+from backend.database.models_rag import RAGChunk, RAGDocument
 from backend.database.models_repo import SQLReport, SQLReportMetadata
-from backend.database.models_schema import SchemaTable, SchemaColumn
-from backend.database.models_rag import RAGDocument, RAGChunk
+from backend.database.models_rules import BusinessRule
+from backend.database.seeder import seed_database
+from backend.main import app
 from rag.embedding_service import EmbeddingService
-from rag.chunker import SemanticChunker
-from rag.document_builder import DocumentBuilder
-from rag.query_analyzer import QueryAnalyzer
-from rag.retrieval_service import HybridRetrievalService
-from rag.context_builder import ContextBuilder
 from rag.rag_service import RAGService
 
 client = TestClient(app)

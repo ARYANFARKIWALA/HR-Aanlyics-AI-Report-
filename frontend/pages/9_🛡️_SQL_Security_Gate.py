@@ -20,8 +20,9 @@ PROJECT_ROOT = os.path.dirname(FRONTEND_DIR)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-import streamlit as st
 import pandas as pd
+import streamlit as st
+
 from backend.database.connection import SessionLocal, init_db
 from backend.database.connection_manager import connection_manager
 from backend.database.models import User

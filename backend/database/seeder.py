@@ -10,13 +10,19 @@ Populates realistic organizational data with:
 """
 
 import datetime
-from typing import List
+
 from backend.auth.jwt_handler import hash_password
-from .connection import SessionLocal, init_db, engine
+
+from .connection import SessionLocal, init_db
 from .models import (
-    Base, User, Department, JobProfile, Employee,
-    CompensationHistory, PerformanceReview, LeaveRecord,
-    SQLRepository, AuditLog
+    CompensationHistory,
+    Department,
+    Employee,
+    JobProfile,
+    LeaveRecord,
+    PerformanceReview,
+    SQLRepository,
+    User,
 )
 
 
@@ -117,10 +123,6 @@ def seed_database():
     ethnicities = ["Asian", "Hispanic/Latino", "White", "Black/African American", "Two or More Races"]
     work_modes = ["Remote", "Hybrid", "Hybrid", "On-Site", "Hybrid"]
 
-    emp_list = []
-    comp_list = []
-    perf_list = []
-    leave_list = []
 
     # Let's seed 110 active employees and 20 terminated employees
     for i in range(1, 131):

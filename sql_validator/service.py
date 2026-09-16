@@ -1,39 +1,39 @@
 """Central SQL Validator & Security Engine Service (Module 7)."""
 
-import uuid
+import datetime
 import hashlib
 import json
-import datetime
-from typing import Optional, Dict, Any, List, Set
-from sqlglot import exp
+import uuid
+
 from sqlalchemy.orm import Session
 
+from backend.auth.authorization import AuthorizationService
 from backend.database.models import User
 from backend.database.models_validation import SQLValidationAuditLog
-from backend.auth.authorization import AuthorizationService
+
+from .business_rule_validator import BusinessRuleValidator
+from .column_validator import ColumnValidator
+from .complexity import ComplexityAnalyzer
+from .join_validator import JoinValidator
+from .parser import SQLValidatorParser
+from .policy_engine import DEFAULT_POLICY
+from .risk_engine import RiskEngine
+from .schema_validator import SchemaValidator
 from .schemas import (
+    ChecklistItem,
+    ComplexityMetrics,
     SQLValidationRequest,
     SQLValidationResponse,
     ValidationPolicy,
-    ChecklistItem,
-    ComplexityMetrics,
 )
-from .policy_engine import DEFAULT_POLICY
-from .parser import SQLValidatorParser
-from .statement_validator import StatementValidator
-from .schema_validator import SchemaValidator
-from .column_validator import ColumnValidator
-from .join_validator import JoinValidator
-from .business_rule_validator import BusinessRuleValidator
 from .security_validator import SecurityValidator
-from .complexity import ComplexityAnalyzer
-from .risk_engine import RiskEngine
+from .statement_validator import StatementValidator
 
 
 class SQLValidatorService:
     """Zero-trust AST validation gatekeeper between AI/Users and Execution Engine."""
 
-    def __init__(self, db: Session, policy: Optional[ValidationPolicy] = None):
+    def __init__(self, db: Session, policy: ValidationPolicy | None = None):
         self.db = db
         self.policy = policy or DEFAULT_POLICY
 
@@ -42,10 +42,10 @@ class SQLValidatorService:
         Executes full zero-trust validation pipeline on requested SQL.
         HARD INVARIANT: NEVER executes the SQL query.
         """
-        all_checklist: List[ChecklistItem] = []
-        all_violations: List[str] = []
-        all_warnings: List[str] = []
-        referenced_tables: Set[str] = set()
+        all_checklist: list[ChecklistItem] = []
+        all_violations: list[str] = []
+        all_warnings: list[str] = []
+        referenced_tables: set[str] = set()
 
         raw_sql = request.sql.strip() if request.sql else ""
         sanitized_sql = raw_sql
@@ -303,10 +303,10 @@ class SQLValidatorService:
         self,
         raw_sql: str,
         request: SQLValidationRequest,
-        checklist: List[ChecklistItem],
-        violations: List[str],
-        warnings: List[str],
-        user: Optional[User],
+        checklist: list[ChecklistItem],
+        violations: list[str],
+        warnings: list[str],
+        user: User | None,
         user_role: str
     ) -> SQLValidationResponse:
         """Helper to create a standard rejected response and log it."""

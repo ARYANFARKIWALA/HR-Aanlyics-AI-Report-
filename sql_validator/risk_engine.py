@@ -1,8 +1,8 @@
 """Risk scoring engine computing numerical risk scores and risk categories."""
 
-from typing import Tuple, List, Set
-from .schemas import ComplexityMetrics, ChecklistItem
+
 from .policy_engine import LARGE_TABLES
+from .schemas import ComplexityMetrics
 
 
 class RiskEngine:
@@ -10,15 +10,15 @@ class RiskEngine:
 
     @staticmethod
     def calculate_risk(
-        violations: List[str],
-        warnings: List[str],
+        violations: list[str],
+        warnings: list[str],
         complexity: ComplexityMetrics,
-        referenced_tables: Set[str],
+        referenced_tables: set[str],
         has_where: bool,
         has_limit: bool,
         user_role: str = "admin",
         max_risk_score_auto_approval: float = 65.0
-    ) -> Tuple[float, str, str]:
+    ) -> tuple[float, str, str]:
         """
         Returns:
             (risk_score, risk_level, status)

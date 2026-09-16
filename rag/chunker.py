@@ -12,7 +12,7 @@ Segments knowledge documents into coherent semantic chunks:
 Preserves complete metadata on every generated chunk.
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Any
 
 
 class SemanticChunk:
@@ -26,11 +26,11 @@ class SemanticChunk:
         chunk_type: str,
         database_id: str,
         source_type: str,
-        source_id: Optional[str] = None,
-        report_id: Optional[int] = None,
-        rule_id: Optional[int] = None,
-        table_names: Optional[List[str]] = None,
-        column_names: Optional[List[str]] = None,
+        source_id: str | None = None,
+        report_id: int | None = None,
+        rule_id: int | None = None,
+        table_names: list[str] | None = None,
+        column_names: list[str] | None = None,
         version: int = 1,
         is_active: bool = True,
         security_level: str = "STANDARD"
@@ -50,7 +50,7 @@ class SemanticChunk:
         self.is_active = is_active
         self.security_level = security_level
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "chunk_id": self.chunk_id,
             "document_id": self.document_id,
@@ -76,9 +76,9 @@ class SemanticChunker:
     def chunk_sql_report(
         cls,
         doc_id: str,
-        report_data: Dict[str, Any],
+        report_data: dict[str, Any],
         database_id: str
-    ) -> List[SemanticChunk]:
+    ) -> list[SemanticChunk]:
         """Creates semantic chunks for an approved Module 2 SQL report."""
         chunks = []
         r_id = report_data.get("id")
@@ -87,7 +87,7 @@ class SemanticChunker:
         tables = report_data.get("tables", [])
         columns = report_data.get("columns", [])
         joins = report_data.get("joins", [])
-        filters = report_data.get("filters", [])
+        report_data.get("filters", [])
         sql_query = report_data.get("sql_query", "")
         desc = report_data.get("description", "")
         purpose = report_data.get("business_purpose", "")
@@ -198,9 +198,9 @@ class SemanticChunker:
     def chunk_business_rule(
         cls,
         doc_id: str,
-        rule_data: Dict[str, Any],
+        rule_data: dict[str, Any],
         database_id: str
-    ) -> List[SemanticChunk]:
+    ) -> list[SemanticChunk]:
         """Creates semantic chunk for an approved Module 4 business rule."""
         code = rule_data.get("rule_code", "")
         name = rule_data.get("rule_name", "")
@@ -245,9 +245,9 @@ class SemanticChunker:
     def chunk_schema_table(
         cls,
         doc_id: str,
-        table_data: Dict[str, Any],
+        table_data: dict[str, Any],
         database_id: str
-    ) -> List[SemanticChunk]:
+    ) -> list[SemanticChunk]:
         """Creates semantic chunks for an enriched Module 3 schema table."""
         tbl_name = table_data.get("table_name", "")
         b_name = table_data.get("business_name") or tbl_name
@@ -309,9 +309,9 @@ class SemanticChunker:
     def chunk_glossary_term(
         cls,
         doc_id: str,
-        term_data: Dict[str, Any],
+        term_data: dict[str, Any],
         database_id: str
-    ) -> List[SemanticChunk]:
+    ) -> list[SemanticChunk]:
         """Creates semantic chunks for an HR business glossary term or metric definition."""
         term = term_data.get("term", "")
         definition = term_data.get("definition", "")
@@ -345,9 +345,9 @@ class SemanticChunker:
     def chunk_report_definition(
         cls,
         doc_id: str,
-        def_data: Dict[str, Any],
+        def_data: dict[str, Any],
         database_id: str
-    ) -> List[SemanticChunk]:
+    ) -> list[SemanticChunk]:
         """Creates semantic chunks for an approved report definition or KPI specification."""
         name = def_data.get("name", "")
         desc = def_data.get("description", "")

@@ -1,8 +1,8 @@
 """Executive KPI Card Builder with formatting and deltas."""
 
-from typing import Optional
 import pandas as pd
-from .schemas import KPICardConfig, BuiltKPICard
+
+from .schemas import BuiltKPICard, KPICardConfig
 
 
 class KPIBuilder:
@@ -50,7 +50,7 @@ class KPIBuilder:
         elif fmt == "percentage":
             val_str = f"{raw_val:.1f}%"
         elif fmt == "integer":
-            val_str = f"{int(round(raw_val)):,}"
+            val_str = f"{round(raw_val):,}"
         elif fmt == "decimal":
             val_str = f"{raw_val:.2f}"
         else:

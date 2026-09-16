@@ -1,9 +1,10 @@
 """In-memory thread-safe query result cache."""
 
-import time
-import json
 import hashlib
-from typing import Optional, Dict, Any, Tuple, List
+import json
+import time
+from typing import Any, ClassVar
+
 import pandas as pd
 
 DEFAULT_CACHE_TTL_SECONDS = 300  # 5 minutes
@@ -12,10 +13,10 @@ DEFAULT_CACHE_TTL_SECONDS = 300  # 5 minutes
 class QueryCacheManager:
     """Thread-safe TTL caching for approved SQL query execution results."""
 
-    _cache: Dict[str, Tuple[pd.DataFrame, float, List[str], List[Dict[str, Any]]]] = {}
+    _cache: ClassVar[dict[str, tuple[pd.DataFrame, float, list[str], list[dict[str, Any]]]]] = {}
 
     @classmethod
-    def _make_key(cls, database_id: str, sql_hash: str, params: Optional[Dict[str, Any]] = None) -> str:
+    def _make_key(cls, database_id: str, sql_hash: str, params: dict[str, Any] | None = None) -> str:
         param_str = json.dumps(params or {}, sort_keys=True)
         param_hash = hashlib.sha256(param_str.encode("utf-8")).hexdigest()[:12]
         return f"{database_id}:{sql_hash}:{param_hash}"
@@ -25,9 +26,9 @@ class QueryCacheManager:
         cls,
         database_id: str,
         sql_hash: str,
-        params: Optional[Dict[str, Any]] = None,
+        params: dict[str, Any] | None = None,
         ttl_seconds: int = DEFAULT_CACHE_TTL_SECONDS
-    ) -> Optional[Tuple[pd.DataFrame, List[str], List[Dict[str, Any]]]]:
+    ) -> tuple[pd.DataFrame, list[str], list[dict[str, Any]]] | None:
         key = cls._make_key(database_id, sql_hash, params)
         entry = cls._cache.get(key)
         if not entry:
@@ -47,9 +48,9 @@ class QueryCacheManager:
         database_id: str,
         sql_hash: str,
         df: pd.DataFrame,
-        cols: List[str],
-        col_meta: List[Dict[str, Any]],
-        params: Optional[Dict[str, Any]] = None
+        cols: list[str],
+        col_meta: list[dict[str, Any]],
+        params: dict[str, Any] | None = None
     ) -> None:
         key = cls._make_key(database_id, sql_hash, params)
         cls._cache[key] = (df.copy(), time.time(), cols, col_meta)

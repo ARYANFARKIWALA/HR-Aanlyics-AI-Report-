@@ -1,8 +1,9 @@
 """Version management and non-destructive restore service for Module 12."""
 
 import datetime
-from typing import List, Optional
+
 from sqlalchemy.orm import Session
+
 from backend.database.models import User
 from backend.database.models_reports import SavedReport, SavedReportVersion
 
@@ -15,7 +16,7 @@ class ReportVersionService:
         cls,
         db: Session,
         report: SavedReport,
-        modifier: Optional[User] = None,
+        modifier: User | None = None,
         change_summary: str = "Update"
     ) -> SavedReportVersion:
         """Takes an immutable snapshot of the report's current state."""
@@ -36,14 +37,14 @@ class ReportVersionService:
         return version
 
     @classmethod
-    def list_versions(cls, db: Session, report: SavedReport) -> List[SavedReportVersion]:
+    def list_versions(cls, db: Session, report: SavedReport) -> list[SavedReportVersion]:
         """Lists all recorded versions of a report, latest first."""
         return db.query(SavedReportVersion).filter(
             SavedReportVersion.saved_report_id == report.id
         ).order_by(SavedReportVersion.version_number.desc()).all()
 
     @classmethod
-    def get_version(cls, db: Session, report: SavedReport, version_number: int) -> Optional[SavedReportVersion]:
+    def get_version(cls, db: Session, report: SavedReport, version_number: int) -> SavedReportVersion | None:
         return db.query(SavedReportVersion).filter(
             SavedReportVersion.saved_report_id == report.id,
             SavedReportVersion.version_number == version_number

@@ -1,11 +1,10 @@
 """Unit tests for Module 1: Database Connection & Schema Management."""
 
-import pytest
 from backend.database.connection_manager import (
-    connection_manager, DatabaseConnectionConfig
+    DatabaseConnectionConfig,
+    connection_manager,
 )
-from backend.database.dialect import DatabaseType, get_dialect_rules
-from backend.database.schema_manager import SchemaManager
+from backend.database.dialect import get_dialect_rules
 
 
 def test_dialect_rules_mapping():
@@ -44,12 +43,12 @@ def test_credential_encryption():
 def test_connection_testing():
     """Verify Component 1: reachability test without persisting."""
     # Test valid SQLite in-memory
-    success, msg, diag = connection_manager.test_connection("sqlite", "sqlite:///:memory:")
+    success, msg, _diag = connection_manager.test_connection("sqlite", "sqlite:///:memory:")
     assert success is True
     assert "Connection test succeeded" in msg
 
     # Test invalid connection
-    fail_success, fail_msg, _ = connection_manager.test_connection("postgresql", "postgresql://invalid_host:9999/none")
+    fail_success, _fail_msg, _ = connection_manager.test_connection("postgresql", "postgresql://invalid_host:9999/none")
     assert fail_success is False
 
 

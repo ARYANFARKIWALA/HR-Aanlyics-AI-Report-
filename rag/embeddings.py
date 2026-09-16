@@ -1,6 +1,6 @@
 """Vector embedding and similarity calculation engine."""
 
-from typing import List, Tuple
+
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -16,10 +16,10 @@ class EmbeddingEngine:
             lowercase=True
         )
         self.fitted = False
-        self.corpus_texts: List[str] = []
+        self.corpus_texts: list[str] = []
         self.tfidf_matrix = None
 
-    def fit(self, texts: List[str]):
+    def fit(self, texts: list[str]):
         """Fits vectorizer on the corpus."""
         if not texts:
             return
@@ -27,7 +27,7 @@ class EmbeddingEngine:
         self.tfidf_matrix = self.vectorizer.fit_transform(texts)
         self.fitted = True
 
-    def find_top_k(self, query: str, k: int = 3) -> List[Tuple[int, float]]:
+    def find_top_k(self, query: str, k: int = 3) -> list[tuple[int, float]]:
         """Returns top k matching indices and cosine similarity scores."""
         if not self.fitted or not self.corpus_texts:
             return []

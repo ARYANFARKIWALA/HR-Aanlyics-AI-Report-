@@ -15,7 +15,7 @@ Provides an executive enterprise navigation structure:
 
 import os
 import sys
-import datetime
+
 import pandas as pd
 import plotly.express as px
 import streamlit as st
@@ -27,16 +27,15 @@ if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
 from backend.database.connection import SessionLocal, init_db
-from backend.database.models import User, Department, Employee
+from backend.database.connection_manager import connection_manager
+from backend.database.models import Department, Employee, User
+from backend.database.models_execution import QueryExecutionAuditLog
 from backend.database.models_reports import SavedReport
 from backend.database.models_validation import SQLValidationAuditLog
-from backend.database.models_execution import QueryExecutionAuditLog
-from backend.database.connection_manager import connection_manager
-from report_builder.pipeline_service import EndToEndReportBuilderService
 from business_rules.service import BusinessRuleService
-from rag.rag_service import RAGService
-from analytics.reusable_services import HRAnalyticsEngine
 from config.settings import settings
+from rag.rag_service import RAGService
+from report_builder.pipeline_service import EndToEndReportBuilderService
 
 # Page config
 st.set_page_config(
@@ -60,7 +59,7 @@ with st.sidebar:
     user_map = {u.username: u for u in users}
 
     if "current_username" not in st.session_state:
-        st.session_state["current_username"] = "admin" if "admin" in user_map else list(user_map.keys())[0]
+        st.session_state["current_username"] = "admin" if "admin" in user_map else next(iter(user_map.keys()))
 
     current_user = user_map.get(st.session_state["current_username"])
     current_idx = list(user_map.keys()).index(st.session_state["current_username"]) if current_user else 0
@@ -375,10 +374,10 @@ elif selected_nav == "Schema Explorer":
     schema_info = connection_manager.get_schema(target_db)
     if schema_info:
         st.markdown(f"**Total Tables:** `{len(schema_info.table_allowlist)}`")
-        selected_tbl = st.selectbox("Select Table:", options=sorted(list(schema_info.table_allowlist)))
+        selected_tbl = st.selectbox("Select Table:", options=sorted(schema_info.table_allowlist))
         cols = schema_info.column_allowlist_map.get(selected_tbl, [])
         st.markdown(f"**Columns for `{selected_tbl}`:**")
-        st.write(sorted(list(cols)))
+        st.write(sorted(cols))
 
 
 # ==============================================================================

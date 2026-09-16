@@ -1,38 +1,38 @@
 """FastAPI REST API routes for Module 12 - Reports Lifecycle, Versioning, Sharing, and History."""
 
-from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Response
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy.orm import Session
 
+from backend.auth.authorization import AuthorizationService
+from backend.auth.dependencies import get_current_user
 from backend.database.connection import get_db
 from backend.database.models import User
-from backend.auth.dependencies import get_current_user, require_permission
-from backend.auth.authorization import AuthorizationService
-from reports_lifecycle.schemas import (
-    ReportCreateRequest,
-    ReportUpdateRequest,
-    ReportDuplicateRequest,
-    ReportResponse,
-    ReportVersionResponse,
-    ReportAccessCreateRequest,
-    ReportAccessResponse,
-    ReportExecutionResponse,
-    ReportRunRequest,
-    ReportRunResponse,
-)
-from reports_lifecycle.report_service import ReportLifecycleService
-from reports_lifecycle.sharing_service import ReportSharingService
-from reports_lifecycle.version_service import ReportVersionService
 from reports_lifecycle.execution_service import ReportExecutionService
 from reports_lifecycle.export_service import ReportExportService
+from reports_lifecycle.report_service import ReportLifecycleService
+from reports_lifecycle.schemas import (
+    ReportAccessCreateRequest,
+    ReportAccessResponse,
+    ReportCreateRequest,
+    ReportDuplicateRequest,
+    ReportExecutionResponse,
+    ReportResponse,
+    ReportRunRequest,
+    ReportRunResponse,
+    ReportUpdateRequest,
+    ReportVersionResponse,
+)
+from reports_lifecycle.sharing_service import ReportSharingService
+from reports_lifecycle.version_service import ReportVersionService
 
 router = APIRouter(prefix="/api/reports-lifecycle", tags=["Module 12 - Reports Lifecycle"])
 
 
-@router.get("", response_model=List[ReportResponse])
+@router.get("", response_model=list[ReportResponse])
 def list_reports(
-    category: Optional[str] = Query(None),
-    search: Optional[str] = Query(None),
+    category: str | None = Query(None),
+    search: str | None = Query(None),
     include_archived: bool = Query(False),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -105,7 +105,7 @@ def update_report(
 @router.post("/{report_id}/duplicate", response_model=ReportResponse)
 def duplicate_report(
     report_id: str,
-    request: Optional[ReportDuplicateRequest] = None,
+    request: ReportDuplicateRequest | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -167,7 +167,7 @@ def delete_report(
 # Versions & Non-Destructive Restore
 # =========================================================================
 
-@router.get("/{report_id}/versions", response_model=List[ReportVersionResponse])
+@router.get("/{report_id}/versions", response_model=list[ReportVersionResponse])
 def list_versions(
     report_id: str,
     db: Session = Depends(get_db),
@@ -211,7 +211,7 @@ def restore_version(
 # Sharing & ACLs
 # =========================================================================
 
-@router.get("/{report_id}/access", response_model=List[ReportAccessResponse])
+@router.get("/{report_id}/access", response_model=list[ReportAccessResponse])
 def list_report_access(
     report_id: str,
     db: Session = Depends(get_db),
@@ -281,7 +281,7 @@ def revoke_report_access(
 @router.post("/{report_id}/run", response_model=ReportRunResponse)
 def run_report(
     report_id: str,
-    request: Optional[ReportRunRequest] = None,
+    request: ReportRunRequest | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -296,7 +296,7 @@ def run_report(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(pe))
 
 
-@router.get("/{report_id}/executions", response_model=List[ReportExecutionResponse])
+@router.get("/{report_id}/executions", response_model=list[ReportExecutionResponse])
 def get_report_executions(
     report_id: str,
     limit: int = Query(50, ge=1, le=200),

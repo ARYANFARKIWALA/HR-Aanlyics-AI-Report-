@@ -1,7 +1,8 @@
 """Core Pydantic schemas for API responses, health, and error envelopes."""
 
-from typing import Optional, Dict, Any, Generic, TypeVar
-from pydantic import BaseModel, Field
+from typing import Any, Generic, TypeVar
+
+from pydantic import BaseModel
 
 T = TypeVar("T")
 
@@ -29,8 +30,8 @@ class ReadinessResponse(BaseModel):
 class ErrorResponse(BaseModel):
     error: str
     message: str
-    details: Optional[Dict[str, Any]] = None
-    path: Optional[str] = None
+    details: dict[str, Any] | None = None
+    path: str | None = None
 
 
 class SuccessResponse(BaseModel):

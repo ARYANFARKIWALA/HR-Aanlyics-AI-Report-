@@ -1,9 +1,8 @@
 """Unit tests for SQL Parser and Security Validator."""
 
-import pytest
+from backend.database.connection_manager import connection_manager
 from sql.parser import SQLParser
 from sql.validator import SQLValidator
-from backend.database.connection_manager import connection_manager
 
 
 def test_parser_extracts_ast():
@@ -30,7 +29,7 @@ def test_parser_extracts_ast():
 def test_validator_accepts_valid_read_only_query():
     schema = connection_manager.get_schema()
     sql = "SELECT first_name, last_name, email FROM employees WHERE status = 'Active';"
-    is_valid, msg, analysis = SQLValidator.validate(sql, discovered_schema=schema)
+    is_valid, msg, _analysis = SQLValidator.validate(sql, discovered_schema=schema)
     assert is_valid is True
     assert "successfully validated" in msg
 

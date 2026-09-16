@@ -6,7 +6,8 @@ Includes permission-aware metadata (organization_id, database_id, security_scope
 """
 
 import json
-from typing import Dict, Any, List, Optional
+from typing import Any
+
 from backend.database.models_repo import SQLReport, SQLReportMetadata
 
 
@@ -17,7 +18,7 @@ class SQLKnowledgeDocument:
         self,
         doc_id: str,
         text_content: str,
-        metadata: Dict[str, Any],
+        metadata: dict[str, Any],
         report_code: str,
         report_name: str,
         category: str,
@@ -31,7 +32,7 @@ class SQLKnowledgeDocument:
         self.category = category
         self.database_id = database_id
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "doc_id": self.doc_id,
             "text": self.text_content,
@@ -59,16 +60,16 @@ class SQLKnowledgeBuilder:
     def build_knowledge_document(
         cls,
         report: SQLReport,
-        meta: Optional[SQLReportMetadata] = None
+        meta: SQLReportMetadata | None = None
     ) -> SQLKnowledgeDocument:
         """Transforms an approved SQLReport record into a comprehensive RAG knowledge document."""
         # Unpack metadata JSON strings
         tables = json.loads(meta.tables_json) if meta and meta.tables_json else []
         columns = json.loads(meta.columns_json) if meta and meta.columns_json else []
         joins = json.loads(meta.joins_json) if meta and meta.joins_json else []
-        filters = json.loads(meta.filters_json) if meta and meta.filters_json else []
+        json.loads(meta.filters_json) if meta and meta.filters_json else []
         aggregations = json.loads(meta.aggregations_json) if meta and meta.aggregations_json else []
-        date_conds = json.loads(meta.date_conditions_json) if meta and meta.date_conditions_json else []
+        json.loads(meta.date_conditions_json) if meta and meta.date_conditions_json else []
         eff_dating = json.loads(meta.effective_dating_details) if meta and meta.effective_dating_details else []
         sec_filters = json.loads(meta.security_filters_details) if meta and meta.security_filters_details else []
         biz_logic = json.loads(meta.business_logic_details) if meta and meta.business_logic_details else []

@@ -8,9 +8,11 @@ and persists audit change records.
 import hashlib
 import json
 import logging
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Any
+
 from sqlalchemy.orm import Session
-from backend.database.models_schema import SchemaSnapshot, SchemaChange
+
+from backend.database.models_schema import SchemaChange, SchemaSnapshot
 
 logger = logging.getLogger("schema.snapshot")
 
@@ -22,7 +24,7 @@ class SchemaSnapshotManager:
         self.db = db
 
     @classmethod
-    def compute_schema_hash(cls, snapshot_dict: Dict[str, Any]) -> str:
+    def compute_schema_hash(cls, snapshot_dict: dict[str, Any]) -> str:
         """Generates a deterministic SHA-256 hash from a canonical snapshot dictionary."""
         canonical_str = json.dumps(snapshot_dict, sort_keys=True, separators=(',', ':'))
         return hashlib.sha256(canonical_str.encode("utf-8")).hexdigest()
@@ -30,9 +32,9 @@ class SchemaSnapshotManager:
     def build_canonical_snapshot(
         self,
         database_id: str,
-        tables_data: List[Dict[str, Any]],
-        relationships_data: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        tables_data: list[dict[str, Any]],
+        relationships_data: list[dict[str, Any]]
+    ) -> dict[str, Any]:
         """Builds a deterministic, sorted snapshot representation of the schema structure."""
         sorted_tables = []
         for tbl in sorted(tables_data, key=lambda x: x["table_name"]):
@@ -72,11 +74,11 @@ class SchemaSnapshotManager:
 
     def detect_changes(
         self,
-        old_snapshot: Optional[Dict[str, Any]],
-        new_snapshot: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+        old_snapshot: dict[str, Any] | None,
+        new_snapshot: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """Compares two snapshots and generates a granular list of changes."""
-        changes: List[Dict[str, Any]] = []
+        changes: list[dict[str, Any]] = []
         if not old_snapshot:
             # Initial discovery snapshot - everything is freshly discovered
             return changes
@@ -162,10 +164,10 @@ class SchemaSnapshotManager:
     def create_snapshot(
         self,
         database_id: str,
-        canonical_snapshot: Dict[str, Any],
+        canonical_snapshot: dict[str, Any],
         schema_hash: str,
-        user_id: Optional[int] = None
-    ) -> Tuple[SchemaSnapshot, List[Dict[str, Any]]]:
+        user_id: int | None = None
+    ) -> tuple[SchemaSnapshot, list[dict[str, Any]]]:
         """Saves a new versioned snapshot and logs detected schema drift/changes."""
         # Find latest snapshot for this database
         latest_snapshot = (

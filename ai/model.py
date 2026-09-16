@@ -1,8 +1,6 @@
 """Multi-provider LLM interface supporting Gemini, OpenAI, and Intelligent Offline Fallback."""
 
 import os
-import re
-from typing import Optional, Dict, Any
 
 
 class LLMClient:

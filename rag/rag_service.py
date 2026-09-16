@@ -8,16 +8,18 @@ Façade coordinating:
 """
 
 import logging
-from typing import Dict, Any, List, Optional
-from sqlalchemy.orm import Session
-from sqlalchemy import func
+from typing import Any
 
-from backend.database.models_rag import RAGDocument, RAGChunk
+from sqlalchemy import func
+from sqlalchemy.orm import Session
+
 from backend.database.connection_manager import connection_manager
+from backend.database.models_rag import RAGChunk, RAGDocument
+
+from .context_builder import ContextBuilder
 from .ingestion_service import KnowledgeIngestionService
 from .retrieval_service import HybridRetrievalService
-from .context_builder import ContextBuilder
-from .schemas import RAGSearchRequest, RAGContextResponse
+from .schemas import RAGContextResponse
 
 logger = logging.getLogger("rag.service")
 
@@ -31,19 +33,19 @@ class RAGService:
         self.retrieval_service = HybridRetrievalService(db)
         self.context_builder = ContextBuilder(db)
 
-    def ingest_database(self, database_id: str = "sqlite_hr_default") -> Dict[str, Any]:
+    def ingest_database(self, database_id: str = "sqlite_hr_default") -> dict[str, Any]:
         """Ingests all approved rules, verified reports, and schemas for a database."""
         return self.ingestion_service.ingest_all(database_id=database_id)
 
-    def ingest_report(self, report_id: int) -> Dict[str, Any]:
+    def ingest_report(self, report_id: int) -> dict[str, Any]:
         """Ingests a single approved SQL report."""
         return self.ingestion_service.ingest_report(report_id=report_id)
 
-    def ingest_rule(self, rule_id: int) -> Dict[str, Any]:
+    def ingest_rule(self, rule_id: int) -> dict[str, Any]:
         """Ingests a single approved business rule."""
         return self.ingestion_service.ingest_rule(rule_id=rule_id)
 
-    def ingest_table(self, table_id: int) -> Dict[str, Any]:
+    def ingest_table(self, table_id: int) -> dict[str, Any]:
         """Ingests a single schema table."""
         return self.ingestion_service.ingest_table(table_id=table_id)
 
@@ -55,7 +57,7 @@ class RAGService:
         include_schema: bool = True,
         include_rules: bool = True,
         include_reports: bool = True
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Performs hybrid vector and keyword search with explainability metadata."""
         return self.retrieval_service.retrieve(
             query=query,
@@ -97,7 +99,7 @@ class RAGService:
         query: str,
         database_id: str = "sqlite_hr_default",
         top_k: int = 10
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Module 5 Primary Knowledge Retrieval Pipeline.
         
         Executes:
@@ -169,7 +171,7 @@ class RAGService:
         }
 
 
-    def get_stats(self, database_id: Optional[str] = None) -> Dict[str, Any]:
+    def get_stats(self, database_id: str | None = None) -> dict[str, Any]:
         """Returns knowledge base statistics, counts, and breakdown."""
         doc_q = self.db.query(RAGDocument).filter_by(is_active=True)
         chunk_q = self.db.query(RAGChunk).filter_by(is_active=True)
@@ -214,7 +216,7 @@ class RAGService:
             "by_chunk_type": chunk_type_counts
         }
 
-    def rebuild(self, database_id: str = "sqlite_hr_default") -> Dict[str, Any]:
+    def rebuild(self, database_id: str = "sqlite_hr_default") -> dict[str, Any]:
         """Clears and re-ingests knowledge base for a database."""
         # Deactivate or remove existing
         docs = self.db.query(RAGDocument).filter_by(database_id=database_id).all()

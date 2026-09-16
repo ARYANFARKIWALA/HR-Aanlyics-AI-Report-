@@ -6,9 +6,11 @@ and Module 6 AI Text-to-SQL generation.
 Supports role-based redaction of sensitive columns (e.g. FINANCIAL, PERSONAL_IDENTIFIER).
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Any
+
 from sqlalchemy.orm import Session
-from backend.database.models_schema import SchemaTable, SchemaColumn, SchemaRelationship
+
+from backend.database.models_schema import SchemaRelationship, SchemaTable
 
 
 class SchemaKnowledgeDocument:
@@ -18,11 +20,11 @@ class SchemaKnowledgeDocument:
         self,
         doc_id: str,
         text_content: str,
-        metadata: Dict[str, Any],
+        metadata: dict[str, Any],
         doc_type: str,
         database_id: str,
-        table_name: Optional[str] = None,
-        business_entity: Optional[str] = None
+        table_name: str | None = None,
+        business_entity: str | None = None
     ):
         self.doc_id = doc_id
         self.text_content = text_content
@@ -32,7 +34,7 @@ class SchemaKnowledgeDocument:
         self.table_name = table_name
         self.business_entity = business_entity
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "doc_id": self.doc_id,
             "text": self.text_content,
@@ -59,7 +61,7 @@ class SchemaKnowledgeBuilder:
     def build_table_document(
         cls,
         table: SchemaTable,
-        relationships: Optional[List[SchemaRelationship]] = None,
+        relationships: list[SchemaRelationship] | None = None,
         redact_sensitive: bool = False
     ) -> SchemaKnowledgeDocument:
         """Creates a dedicated knowledge document for a single table/entity."""
@@ -145,8 +147,8 @@ class SchemaKnowledgeBuilder:
     def build_schema_catalog_document(
         cls,
         database_id: str,
-        tables: List[SchemaTable],
-        relationships: List[SchemaRelationship],
+        tables: list[SchemaTable],
+        relationships: list[SchemaRelationship],
         redact_sensitive: bool = False
     ) -> SchemaKnowledgeDocument:
         """Creates a holistic database schema overview document summarizing all entities and join paths."""
@@ -195,12 +197,12 @@ class SchemaKnowledgeBuilder:
         db: Session,
         database_id: str,
         redact_sensitive: bool = False
-    ) -> List[SchemaKnowledgeDocument]:
+    ) -> list[SchemaKnowledgeDocument]:
         """Builds all LlamaIndex-compatible documents for a database schema."""
         tables = db.query(SchemaTable).filter_by(database_id=database_id).all()
         relationships = db.query(SchemaRelationship).filter_by(database_id=database_id).all()
 
-        docs: List[SchemaKnowledgeDocument] = []
+        docs: list[SchemaKnowledgeDocument] = []
 
         # 1. Global catalog document
         catalog_doc = cls.build_schema_catalog_document(

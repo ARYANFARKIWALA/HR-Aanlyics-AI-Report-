@@ -1,12 +1,13 @@
 """Sharing and Granular Access Control (ACL) Service for Module 12 Reports."""
 
-from typing import Optional, List
-from sqlalchemy.orm import Session
-from backend.database.models import User
-from backend.database.models_reports import SavedReport, ReportAccess
-from backend.auth.authorization import AuthorizationService
-from .schemas import ReportAccessCreateRequest
 
+from sqlalchemy.orm import Session
+
+from backend.auth.authorization import AuthorizationService
+from backend.database.models import User
+from backend.database.models_reports import ReportAccess, SavedReport
+
+from .schemas import ReportAccessCreateRequest
 
 LEVEL_WEIGHTS = {
     "NONE": 0,
@@ -21,7 +22,7 @@ class ReportSharingService:
     """Evaluates and manages report access control lists (ACLs)."""
 
     @classmethod
-    def get_user_access_level(cls, db: Session, report: SavedReport, user: Optional[User]) -> str:
+    def get_user_access_level(cls, db: Session, report: SavedReport, user: User | None) -> str:
         """Determines effective access level for a user on a given report."""
         if user is None:
             return "NONE"
@@ -50,9 +51,7 @@ class ReportSharingService:
 
         for rule in rules:
             matched = False
-            if rule.user_id is not None and rule.user_id == user.id:
-                matched = True
-            elif rule.role_name and (rule.role_name == getattr(user, "role", "") or rule.role_name == "*"):
+            if rule.user_id is not None and rule.user_id == user.id or rule.role_name and (rule.role_name == getattr(user, "role", "") or rule.role_name == "*"):
                 matched = True
 
             if matched:
@@ -140,7 +139,7 @@ class ReportSharingService:
         return True
 
     @classmethod
-    def list_access_rules(cls, db: Session, report: SavedReport) -> List[ReportAccess]:
+    def list_access_rules(cls, db: Session, report: SavedReport) -> list[ReportAccess]:
         return db.query(ReportAccess).filter(
             ReportAccess.saved_report_id == report.id
         ).all()

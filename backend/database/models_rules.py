@@ -11,11 +11,22 @@ Defines tables for:
 """
 
 import datetime
+
 from sqlalchemy import (
-    Column, Integer, String, Float, Boolean, DateTime, Date,
-    ForeignKey, Text, Index, JSON
+    JSON,
+    Boolean,
+    Column,
+    Date,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
 )
 from sqlalchemy.orm import relationship
+
 from .connection import Base
 
 

@@ -18,31 +18,27 @@ Demonstrates how existing institutional SQL knowledge is preserved and reused
 rather than building Text-to-SQL from scratch without organizational knowledge.
 """
 
-import sys
 import os
-import time
-import json
+import sys
 
 # Ensure project root is in python path
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
+from analytics.reusable_services import HRAnalyticsEngine
+from backend.audit.service import EnterpriseAuditService
+from backend.auth.authorization import AuthorizationService
 from backend.database.connection import SessionLocal, init_db
 from backend.database.models import User
-from backend.database.models_audit import LifecycleAuditLog
-from backend.auth.authorization import AuthorizationService
-from backend.database.connection_manager import connection_manager
-from rag.rag_service import RAGService
-from text_to_sql.service import TextToSQLService
-from text_to_sql.schemas import TextToSQLRequest
-from sql_validator.service import SQLValidatorService
-from sql_validator.schemas import SQLValidationRequest
-from query_execution.service import QueryExecutionService
 from query_execution.schemas import ExecuteQueryRequest
-from analytics.reusable_services import HRAnalyticsEngine
+from query_execution.service import QueryExecutionService
+from rag.rag_service import RAGService
 from report_builder.pipeline_service import EndToEndReportBuilderService
-from backend.audit.service import EnterpriseAuditService
+from sql_validator.schemas import SQLValidationRequest
+from sql_validator.service import SQLValidatorService
+from text_to_sql.schemas import TextToSQLRequest
+from text_to_sql.service import TextToSQLService
 
 
 def run_canonical_demonstration():
@@ -142,8 +138,8 @@ def run_canonical_demonstration():
         assert val_resp.status == "APPROVED"
         print(f" -> Validation Status: {val_resp.status} | Risk Score: {val_resp.risk_score}")
         print(f" -> AST Verification Token: {val_resp.validation_id}")
-        print(f" -> Mutation Check: PASSED (Zero DDL/DML mutations detected)")
-        print(f" -> Schema Allowlists: PASSED (All tables/columns exist in catalog)")
+        print(" -> Mutation Check: PASSED (Zero DDL/DML mutations detected)")
+        print(" -> Schema Allowlists: PASSED (All tables/columns exist in catalog)")
         audit_svc.log_validation_result(username=user.username, validation_id=val_resp.validation_id, status=val_resp.status, risk_score=val_resp.risk_score, database_id=database_id, user_role=user.role)
 
         # -------------------------------------------------------------
@@ -158,7 +154,7 @@ def run_canonical_demonstration():
         exec_resp = executor_svc.execute(exec_req, user=user)
         assert exec_resp.status == "SUCCESS"
         standard_res = exec_resp.to_standard_dict()
-        print(f" -> Driver Isolation: Read-Only PRAGMA active")
+        print(" -> Driver Isolation: Read-Only PRAGMA active")
         print(f" -> Execution Duration: {standard_res['execution_time']} ms")
         print(f" -> Rows Returned: {standard_res['row_count']}")
         print(f" -> Columns: {standard_res['columns']}")
@@ -195,7 +191,7 @@ def run_canonical_demonstration():
         )
         print(f" -> Generated Report Title: '{report_output['title']}'")
         print(f" -> Report ID: {report_output['report_id']} | Version: {report_output['report_version']}")
-        print(f" -> Preserved Attributes:")
+        print(" -> Preserved Attributes:")
         print(f"    1. Question: {report_output['question']}")
         print(f"    2. SQL: {report_output['sql_query'][:80]}...")
         print(f"    3. Database: {report_output['database_id']}")

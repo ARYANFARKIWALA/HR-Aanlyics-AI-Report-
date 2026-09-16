@@ -1,13 +1,13 @@
 """Deterministic narrative insight generator with exact metric citations."""
 
-from typing import List
+
 from .schemas import (
+    CorrelationItem,
+    DataQualityReport,
     InsightItem,
     KPISummary,
     OutlierItem,
-    DataQualityReport,
     SegmentationBreakdown,
-    CorrelationItem
 )
 
 
@@ -18,33 +18,32 @@ class InsightEngine:
     def generate_insights(
         cls,
         kpis: KPISummary,
-        outliers: List[OutlierItem],
+        outliers: list[OutlierItem],
         quality: DataQualityReport,
-        segmentations: List[SegmentationBreakdown],
-        correlations: List[CorrelationItem]
-    ) -> List[InsightItem]:
-        insights: List[InsightItem] = []
+        segmentations: list[SegmentationBreakdown],
+        correlations: list[CorrelationItem]
+    ) -> list[InsightItem]:
+        insights: list[InsightItem] = []
 
         # 1. Headcount & Retention Insight
-        if kpis.total_records > 0:
-            if kpis.attrition_rate_pct is not None:
-                att = kpis.attrition_rate_pct
-                if att > 15.0:
-                    insights.append(InsightItem(
-                        title="Elevated Attrition Alert",
-                        category="ATTRITION",
-                        insight_type="ALERT",
-                        text=f"The cohort reflects an elevated annualized turnover rate of {att}%, with {kpis.terminated_headcount} terminations out of {kpis.total_records} total historical records.",
-                        metric_citations={"attrition_rate_pct": att, "terminated_headcount": kpis.terminated_headcount, "total_records": kpis.total_records}
-                    ))
-                else:
-                    insights.append(InsightItem(
-                        title="Healthy Cohort Retention",
-                        category="ATTRITION",
-                        insight_type="BENCHMARK",
-                        text=f"Turnover remains controlled at {att}%, with {kpis.retention_rate_pct}% active retention across {kpis.active_headcount} active personnel.",
-                        metric_citations={"attrition_rate_pct": att, "retention_rate_pct": kpis.retention_rate_pct}
-                    ))
+        if kpis.total_records > 0 and kpis.attrition_rate_pct is not None:
+            att = kpis.attrition_rate_pct
+            if att > 15.0:
+                insights.append(InsightItem(
+                    title="Elevated Attrition Alert",
+                    category="ATTRITION",
+                    insight_type="ALERT",
+                    text=f"The cohort reflects an elevated annualized turnover rate of {att}%, with {kpis.terminated_headcount} terminations out of {kpis.total_records} total historical records.",
+                    metric_citations={"attrition_rate_pct": att, "terminated_headcount": kpis.terminated_headcount, "total_records": kpis.total_records}
+                ))
+            else:
+                insights.append(InsightItem(
+                    title="Healthy Cohort Retention",
+                    category="ATTRITION",
+                    insight_type="BENCHMARK",
+                    text=f"Turnover remains controlled at {att}%, with {kpis.retention_rate_pct}% active retention across {kpis.active_headcount} active personnel.",
+                    metric_citations={"attrition_rate_pct": att, "retention_rate_pct": kpis.retention_rate_pct}
+                ))
 
         # 2. Compensation Insight
         if kpis.avg_compensation is not None:

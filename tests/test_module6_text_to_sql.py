@@ -17,14 +17,15 @@ Tests:
 
 import pytest
 from fastapi.testclient import TestClient
+
 from backend.database.connection import SessionLocal, init_db
 from backend.database.seeder import seed_database
 from backend.main import app
-from text_to_sql.service import TextToSQLService
-from text_to_sql.schemas import TextToSQLRequest
-from text_to_sql.safety import SQLSafetyValidator
-from text_to_sql.dialect import DialectTransformer
 from rag.rag_service import RAGService
+from text_to_sql.dialect import DialectTransformer
+from text_to_sql.safety import SQLSafetyValidator
+from text_to_sql.schemas import TextToSQLRequest
+from text_to_sql.service import TextToSQLService
 
 client = TestClient(app)
 

@@ -1,20 +1,16 @@
 """Central Report Builder & Visualization Service (Module 10)."""
 
-import uuid
 import datetime
-from typing import Optional, Dict, Any, List
+import uuid
+from typing import Any
+
 import pandas as pd
 
-from .schemas import (
-    ReportDefinition,
-    BuiltReport,
-    BuiltKPICard,
-    FilterConfig
-)
-from .kpi_builder import KPIBuilder
 from .chart_builder import ChartBuilder
-from .table_builder import TableBuilder
 from .filter_manager import FilterManager
+from .kpi_builder import KPIBuilder
+from .schemas import BuiltKPICard, BuiltReport, ReportDefinition
+from .table_builder import TableBuilder
 from .template_manager import TemplateManager
 
 
@@ -26,7 +22,7 @@ class ReportBuilderService:
         cls,
         definition: ReportDefinition,
         df: pd.DataFrame,
-        active_filters: Optional[Dict[str, Any]] = None
+        active_filters: dict[str, Any] | None = None
     ) -> BuiltReport:
         report_id = definition.report_id or f"rep_{uuid.uuid4().hex}"
         now = datetime.datetime.now(datetime.UTC).isoformat()
@@ -35,17 +31,17 @@ class ReportBuilderService:
         filtered_df = FilterManager.apply_filters(df, active_filters or {})
 
         # 2. Build KPI Cards
-        built_kpis: List[BuiltKPICard] = []
+        built_kpis: list[BuiltKPICard] = []
         for k_conf in definition.kpi_cards:
             built_kpis.append(KPIBuilder.build_kpi(filtered_df, k_conf))
 
         # 3. Build Plotly Charts
-        built_charts: List[Dict[str, Any]] = []
+        built_charts: list[dict[str, Any]] = []
         for c_conf in definition.charts:
             built_charts.append(ChartBuilder.build_chart(filtered_df, c_conf))
 
         # 4. Build Tables
-        built_tables: List[Dict[str, Any]] = []
+        built_tables: list[dict[str, Any]] = []
         for t_conf in definition.tables:
             built_tables.append(TableBuilder.build_table(filtered_df, t_conf))
 
@@ -73,7 +69,7 @@ class ReportBuilderService:
         cls,
         template_key: str,
         df: pd.DataFrame,
-        active_filters: Optional[Dict[str, Any]] = None
+        active_filters: dict[str, Any] | None = None
     ) -> BuiltReport:
         tpl = TemplateManager.get_template(template_key)
         if not tpl:

@@ -1,13 +1,12 @@
-"""Role-Based Access Control (RBAC) and PII Data Masking."""
+from typing import ClassVar
 
-from typing import List, Dict, Any
 import pandas as pd
 
 
 class RBACManager:
     """Enforces fine-grained role capabilities."""
 
-    ROLE_PERMISSIONS = {
+    ROLE_PERMISSIONS: ClassVar[dict[str, dict[str, bool]]] = {
         "admin": {
             "can_execute_raw_sql": True,
             "can_view_all_departments": True,

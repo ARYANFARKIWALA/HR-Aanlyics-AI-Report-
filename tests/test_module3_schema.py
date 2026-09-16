@@ -16,24 +16,21 @@ Tests all requirements and acceptance criteria for:
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
 
-from backend.main import app
-from backend.database.connection import Base, SessionLocal, init_db
+from backend.database.connection import SessionLocal, init_db
 from backend.database.connection_manager import connection_manager
-from backend.database.models import User, Department, Employee
 from backend.database.models_schema import (
-    SchemaTable, SchemaColumn, SchemaRelationship, SchemaSnapshot,
-    SchemaChange, SchemaUsageMetric
+    SchemaColumn,
+    SchemaRelationship,
+    SchemaTable,
 )
-from backend.database.models_repo import SQLReport, SQLReportMetadata
-from schema.inspector import DeepSchemaInspector
-from schema.hr_mapping import HRMetadataMapper
-from schema.usage_analyzer import SchemaUsageAnalyzer
-from schema.snapshot import SchemaSnapshotManager
-from schema.service import SchemaIntelligenceService
+from backend.main import app
 from rag.schema_knowledge_builder import SchemaKnowledgeBuilder
+from schema.hr_mapping import HRMetadataMapper
+from schema.inspector import DeepSchemaInspector
+from schema.service import SchemaIntelligenceService
+from schema.snapshot import SchemaSnapshotManager
+from schema.usage_analyzer import SchemaUsageAnalyzer
 
 
 @pytest.fixture(scope="module")

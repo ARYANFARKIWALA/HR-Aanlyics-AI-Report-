@@ -1,12 +1,14 @@
 """Report generation and export API routes."""
 
-from typing import List, Dict, Any, Optional
-from fastapi import APIRouter, Depends, HTTPException, Response
+from typing import Any
+
+from fastapi import APIRouter, Depends, Response
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
+
+from ..auth.dependencies import get_current_user
 from ..database.connection import get_db
 from ..database.models import User
-from ..auth.dependencies import get_current_user
 from ..services.report_service import ReportService
 
 router = APIRouter(prefix="/api/reports", tags=["Reports & Exports"])
@@ -16,10 +18,10 @@ class ReportGenerateRequest(BaseModel):
     title: str
     category: str
     sql_query: str
-    data_columns: List[str]
-    data_rows: List[Dict[str, Any]]
-    business_rules: Optional[str] = "Standard enterprise payroll and effective-dating rules applied."
-    effective_dating_notes: Optional[str] = "Current active point-in-time snapshot."
+    data_columns: list[str]
+    data_rows: list[dict[str, Any]]
+    business_rules: str | None = "Standard enterprise payroll and effective-dating rules applied."
+    effective_dating_notes: str | None = "Current active point-in-time snapshot."
 
 
 @router.post("/generate")

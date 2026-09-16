@@ -3,14 +3,13 @@
 Supports SQLite and PostgreSQL databases with SHA-256 verification and retention rotation.
 """
 
-import os
-import sys
-import shutil
-import hashlib
-import gzip
-import json
 import datetime
-from typing import Dict, Any, Optional
+import gzip
+import hashlib
+import json
+import os
+import shutil
+from typing import Any
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BACKUP_DIR = os.path.join(PROJECT_ROOT, "storage", "backups")
@@ -26,10 +25,10 @@ def compute_sha256(file_path: str) -> str:
 
 
 def backup_database(
-    source_db_path: Optional[str] = None,
+    source_db_path: str | None = None,
     backup_folder: str = BACKUP_DIR,
     retention_count: int = 14
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Creates a compressed, checksum-verified snapshot of the database."""
     os.makedirs(backup_folder, exist_ok=True)
     
@@ -49,9 +48,8 @@ def backup_database(
     src_size = os.path.getsize(source_db_path)
 
     # Compress into backup archive
-    with open(source_db_path, "rb") as f_in:
-        with gzip.open(backup_filepath, "wb") as f_out:
-            shutil.copyfileobj(f_in, f_out)
+    with open(source_db_path, "rb") as f_in, gzip.open(backup_filepath, "wb") as f_out:
+        shutil.copyfileobj(f_in, f_out)
 
     backup_checksum = compute_sha256(backup_filepath)
     backup_size = os.path.getsize(backup_filepath)

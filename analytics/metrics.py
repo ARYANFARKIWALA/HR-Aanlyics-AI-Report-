@@ -8,13 +8,17 @@ Computes core organizational human capital metrics:
 - EEO / Gender Diversity Metrics
 """
 
-from typing import Dict, Any, List
 import datetime
-from sqlalchemy.orm import Session
+from typing import Any
+
 from sqlalchemy import func
+from sqlalchemy.orm import Session
+
 from backend.database.models import (
-    Employee, Department, CompensationHistory,
-    PerformanceReview, LeaveRecord, JobProfile
+    CompensationHistory,
+    Department,
+    Employee,
+    PerformanceReview,
 )
 
 
@@ -22,7 +26,7 @@ class HRMetricsCalculator:
     """Computes enterprise HR KPIs directly from the relational database."""
 
     @classmethod
-    def get_executive_summary_kpis(cls, session: Session) -> Dict[str, Any]:
+    def get_executive_summary_kpis(cls, session: Session) -> dict[str, Any]:
         """Returns top-level KPI snapshot for executive dashboards."""
         total_employees = session.query(Employee).count()
         active_headcount = session.query(Employee).filter(Employee.status == "Active", Employee.is_current == True).count()
@@ -88,7 +92,7 @@ class HRMetricsCalculator:
         }
 
     @classmethod
-    def get_attrition_by_department(cls, session: Session) -> List[Dict[str, Any]]:
+    def get_attrition_by_department(cls, session: Session) -> list[dict[str, Any]]:
         """Calculates turnover breakdown across departments."""
         results = session.query(
             Department.name,

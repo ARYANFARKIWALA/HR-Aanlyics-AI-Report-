@@ -13,21 +13,23 @@ Test Categories:
 """
 
 import time
+
 import pytest
 from fastapi.testclient import TestClient
-from backend.main import app
-from backend.database.connection import SessionLocal, init_db
-from backend.database.models import User, Department
+
 from backend.auth.password import hash_password, verify_password
+from backend.database.connection import SessionLocal, init_db
 from backend.database.connection_manager import connection_manager
-from rag.rag_service import RAGService
-from text_to_sql.service import TextToSQLService
-from text_to_sql.schemas import TextToSQLRequest
-from sql_validator.service import SQLValidatorService
-from sql_validator.schemas import SQLValidationRequest
-from query_execution.service import QueryExecutionService
-from query_execution.schemas import ExecuteQueryRequest
+from backend.database.models import User
+from backend.main import app
 from backend.services.workflow_orchestrator import EnterpriseWorkflowOrchestrator
+from query_execution.schemas import ExecuteQueryRequest
+from query_execution.service import QueryExecutionService
+from rag.rag_service import RAGService
+from sql_validator.schemas import SQLValidationRequest
+from sql_validator.service import SQLValidatorService
+from text_to_sql.schemas import TextToSQLRequest
+from text_to_sql.service import TextToSQLService
 
 
 @pytest.fixture(scope="module")
@@ -197,7 +199,7 @@ def test_category_9_performance_latencies(db_session):
 
     # 2. Execution Latency (< 250ms)
     t1 = time.time()
-    exec_res = executor.execute(ExecuteQueryRequest(
+    executor.execute(ExecuteQueryRequest(
         validation_id=val_res.validation_id,
         bypass_cache=True
     ))

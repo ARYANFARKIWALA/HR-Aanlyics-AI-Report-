@@ -1,0 +1,18 @@
+[project]
+name = "hr-analytics-ai-report-builder"
+version = "1.0.0"
+description = "AI-powered enterprise HR reporting assistant transforming natural language into governed, high-precision SQL."
+readme = "README.md"
+requires-python = ">=3.10"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+ignore = [
+    "B008",   # Do not perform function call in argument defaults (standard FastAPI Depends/Query/Path idiom)
+    "BLE001", # Do not catch blind exception Exception (defensive DB rollbacks, dynamic AST parsing, and graceful API fallbacks)
+    "S110",   # try-except-pass (used for optional heuristic checks and silent cleanups)
+    "DTZ",    # Naive vs aware datetime checks (flake8-datetimez; SQLite and SQLAlchemy use naive UTC datetimes)
+]

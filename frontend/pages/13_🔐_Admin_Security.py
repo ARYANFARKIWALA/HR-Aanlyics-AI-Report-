@@ -20,17 +20,22 @@ PROJECT_ROOT = os.path.dirname(FRONTEND_DIR)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-import streamlit as st
 import pandas as pd
-from backend.database.connection import SessionLocal, init_db
-from backend.database.models import User, Department
-from backend.database.models_auth import (
-    Role, Permission, RolePermission, UserDatabaseAccess,
-    ColumnPermission, RowAccessRule, SecurityAuditLog
-)
-from backend.auth.sessions import SessionManager
+import streamlit as st
+
+from backend.auth.authorization import AuthorizationService
 from backend.auth.password import hash_password, validate_password_strength
-from backend.auth.authorization import AuthorizationService, SYSTEM_PERMISSIONS
+from backend.auth.sessions import SessionManager
+from backend.database.connection import SessionLocal, init_db
+from backend.database.models import Department, User
+from backend.database.models_auth import (
+    ColumnPermission,
+    Permission,
+    Role,
+    RowAccessRule,
+    SecurityAuditLog,
+    UserDatabaseAccess,
+)
 
 st.set_page_config(
     page_title="Admin Security & Access - HR Analytics AI",
@@ -95,9 +100,7 @@ with tab_users:
         else:
             st.info("No accounts are currently locked out.")
 
-    with col_create:
-        with st.expander("➕ Create New User"):
-            with st.form("create_user_form"):
+    with col_create, st.expander("➕ Create New User"), st.form("create_user_form"):
                 new_username = st.text_input("Username*")
                 new_fullname = st.text_input("Full Name*")
                 new_email = st.text_input("Email*")
@@ -168,37 +171,36 @@ with tab_db_access:
     else:
         st.info("No custom database access grants registered (Default databases accessible by standard roles).")
 
-    with st.expander("➕ Grant / Modify Database Access"):
-        with st.form("grant_db_form"):
-            u_choice = st.selectbox("User", [f"{u.id}: {u.username}" for u in users])
-            db_choice = st.text_input("Database ID", value="sqlite_hr_default")
-            c_read = st.checkbox("Can Read", value=True)
-            c_write = st.checkbox("Can Write", value=False)
-            c_exec = st.checkbox("Can Execute SQL", value=True)
+    with st.expander("➕ Grant / Modify Database Access"), st.form("grant_db_form"):
+        u_choice = st.selectbox("User", [f"{u.id}: {u.username}" for u in users])
+        db_choice = st.text_input("Database ID", value="sqlite_hr_default")
+        c_read = st.checkbox("Can Read", value=True)
+        c_write = st.checkbox("Can Write", value=False)
+        c_exec = st.checkbox("Can Execute SQL", value=True)
 
-            if st.form_submit_button("Save Database Access Rule"):
-                uid = int(u_choice.split(":")[0])
-                existing = db.query(UserDatabaseAccess).filter(
-                    UserDatabaseAccess.user_id == uid,
-                    UserDatabaseAccess.database_id == db_choice
-                ).first()
-                if existing:
-                    existing.can_read = c_read
-                    existing.can_write = c_write
-                    existing.can_execute = c_exec
-                else:
-                    new_g = UserDatabaseAccess(
-                        user_id=uid,
-                        database_id=db_choice,
-                        can_read=c_read,
-                        can_write=c_write,
-                        can_execute=c_exec,
-                        granted_by="admin"
-                    )
-                    db.add(new_g)
-                db.commit()
-                st.success("Database access rule saved!")
-                st.rerun()
+        if st.form_submit_button("Save Database Access Rule"):
+            uid = int(u_choice.split(":")[0])
+            existing = db.query(UserDatabaseAccess).filter(
+                UserDatabaseAccess.user_id == uid,
+                UserDatabaseAccess.database_id == db_choice
+            ).first()
+            if existing:
+                existing.can_read = c_read
+                existing.can_write = c_write
+                existing.can_execute = c_exec
+            else:
+                new_g = UserDatabaseAccess(
+                    user_id=uid,
+                    database_id=db_choice,
+                    can_read=c_read,
+                    can_write=c_write,
+                    can_execute=c_exec,
+                    granted_by="admin"
+                )
+                db.add(new_g)
+            db.commit()
+            st.success("Database access rule saved!")
+            st.rerun()
 
 # ----------------- 4. COLUMN-LEVEL SECURITY & MASKING -----------------
 with tab_cls:
@@ -221,31 +223,30 @@ with tab_cls:
     else:
         st.info("Using standard system PII rules: Email, Phone, Names masked for non-PII roles.")
 
-    with st.expander("➕ Define Column Masking / Allow Rule"):
-        with st.form("cls_form"):
-            c_db = st.text_input("Database ID", value="sqlite_hr_default")
-            c_tbl = st.text_input("Table Name", value="employees")
-            c_col = st.text_input("Column Name", value="salary")
-            c_role = st.selectbox("Apply to Role", [r.name for r in roles])
-            c_allow = st.checkbox("Allow Column in SELECT", value=True)
-            c_mask = st.checkbox("Mask Column Value", value=True)
-            c_type = st.selectbox("Mask Type", ["partial", "full", "hash", "null"])
+    with st.expander("➕ Define Column Masking / Allow Rule"), st.form("cls_form"):
+        c_db = st.text_input("Database ID", value="sqlite_hr_default")
+        c_tbl = st.text_input("Table Name", value="employees")
+        c_col = st.text_input("Column Name", value="salary")
+        c_role = st.selectbox("Apply to Role", [r.name for r in roles])
+        c_allow = st.checkbox("Allow Column in SELECT", value=True)
+        c_mask = st.checkbox("Mask Column Value", value=True)
+        c_type = st.selectbox("Mask Type", ["partial", "full", "hash", "null"])
 
-            if st.form_submit_button("Save CLS Rule"):
-                target_role = db.query(Role).filter(Role.name == c_role).first()
-                cp = ColumnPermission(
-                    database_id=c_db,
-                    table_name=c_tbl,
-                    column_name=c_col,
-                    role_id=target_role.id if target_role else None,
-                    is_allowed=c_allow,
-                    is_masked=c_mask,
-                    mask_type=c_type
-                )
-                db.add(cp)
-                db.commit()
-                st.success("Column security rule registered!")
-                st.rerun()
+        if st.form_submit_button("Save CLS Rule"):
+            target_role = db.query(Role).filter(Role.name == c_role).first()
+            cp = ColumnPermission(
+                database_id=c_db,
+                table_name=c_tbl,
+                column_name=c_col,
+                role_id=target_role.id if target_role else None,
+                is_allowed=c_allow,
+                is_masked=c_mask,
+                mask_type=c_type
+            )
+            db.add(cp)
+            db.commit()
+            st.success("Column security rule registered!")
+            st.rerun()
 
 # ----------------- 5. ROW-LEVEL SECURITY (RLS) -----------------
 with tab_rls:
@@ -268,8 +269,7 @@ with tab_rls:
     else:
         st.info("No custom row-level filters configured.")
 
-    with st.expander("➕ Add Row-Level Filter Predicate"):
-        with st.form("rls_form"):
+    with st.expander("➕ Add Row-Level Filter Predicate"), st.form("rls_form"):
             r_db = st.text_input("Database ID", value="sqlite_hr_default")
             r_tbl = st.text_input("Table Name", value="employees")
             r_role = st.selectbox("Target Role", [r.name for r in roles])

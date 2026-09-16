@@ -25,28 +25,28 @@ Preserves:
 - report version
 """
 
-import io
 import csv
-import json
-import uuid
 import datetime
-from typing import Optional, Dict, Any, List
+import io
+import uuid
+from typing import Any
+
 import pandas as pd
 from sqlalchemy.orm import Session
 
-from backend.database.models import User
-from text_to_sql.schemas import TextToSQLRequest, TextToSQLResponse
-from text_to_sql.service import TextToSQLService
-from sql_validator.schemas import SQLValidationRequest, SQLValidationResponse
-from sql_validator.service import SQLValidatorService
-from query_execution.schemas import ExecuteQueryRequest, QueryExecutionResponse
-from query_execution.service import QueryExecutionService, QueryExecutionError
 from analytics.reusable_services import HRAnalyticsEngine
+from backend.database.models import User
+from query_execution.schemas import ExecuteQueryRequest
+from query_execution.service import QueryExecutionService
 from reports.builder import ReportData
 from reports.export_excel import ExcelReportExporter
 from reports.export_pdf import PDFReportExporter
 from reports_lifecycle.report_service import ReportLifecycleService
 from reports_lifecycle.schemas import ReportCreateRequest
+from sql_validator.schemas import SQLValidationRequest
+from sql_validator.service import SQLValidatorService
+from text_to_sql.schemas import TextToSQLRequest
+from text_to_sql.service import TextToSQLService
 
 
 class EndToEndReportBuilderService:
@@ -62,12 +62,12 @@ class EndToEndReportBuilderService:
         self,
         question: str,
         database_id: str = "sqlite_hr_default",
-        user: Optional[User] = None,
-        title: Optional[str] = None,
-        description: Optional[str] = None,
+        user: User | None = None,
+        title: str | None = None,
+        description: str | None = None,
         save_report: bool = False,
         category: str = "Headcount & Workforce Planning"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Executes the full 7-stage chain.
         Strict invariant: Never bypasses Module 7 validation.

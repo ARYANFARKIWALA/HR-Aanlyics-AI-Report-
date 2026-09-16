@@ -1,20 +1,20 @@
 """Pydantic schemas for Phase 15 Evaluation and Quality Control Framework."""
 
-from datetime import datetime
-from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field
+from typing import Any
+
+from pydantic import BaseModel
 
 
 class TestCaseResult(BaseModel):
     test_id: str
     category: str
     question: str
-    expected_tables: List[str] = []
-    expected_columns: List[str] = []
-    expected_business_rule: Optional[str] = None
-    expected_sql: Optional[str] = None
-    actual_sql: Optional[str] = None
-    actual_result: Optional[Any] = None
+    expected_tables: list[str] = []
+    expected_columns: list[str] = []
+    expected_business_rule: str | None = None
+    expected_sql: str | None = None
+    actual_sql: str | None = None
+    actual_result: Any | None = None
     sql_validity: bool = False
     result_correctness: bool = False
     table_match: bool = False
@@ -22,14 +22,14 @@ class TestCaseResult(BaseModel):
     business_rule_match: bool = False
 
     # Backwards compatibility fields
-    generated_sql: Optional[str] = None
+    generated_sql: str | None = None
     is_adversarial: bool = False
     sql_valid: bool = False
     security_passed: bool = False
     validation_status: str = "PENDING"
     execution_success: bool = False
     rag_hit: bool = False
-    error_message: Optional[str] = None
+    error_message: str | None = None
     latency_ms: float = 0.0
 
 
@@ -55,13 +55,13 @@ class EvaluationSummary(BaseModel):
     avg_latency_ms: float
 
     timestamp: str
-    results: List[TestCaseResult] = []
+    results: list[TestCaseResult] = []
 
 
 class EvaluationRunRequest(BaseModel):
-    category: Optional[str] = None
+    category: str | None = None
     include_adversarial: bool = True
-    limit: Optional[int] = None
+    limit: int | None = None
 
 
 class AdversarialTestResult(BaseModel):

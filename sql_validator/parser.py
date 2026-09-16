@@ -1,6 +1,5 @@
 """SQLGlot AST parser and syntax analyzer for SQL Validator."""
 
-from typing import List, Tuple, Optional, Any, Set
 import sqlglot
 from sqlglot import exp
 
@@ -10,8 +9,8 @@ class SQLParseResult:
         self,
         raw_sql: str,
         is_valid_syntax: bool = True,
-        syntax_error: Optional[str] = None,
-        statements: Optional[List[exp.Expression]] = None,
+        syntax_error: str | None = None,
+        statements: list[exp.Expression] | None = None,
         dialect: str = "sqlite"
     ):
         self.raw_sql = raw_sql
@@ -21,7 +20,7 @@ class SQLParseResult:
         self.dialect = dialect
 
     @property
-    def expression(self) -> Optional[exp.Expression]:
+    def expression(self) -> exp.Expression | None:
         return self.statements[0] if self.statements else None
 
     @property

@@ -6,22 +6,21 @@ Preserves the original SQL while generating a deterministic SHA-256 hash.
 
 import hashlib
 import re
-from typing import Tuple
-import sqlglot
-from sqlglot import parse_one, transpile
+
+from sqlglot import parse_one
 
 
 class SQLNormalizer:
     """Normalizes SQL syntax and produces deterministic hashes for duplicate detection."""
 
     @classmethod
-    def normalize(cls, sql_text: str, dialect: str = "sqlite") -> Tuple[str, str]:
+    def normalize(cls, sql_text: str, dialect: str = "sqlite") -> tuple[str, str]:
         """Normalizes an SQL query and returns (normalized_sql, sql_hash).
         
         Preserves semantics while stripping stylistic differences (whitespace, comments, casing).
         """
         if not sql_text or not sql_text.strip():
-            return "", hashlib.sha256("".encode("utf-8")).hexdigest()
+            return "", hashlib.sha256(b"").hexdigest()
 
         cleaned = sql_text.strip().rstrip(";")
 

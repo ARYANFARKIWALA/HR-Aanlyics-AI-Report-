@@ -9,12 +9,14 @@ Assembles comprehensive report structures combining:
 """
 
 import datetime
-from typing import Dict, Any, List, Optional
+from typing import Any
+
 import pandas as pd
 from sqlalchemy.orm import Session
-from analytics.metrics import HRMetricsCalculator
+
 from ai.model import llm_client
 from ai.prompts.report_prompts import REPORT_NARRATIVE_PROMPT
+from analytics.metrics import HRMetricsCalculator
 
 
 class ReportData:
@@ -27,10 +29,10 @@ class ReportData:
         category: str,
         requested_by: str,
         generated_at: str,
-        kpis: Dict[str, Any],
+        kpis: dict[str, Any],
         executive_summary: str,
-        data_columns: List[str],
-        data_rows: List[Dict[str, Any]],
+        data_columns: list[str],
+        data_rows: list[dict[str, Any]],
         sql_query: str,
         business_rules: str,
         effective_dating_notes: str
@@ -53,7 +55,7 @@ class ReportData:
             return pd.DataFrame(columns=self.data_columns)
         return pd.DataFrame(self.data_rows)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "report_id": self.report_id,
             "title": self.title,
@@ -80,8 +82,8 @@ class ReportBuilder:
         title: str,
         category: str,
         sql_query: str,
-        data_columns: List[str],
-        data_rows: List[Dict[str, Any]],
+        data_columns: list[str],
+        data_rows: list[dict[str, Any]],
         requested_by: str = "HR Leadership",
         business_rules: str = "Standard enterprise payroll and effective-dating rules applied.",
         effective_dating_notes: str = "Records evaluated as of current active snapshot."

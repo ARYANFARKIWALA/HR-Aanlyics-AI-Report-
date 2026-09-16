@@ -1,10 +1,10 @@
 """Comprehensive Unit and Integration Tests for Phase 6 — AI Text-to-SQL Engine."""
 
 import pytest
+
 from backend.database.connection import SessionLocal, init_db
-from text_to_sql.schemas import TextToSQLRequest, TextToSQLResponse
+from text_to_sql.schemas import TextToSQLRequest
 from text_to_sql.service import TextToSQLService
-from text_to_sql.dialect import DialectTransformer
 
 
 @pytest.fixture(scope="module")

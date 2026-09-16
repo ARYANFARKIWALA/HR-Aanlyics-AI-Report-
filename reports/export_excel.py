@@ -7,10 +7,11 @@ Produces multi-tab formatted workbooks:
 """
 
 import io
-from typing import Optional
+
 import openpyxl
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
+
 from .builder import ReportData
 
 
@@ -32,7 +33,7 @@ class ExcelReportExporter:
     )
 
     @classmethod
-    def generate_excel(cls, report: ReportData, output_path: Optional[str] = None) -> bytes:
+    def generate_excel(cls, report: ReportData, output_path: str | None = None) -> bytes:
         wb = openpyxl.Workbook()
 
         # ==========================================

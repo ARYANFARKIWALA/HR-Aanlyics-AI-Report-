@@ -11,11 +11,10 @@ Provides dialect-specific date formatting, temporal arithmetic, limit/top clause
 string concatenation, and SQLGlot AST transpilation.
 """
 
-import re
 import logging
-from typing import Dict, Any, Optional
+import re
+
 import sqlglot
-from sqlglot import exp
 
 logger = logging.getLogger("text_to_sql.dialect")
 

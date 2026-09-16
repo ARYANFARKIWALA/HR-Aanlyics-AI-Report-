@@ -1,9 +1,9 @@
 """Central HR Analytics Engine Service (Module 9)."""
 
-import uuid
-import json
 import datetime
-from typing import Optional, List, Dict, Any
+import json
+import uuid
+
 import pandas as pd
 from sqlalchemy.orm import Session
 
@@ -11,20 +11,21 @@ from backend.database.models import User
 from backend.database.models_analytics import AnalyticsAuditLog
 from backend.database.models_execution import QueryExecutionAuditLog
 from query_execution.cache import QueryCacheManager
+
+from .column_classifier import ColumnClassifier
+from .correlation import CorrelationAnalyzer
+from .data_quality import DataQualityAuditor
+from .insight_engine import InsightEngine
+from .kpi_engine import KPIEngine
+from .outlier_detection import OutlierDetector
+from .profiler import DataProfiler
 from .schemas import (
     AnalyticsRequest,
     AnalyticsResponse,
 )
-from .column_classifier import ColumnClassifier
-from .profiler import DataProfiler
-from .kpi_engine import KPIEngine
-from .outlier_detection import OutlierDetector
-from .trend_analysis import TrendAnalyzer
-from .correlation import CorrelationAnalyzer
 from .segmentation import SegmentationEngine
-from .data_quality import DataQualityAuditor
+from .trend_analysis import TrendAnalyzer
 from .visualization_recommender import VisualizationRecommender
-from .insight_engine import InsightEngine
 
 
 class HRAnalyticsService:
@@ -36,7 +37,7 @@ class HRAnalyticsService:
     def analyze(
         self,
         request: AnalyticsRequest,
-        user: Optional[User] = None
+        user: User | None = None
     ) -> AnalyticsResponse:
         """
         Processes a dataset from Module 8 or explicit payload and generates comprehensive analytics.

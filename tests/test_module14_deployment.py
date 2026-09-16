@@ -2,10 +2,12 @@
 
 import os
 import tempfile
+
 import pytest
 from fastapi.testclient import TestClient
+
 from backend.main import app
-from config.settings import AppSettings, EnvironmentType
+from config.settings import AppSettings
 from scripts.backup_db import backup_database
 from scripts.restore_db import restore_database
 

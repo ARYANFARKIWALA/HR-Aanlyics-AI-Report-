@@ -1,12 +1,13 @@
 """Enterprise Audit Service recording 13 lifecycle events (Module 13)."""
 
-import json
 import datetime
-from typing import Optional, Dict, Any, List
+import json
+from typing import Any
+
 from sqlalchemy.orm import Session
 
-from backend.database.models_audit import LifecycleAuditLog
 from backend.audit.sanitizer import AuditDataSanitizer
+from backend.database.models_audit import LifecycleAuditLog
 
 
 class EnterpriseAuditService:
@@ -34,12 +35,12 @@ class EnterpriseAuditService:
         event_type: str,
         username: str = "system",
         user_role: str = "anonymous",
-        database_id: Optional[str] = None,
-        details: Optional[Dict[str, Any]] = None,
+        database_id: str | None = None,
+        details: dict[str, Any] | None = None,
         status: str = "SUCCESS",
         execution_time_ms: float = 0.0,
-        error_message: Optional[str] = None,
-        user_id: Optional[int] = None,
+        error_message: str | None = None,
+        user_id: int | None = None,
         ip_address: str = "127.0.0.1"
     ) -> LifecycleAuditLog:
         """Sanitizes and persists lifecycle audit log."""
@@ -64,7 +65,7 @@ class EnterpriseAuditService:
             self.db.commit()
             self.db.refresh(entry)
             return entry
-        except Exception as exc:
+        except Exception:
             self.db.rollback()
             return entry
 
@@ -189,7 +190,7 @@ class EnterpriseAuditService:
         )
 
     # 13. Errors
-    def log_error(self, username: str, error_type: str, message: str, database_id: Optional[str] = None, user_role: str = "user"):
+    def log_error(self, username: str, error_type: str, message: str, database_id: str | None = None, user_role: str = "user"):
         return self.log_event(
             event_type=self.EVENT_ERROR,
             username=username,

@@ -1,35 +1,32 @@
 """Core Query Execution Engine Service (Module 8)."""
 
+import datetime
+import hashlib
+import re
 import time
 import uuid
-import hashlib
-import datetime
-import re
-from typing import Optional, Dict, Any, List, Generator
-import pandas as pd
+from collections.abc import Generator
+from typing import Any
+
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from backend.database.models import User
-from backend.database.models_validation import SQLValidationAuditLog
-from backend.database.models_execution import QueryExecutionAuditLog
-from backend.database.connection_manager import connection_manager
 from backend.auth.authorization import AuthorizationService
-from .schemas import (
-    ExecuteQueryRequest,
-    QueryExecutionResponse,
-    QueryColumnMeta
-)
+from backend.database.connection_manager import connection_manager
+from backend.database.models import User
+from backend.database.models_execution import QueryExecutionAuditLog
+from backend.database.models_validation import SQLValidationAuditLog
+
 from .cache import QueryCacheManager
-from .result_handler import ResultHandler, MAX_RESULT_ROWS
+from .result_handler import MAX_RESULT_ROWS, ResultHandler
+from .schemas import ExecuteQueryRequest, QueryColumnMeta, QueryExecutionResponse
 
 DEFAULT_STATEMENT_TIMEOUT_SECONDS = 30
-_ACTIVE_QUERIES: Dict[str, Any] = {}
+_ACTIVE_QUERIES: dict[str, Any] = {}
 
 
 class QueryExecutionError(Exception):
     """Raised when execution fails validation handshake, timeout, or runtime error."""
-    pass
 
 
 class QueryExecutionService:
@@ -41,7 +38,7 @@ class QueryExecutionService:
     def execute(
         self,
         request: ExecuteQueryRequest,
-        user: Optional[User] = None
+        user: User | None = None
     ) -> QueryExecutionResponse:
         """
         Executes a query by validation_id token.
@@ -271,13 +268,13 @@ class QueryExecutionService:
         execution_id: str,
         validation_id: str,
         database_id: str,
-        user: Optional[User],
+        user: User | None,
         sql_hash: str,
         status: str,
         row_count: int,
         execution_time_ms: float,
         cached: bool,
-        error_message: Optional[str] = None
+        error_message: str | None = None
     ) -> None:
         """Records an execution audit log entry."""
         log = QueryExecutionAuditLog(
@@ -317,9 +314,9 @@ class QueryExecutionService:
     def stream_query(
         self,
         request: ExecuteQueryRequest,
-        user: Optional[User] = None,
+        user: User | None = None,
         chunk_size: int = 100
-    ) -> Generator[Dict[str, Any], None, None]:
+    ) -> Generator[dict[str, Any], None, None]:
         """
         Streams query results in chunks.
         Strict invariant: Never bypasses Module 7 validation.

@@ -1,18 +1,19 @@
 """Enterprise Authorization Engine (RBAC, ABAC, CLS, RLS, and Data Masking)."""
 
 import hashlib
-from typing import Dict, List, Any, Optional, Set
+from typing import Any
+
 import pandas as pd
 from sqlalchemy.orm import Session
 
 from ..database.models import User
 from ..database.models_auth import (
-    Role,
-    Permission,
-    RolePermission,
-    UserDatabaseAccess,
     ColumnPermission,
+    Permission,
+    Role,
+    RolePermission,
     RowAccessRule,
+    UserDatabaseAccess,
 )
 from .security_audit import SecurityAuditService
 
@@ -46,7 +47,7 @@ SYSTEM_PERMISSIONS = [
 
 ALL_SYSTEM_PERMS = {p[0] for p in SYSTEM_PERMISSIONS}
 
-DEFAULT_ROLE_PERMISSIONS: Dict[str, Set[str]] = {
+DEFAULT_ROLE_PERMISSIONS: dict[str, set[str]] = {
     # Phase 12 Canonical Roles
     "SUPER_ADMIN": ALL_SYSTEM_PERMS,
     "HR_ADMIN": {p for p in ALL_SYSTEM_PERMS if not p.startswith("admin:infra")},
@@ -226,7 +227,7 @@ class AuthorizationService:
         user: User,
         database_id: str,
         table_name: str
-    ) -> Dict[str, Dict[str, Any]]:
+    ) -> dict[str, dict[str, Any]]:
         """
         Retrieves Column-Level Security rules for a specific table.
         Returns dict: {column_name: {"is_allowed": bool, "is_masked": bool, "mask_type": str}}
@@ -271,7 +272,7 @@ class AuthorizationService:
         user: User,
         database_id: str,
         table_name: str
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Retrieves Row-Level Security (RLS) WHERE filter expressions.
         Replaces dynamic placeholders like {user.department_id} or {user.id}.
@@ -353,9 +354,9 @@ class AuthorizationService:
             rule = cls_rules.get(col_lower)
             if rule and rule.get("is_masked"):
                 mask_t = rule.get("mask_type", "partial")
-                masked_df[col] = masked_df[col].apply(lambda v: cls.mask_value(v, mask_t))
+                masked_df[col] = masked_df[col].apply(lambda v, mt=mask_t: cls.mask_value(v, mt))
             elif col_lower in DEFAULT_SENSITIVE_COLUMNS:
                 mask_t = DEFAULT_SENSITIVE_COLUMNS[col_lower]
-                masked_df[col] = masked_df[col].apply(lambda v: cls.mask_value(v, mask_t))
+                masked_df[col] = masked_df[col].apply(lambda v, mt=mask_t: cls.mask_value(v, mt))
 
         return masked_df

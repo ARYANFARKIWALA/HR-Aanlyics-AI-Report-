@@ -11,32 +11,32 @@ Coordinates:
 """
 
 import logging
-from typing import Dict, Any, List, Optional
-from sqlalchemy.orm import Session
+from typing import Any
+
 import sqlglot
+from sqlalchemy.orm import Session
 from sqlglot import exp
 
 from backend.database.connection_manager import connection_manager
 from rag.rag_service import RAGService
+
+from .dialect import DialectTransformer
+from .query_plan_validator import QueryPlanValidator
+from .query_planner import QueryPlanner
+from .safety import SQLSafetyValidator
 from .schemas import (
+    ReasoningMetadata,
     TextToSQLRequest,
     TextToSQLResponse,
-    QueryPlan,
-    ClarificationRequest,
-    ReasoningMetadata
 )
-from .query_planner import QueryPlanner
-from .query_plan_validator import QueryPlanValidator
-from .sql_generator import SQLGenerator
-from .safety import SQLSafetyValidator
 from .sql_explainer import SQLExplainer
+from .sql_generator import SQLGenerator
 from .traceability import SQLTraceabilityMapper
-from .dialect import DialectTransformer
 
 logger = logging.getLogger("text_to_sql.service")
 
 # In-memory history for session audit
-_QUERY_GENERATION_HISTORY: List[Dict[str, Any]] = []
+_QUERY_GENERATION_HISTORY: list[dict[str, Any]] = []
 
 
 class TextToSQLService:
@@ -201,8 +201,8 @@ class TextToSQLService:
         try:
             norm_diag = DialectTransformer.normalize_dialect_name(dialect)
             p_ast = sqlglot.parse_one(generated_sql, read=norm_diag)
-            tables_used = sorted(list({t.name for t in p_ast.find_all(exp.Table)}))
-            columns_used = sorted(list({c.name for c in p_ast.find_all(exp.Column) if c.name not in ("*", "")}))
+            tables_used = sorted({t.name for t in p_ast.find_all(exp.Table)})
+            columns_used = sorted({c.name for c in p_ast.find_all(exp.Column) if c.name not in ("*", "")})
         except Exception:
             pass
 
@@ -246,7 +246,7 @@ class TextToSQLService:
 
         return response
 
-    def plan_only(self, request: TextToSQLRequest) -> Dict[str, Any]:
+    def plan_only(self, request: TextToSQLRequest) -> dict[str, Any]:
         """Generates only the structured query plan without SQL generation."""
         db_id = request.database_id or "sqlite_hr_default"
         context = self.rag_service.get_context_for_query(query=request.query, database_id=db_id)
@@ -264,6 +264,6 @@ class TextToSQLService:
         return SQLExplainer.explain_sql(sql=sql, dialect=dialect)
 
     @classmethod
-    def get_history(cls) -> List[Dict[str, Any]]:
+    def get_history(cls) -> list[dict[str, Any]]:
         """Returns session query generation history."""
         return list(reversed(_QUERY_GENERATION_HISTORY[-50:]))

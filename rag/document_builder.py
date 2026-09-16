@@ -12,14 +12,15 @@ draft, inactive, or rejected rules. Only ACTIVE and current rules are indexed.
 
 import json
 import logging
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Any
+
 from sqlalchemy.orm import Session
 
-
 from backend.database.models_repo import SQLReport
-from backend.database.models_schema import SchemaTable, SchemaColumn, SchemaRelationship
 from backend.database.models_rules import BusinessRule
-from .chunker import SemanticChunker, SemanticChunk
+from backend.database.models_schema import SchemaRelationship, SchemaTable
+
+from .chunker import SemanticChunk, SemanticChunker
 
 logger = logging.getLogger("rag.document_builder")
 
@@ -30,7 +31,7 @@ class DocumentBuilder:
     def __init__(self, db: Session):
         self.db = db
 
-    def build_all_for_database(self, database_id: str) -> List[Tuple[Dict[str, Any], List[SemanticChunk]]]:
+    def build_all_for_database(self, database_id: str) -> list[tuple[dict[str, Any], list[SemanticChunk]]]:
         """Gathers schema, reports, and approved rules for a target database."""
         results = []
 
@@ -80,7 +81,7 @@ class DocumentBuilder:
         return results
 
 
-    def build_schema_table_document(self, tbl: SchemaTable) -> Tuple[Dict[str, Any], List[SemanticChunk]]:
+    def build_schema_table_document(self, tbl: SchemaTable) -> tuple[dict[str, Any], list[SemanticChunk]]:
         """Transforms a SchemaTable into document and semantic chunks."""
         doc_id = f"DOC_TBL_{tbl.database_id}_{tbl.table_name}"
         cols = [{"name": c.column_name, "normalized_data_type": c.normalized_data_type} for c in tbl.columns]
@@ -125,7 +126,7 @@ class DocumentBuilder:
         }
         return doc_data, chunks
 
-    def build_sql_report_document(self, rpt: SQLReport) -> Tuple[Dict[str, Any], List[SemanticChunk]]:
+    def build_sql_report_document(self, rpt: SQLReport) -> tuple[dict[str, Any], list[SemanticChunk]]:
         """Transforms an approved SQLReport into document and semantic chunks."""
         doc_id = f"DOC_RPT_{rpt.database_id}_{rpt.id}"
         meta = rpt.metadata_rel
@@ -182,7 +183,7 @@ class DocumentBuilder:
         }
         return doc_data, chunks
 
-    def build_business_rule_document(self, rule: BusinessRule) -> Tuple[Dict[str, Any], List[SemanticChunk]]:
+    def build_business_rule_document(self, rule: BusinessRule) -> tuple[dict[str, Any], list[SemanticChunk]]:
         """Transforms an approved BusinessRule into document and semantic chunks."""
         if rule.status != "ACTIVE" or not rule.is_current:
             raise ValueError(f"Cannot index rule '{rule.rule_code}' with status '{rule.status}'. Only ACTIVE rules allowed.")
@@ -217,7 +218,7 @@ class DocumentBuilder:
         return doc_data, chunks
 
     @classmethod
-    def get_canonical_glossary_terms(cls) -> List[Dict[str, Any]]:
+    def get_canonical_glossary_terms(cls) -> list[dict[str, Any]]:
         """Canonical HR definitions and metric formulas for organizational knowledge grounding."""
         return [
             {
@@ -263,7 +264,7 @@ class DocumentBuilder:
         ]
 
     @classmethod
-    def get_canonical_report_definitions(cls) -> List[Dict[str, Any]]:
+    def get_canonical_report_definitions(cls) -> list[dict[str, Any]]:
         """Approved organizational report specifications and KPI templates."""
         return [
             {
@@ -291,9 +292,9 @@ class DocumentBuilder:
 
     def build_glossary_term_document(
         self,
-        term_data: Dict[str, Any],
+        term_data: dict[str, Any],
         database_id: str
-    ) -> Tuple[Dict[str, Any], List[SemanticChunk]]:
+    ) -> tuple[dict[str, Any], list[SemanticChunk]]:
         """Transforms an HR business glossary term into a RAG document and chunks."""
         clean_slug = term_data["term"].lower().replace(" ", "_").replace("-", "_")
         doc_id = f"DOC_GLOSS_{database_id}_{clean_slug}"
@@ -313,9 +314,9 @@ class DocumentBuilder:
 
     def build_report_definition_document(
         self,
-        def_data: Dict[str, Any],
+        def_data: dict[str, Any],
         database_id: str
-    ) -> Tuple[Dict[str, Any], List[SemanticChunk]]:
+    ) -> tuple[dict[str, Any], list[SemanticChunk]]:
         """Transforms an approved report definition into a RAG document and chunks."""
         clean_slug = def_data["name"].lower().replace(" ", "_").replace("&", "and")[:30]
         doc_id = f"DOC_RPTDEF_{database_id}_{clean_slug}"

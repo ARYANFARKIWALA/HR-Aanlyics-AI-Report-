@@ -12,41 +12,38 @@ Calculates:
 8. Average latency
 """
 
-import os
-import json
-import time
 import datetime
-from typing import List, Optional, Dict, Any, Set
-from sqlalchemy.orm import Session
+import json
+import os
+import time
+from typing import Any
+
 import sqlglot
+from sqlalchemy.orm import Session
 from sqlglot import exp
 
-from sql_validator.service import SQLValidatorService
-from sql_validator.schemas import SQLValidationRequest
-from query_execution.service import QueryExecutionService
 from query_execution.schemas import ExecuteQueryRequest
-from text_to_sql.service import TextToSQLService
-from text_to_sql.schemas import TextToSQLRequest
+from query_execution.service import QueryExecutionService
 from rag.rag_service import RAGService
+from sql_validator.schemas import SQLValidationRequest
+from sql_validator.service import SQLValidatorService
+from text_to_sql.schemas import TextToSQLRequest
+from text_to_sql.service import TextToSQLService
 
-from .schemas import (
-    TestCaseResult,
-    EvaluationSummary,
-    EvaluationRunRequest
-)
+from .schemas import EvaluationRunRequest, EvaluationSummary, TestCaseResult
 
 GOLDEN_DATASET_100_PATH = os.path.join(os.path.dirname(__file__), "golden_dataset_100.json")
 GOLDEN_DATASET_PATH = os.path.join(os.path.dirname(__file__), "golden_dataset.json")
 EVAL_REPORT_PATH = os.path.join(os.path.dirname(__file__), "evaluation_report.md")
 
-_LATEST_EVALUATION_SUMMARY: Optional[EvaluationSummary] = None
+_LATEST_EVALUATION_SUMMARY: EvaluationSummary | None = None
 
 
 class EvaluationEngine:
     """Automated benchmark evaluator for SQL accuracy, security defense, and execution quality."""
 
     @classmethod
-    def load_golden_dataset(cls) -> List[Dict[str, Any]]:
+    def load_golden_dataset(cls) -> list[dict[str, Any]]:
         """Loads curated test cases from golden_dataset_100.json (or fallback golden_dataset.json)."""
         path = GOLDEN_DATASET_100_PATH if os.path.exists(GOLDEN_DATASET_100_PATH) else GOLDEN_DATASET_PATH
         if not os.path.exists(path):
@@ -58,7 +55,7 @@ class EvaluationEngine:
     def run_benchmark(
         cls,
         db: Session,
-        req: Optional[EvaluationRunRequest] = None
+        req: EvaluationRunRequest | None = None
     ) -> EvaluationSummary:
         """Executes golden benchmark suite measuring accuracy, security, and performance across 100+ HR questions."""
         global _LATEST_EVALUATION_SUMMARY
@@ -77,7 +74,7 @@ class EvaluationEngine:
         t2s = TextToSQLService(db=db)
         rag_svc = RAGService(db=db)
 
-        results: List[TestCaseResult] = []
+        results: list[TestCaseResult] = []
         total_latency = 0.0
 
         for tc in dataset:
@@ -132,14 +129,12 @@ class EvaluationEngine:
                 # Standard Natural Language HR Reporting Question
                 gen_sql = None
                 rag_hit = False
-                retrieved_context = None
 
                 # 1. RAG Context Retrieval
                 try:
                     rag_res = rag_svc.get_context_for_query(query=question, database_id="sqlite_hr_default", top_k=3)
                     if rag_res and rag_res.status == "SUCCESS":
                         rag_hit = True
-                        retrieved_context = rag_res
                 except Exception:
                     rag_hit = False
 
@@ -175,8 +170,8 @@ class EvaluationEngine:
 
                 # 3. AST Parsing & Table / Column Extraction
                 ast = None
-                parsed_tables: Set[str] = set()
-                parsed_columns: Set[str] = set()
+                parsed_tables: set[str] = set()
+                parsed_columns: set[str] = set()
                 sql_valid = False
 
                 try:
@@ -204,11 +199,7 @@ class EvaluationEngine:
                 if expected_rule:
                     rule_lower = expected_rule.lower()
                     gen_sql_lower = gen_sql.lower()
-                    if "active" in rule_lower and "active" not in gen_sql_lower:
-                        business_rule_match = False
-                    elif "current" in rule_lower and "is_current" not in gen_sql_lower:
-                        business_rule_match = False
-                    elif "terminated" in rule_lower and "terminated" not in gen_sql_lower:
+                    if "active" in rule_lower and "active" not in gen_sql_lower or "current" in rule_lower and "is_current" not in gen_sql_lower or "terminated" in rule_lower and "terminated" not in gen_sql_lower:
                         business_rule_match = False
 
                 # 4. Security Gate Validation (Module 7)
@@ -373,7 +364,7 @@ All metrics reported below are calculated directly from empirical runs across th
 |---|---|---|---|---|
 """
         # Category breakdown
-        categories = sorted(list(set(r.category for r in summary.results)))
+        categories = sorted({r.category for r in summary.results})
         for cat in categories:
             cat_results = [r for r in summary.results if r.category == cat]
             cat_cnt = len(cat_results)
@@ -396,5 +387,5 @@ Defense Success Rate: 100.0% (Zero compromises).
             f.write(report_md)
 
     @classmethod
-    def get_latest_summary(cls) -> Optional[EvaluationSummary]:
+    def get_latest_summary(cls) -> EvaluationSummary | None:
         return _LATEST_EVALUATION_SUMMARY

@@ -1,10 +1,13 @@
 """RAG Retrieval Engine for both HR Policies and Enterprise SQL Templates."""
 
-from typing import List, Dict, Any, Optional
+from typing import Any
+
 from sqlalchemy.orm import Session
+
+from ai.model import llm_client
+
 from .embeddings import EmbeddingEngine
 from .ingestion import DocumentIngester, PolicyDocument
-from ai.model import llm_client
 
 
 class RAGRetriever:
@@ -13,11 +16,11 @@ class RAGRetriever:
     def __init__(self):
         self.policy_engine = EmbeddingEngine()
         self.sql_engine = EmbeddingEngine()
-        self.policies: List[PolicyDocument] = []
-        self.sql_docs: List[Dict[str, Any]] = []
+        self.policies: list[PolicyDocument] = []
+        self.sql_docs: list[dict[str, Any]] = []
         self._initialized = False
 
-    def initialize(self, db_session: Optional[Session] = None):
+    def initialize(self, db_session: Session | None = None):
         """Builds index matrices from policies and database SQL templates."""
         # Index Policies
         self.policies = DocumentIngester.get_all_policies()
@@ -37,7 +40,7 @@ class RAGRetriever:
         if sql_texts:
             self.sql_engine.fit(sql_texts)
 
-    def search_sql_templates(self, query: str, top_k: int = 3) -> List[Dict[str, Any]]:
+    def search_sql_templates(self, query: str, top_k: int = 3) -> list[dict[str, Any]]:
         """Finds closest matching verified enterprise SQL queries."""
         if not self.sql_docs:
             return []
@@ -50,7 +53,7 @@ class RAGRetriever:
                 results.append(item)
         return results
 
-    def search_policies(self, query: str, top_k: int = 2) -> List[Dict[str, Any]]:
+    def search_policies(self, query: str, top_k: int = 2) -> list[dict[str, Any]]:
         """Retrieves matching HR policies."""
         matches = self.policy_engine.find_top_k(query, k=top_k)
         results = []
@@ -66,7 +69,7 @@ class RAGRetriever:
                 })
         return results
 
-    def answer_policy_question(self, query: str) -> Dict[str, Any]:
+    def answer_policy_question(self, query: str) -> dict[str, Any]:
         """Answers an HR policy question using retrieved context and LLM."""
         matched_policies = self.search_policies(query, top_k=2)
         if not matched_policies:

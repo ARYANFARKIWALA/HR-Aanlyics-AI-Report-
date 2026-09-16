@@ -8,14 +8,16 @@ Combines:
 Provides explainability breakdown ("Why retrieved?").
 """
 
-import re
 import logging
-from typing import Dict, Any, List, Optional, Tuple
+import re
+from typing import Any
+
 from sqlalchemy.orm import Session
 
-from backend.database.models_rag import RAGChunk, RAGDocument
-from .vector_store import VectorStore
+from backend.database.models_rag import RAGChunk
+
 from .query_analyzer import QueryAnalyzer
+from .vector_store import VectorStore
 
 logger = logging.getLogger("rag.retrieval_service")
 
@@ -35,7 +37,7 @@ class HybridRetrievalService:
         include_schema: bool = True,
         include_rules: bool = True,
         include_reports: bool = True
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Executes hybrid retrieval over active knowledge chunks."""
         # 1. Query Analysis
         analysis = QueryAnalyzer.analyze(query)
@@ -81,7 +83,7 @@ class HybridRetrievalService:
 
 
 
-        scored_results: List[Dict[str, Any]] = []
+        scored_results: list[dict[str, Any]] = []
 
         for chunk, v_score in vector_candidates:
             text_clean = chunk.chunk_text.lower()

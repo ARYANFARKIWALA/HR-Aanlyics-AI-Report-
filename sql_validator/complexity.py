@@ -1,7 +1,7 @@
 """Complexity analysis and metrics calculator for SQL AST."""
 
-import sqlglot
 from sqlglot import exp
+
 from .schemas import ComplexityMetrics
 
 

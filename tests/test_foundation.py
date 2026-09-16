@@ -2,23 +2,22 @@
 
 import pytest
 from fastapi.testclient import TestClient
-from backend.main import app
+
 from backend.core import (
-    setup_logging,
-    get_logger,
     AppException,
     NotFoundError,
     SecurityError,
+    get_logger,
     settings,
-    EnvironmentType
+    setup_logging,
 )
-from backend.models import User, Department, Employee
-from backend.schemas import HealthResponse, ReadinessResponse, ErrorResponse
+from backend.main import app
+from backend.models import Department, Employee, User
+from backend.schemas import ErrorResponse, HealthResponse
 from modules.database import connection_manager
-from modules.sql_validator import SQLValidatorService
 from modules.query_engine import QueryExecutionService
 from modules.reports import ReportLifecycleService
-from frontend.components import render_header, render_sidebar
+from modules.sql_validator import SQLValidatorService
 
 
 @pytest.fixture(scope="module")

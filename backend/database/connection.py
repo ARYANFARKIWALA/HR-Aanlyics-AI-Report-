@@ -1,6 +1,7 @@
 """Database connection and session factory."""
 
 import os
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 

@@ -1,7 +1,8 @@
 """Comprehensive Unit and Integration Tests for Phase 9 — HR Analytics Engine."""
 
-import pytest
 import pandas as pd
+import pytest
+
 from analytics.reusable_services import HRAnalyticsEngine
 
 

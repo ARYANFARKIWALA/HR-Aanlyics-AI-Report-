@@ -25,14 +25,15 @@ Comprehensive unit and integration tests covering:
 """
 
 import pytest
+
 from backend.database.connection import SessionLocal, init_db
 from backend.database.models import User
-from backend.database.models_repo import SQLReport, SQLReportVersion, SQLApproval
+from backend.database.models_repo import SQLReport
 from backend.services.sql_repository_service import SQLRepositoryService
-from sql.normalizer import SQLNormalizer
-from sql.file_parser import SQLFileParser
-from sql.parser import SQLParser
 from rag.sql_knowledge_builder import SQLKnowledgeBuilder
+from sql.file_parser import SQLFileParser
+from sql.normalizer import SQLNormalizer
+from sql.parser import SQLParser
 
 
 @pytest.fixture
@@ -66,7 +67,7 @@ def viewer_user(db_session):
 # 1. Add Valid SQL
 def test_add_valid_sql(db_session, admin_user):
     sql = "SELECT department_id, COUNT(id) AS cnt FROM employees GROUP BY department_id;"
-    report, dup_info = SQLRepositoryService.create_report(
+    report, _dup_info = SQLRepositoryService.create_report(
         session=db_session,
         report_name="Valid Test Report",
         sql_query=sql,
@@ -127,6 +128,7 @@ def test_upload_invalid_sql_file(db_session, admin_user):
 
 import uuid
 
+
 # 6. Bulk Import
 def test_bulk_import(db_session, admin_user):
     token = uuid.uuid4().hex[:8]
@@ -167,7 +169,7 @@ def test_detect_duplicate_sql(db_session, admin_user):
     assert dup1["is_duplicate"] is False
 
     # Ingest second
-    rep2, dup2 = SQLRepositoryService.create_report(
+    _rep2, dup2 = SQLRepositoryService.create_report(
         session=db_session,
         report_name=f"Duplicate Active Staff {token}",
         sql_query=sql2,
@@ -317,9 +319,11 @@ def test_archive_report(db_session, admin_user):
 # 20. Role-based Permission Test
 def test_unauthorized_viewer_access(db_session, viewer_user):
     # Viewer role cannot approve
+    from fastapi import HTTPException
+
     from backend.auth.dependencies import require_role
     checker = require_role(["admin", "hr_manager"])
-    with pytest.raises(Exception):
+    with pytest.raises(HTTPException):
         checker(viewer_user)
 
 

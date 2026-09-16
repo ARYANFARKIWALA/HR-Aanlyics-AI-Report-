@@ -1,14 +1,15 @@
 """High-level Report Lifecycle CRUD Service for Module 12."""
 
+import datetime
 import json
 import uuid
-import datetime
-from typing import List, Optional, Dict, Any
-from sqlalchemy.orm import Session
+
 from sqlalchemy import or_
+from sqlalchemy.orm import Session
 
 from backend.database.models import User
-from backend.database.models_reports import SavedReport, ReportAccess
+from backend.database.models_reports import ReportAccess, SavedReport
+
 from .schemas import ReportCreateRequest, ReportUpdateRequest
 from .sharing_service import ReportSharingService
 from .version_service import ReportVersionService
@@ -22,7 +23,7 @@ class ReportLifecycleService:
         cls,
         db: Session,
         req: ReportCreateRequest,
-        user: Optional[User] = None
+        user: User | None = None
     ) -> SavedReport:
         """Creates a new enterprise saved report with initial version snapshot and owner ACL."""
         report_id = f"rep_{uuid.uuid4().hex[:12]}"
@@ -81,7 +82,7 @@ class ReportLifecycleService:
         cls,
         db: Session,
         report_id: str,
-        user: Optional[User] = None
+        user: User | None = None
     ) -> SavedReport:
         """Retrieves a saved report by report_id checking view clearance."""
         report = db.query(SavedReport).filter(
@@ -102,11 +103,11 @@ class ReportLifecycleService:
     def list_reports(
         cls,
         db: Session,
-        user: Optional[User] = None,
-        category: Optional[str] = None,
-        search: Optional[str] = None,
+        user: User | None = None,
+        category: str | None = None,
+        search: str | None = None,
         include_archived: bool = False
-    ) -> List[SavedReport]:
+    ) -> list[SavedReport]:
         """Lists all reports accessible to the user, applying category/search/archive filters."""
         query = db.query(SavedReport).filter(SavedReport.is_deleted == False)
 
@@ -143,7 +144,7 @@ class ReportLifecycleService:
         db: Session,
         report_id: str,
         req: ReportUpdateRequest,
-        user: Optional[User] = None
+        user: User | None = None
     ) -> SavedReport:
         """Updates a report, incrementing version and creating an immutable version snapshot."""
         report = cls.get_report(db, report_id, user)
@@ -189,7 +190,7 @@ class ReportLifecycleService:
         db: Session,
         report_id: str,
         user: User,
-        new_title: Optional[str] = None
+        new_title: str | None = None
     ) -> SavedReport:
         """Duplicates a report, resetting version to 1 and setting requester as owner."""
         source = cls.get_report(db, report_id, user)

@@ -1,7 +1,6 @@
 """Wrapper script for database restore."""
 
-import sys
-from scripts.restore_db import restore_database, main
+from scripts.restore_db import main
 
 if __name__ == "__main__":
     main()

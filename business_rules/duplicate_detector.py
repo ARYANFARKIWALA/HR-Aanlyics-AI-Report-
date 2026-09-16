@@ -5,10 +5,12 @@ Identifies exact and near-duplicate business rules using:
 - Natural language token overlap / Jaccard similarity
 """
 
-import re
 import logging
-from typing import Dict, Any, List, Optional
+import re
+from typing import Any
+
 from sqlalchemy.orm import Session
+
 from backend.database.models_rules import BusinessRule
 
 logger = logging.getLogger("business_rules.duplicate")
@@ -20,12 +22,12 @@ class RuleDuplicateDetector:
     @classmethod
     def detect_duplicates(
         cls,
-        candidate_rule: Dict[str, Any],
+        candidate_rule: dict[str, Any],
         db: Session,
-        database_id: Optional[str] = None,
+        database_id: str | None = None,
         threshold: float = 0.80,
-        exclude_rule_id: Optional[int] = None
-    ) -> List[Dict[str, Any]]:
+        exclude_rule_id: int | None = None
+    ) -> list[dict[str, Any]]:
         """Scans database for identical or highly similar business rules."""
         db_id = candidate_rule.get("database_id") or database_id or "sqlite_hr_default"
         cand_expr = cls._normalize_text(candidate_rule.get("rule_expression") or "")

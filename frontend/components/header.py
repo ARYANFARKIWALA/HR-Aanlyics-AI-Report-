@@ -1,11 +1,12 @@
 """Reusable Streamlit header component."""
 
-from typing import Optional
+
 import streamlit as st
+
 from config.settings import settings
 
 
-def render_header(title: str, subtitle: Optional[str] = None) -> None:
+def render_header(title: str, subtitle: str | None = None) -> None:
     """Renders a standardized enterprise header banner."""
     col1, col2 = st.columns([4, 1])
     with col1:

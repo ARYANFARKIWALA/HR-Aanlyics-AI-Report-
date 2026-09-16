@@ -10,10 +10,9 @@ Provides:
 
 import os
 import sys
-import json
-import datetime
-import streamlit as st
+
 import pandas as pd
+import streamlit as st
 
 # Ensure project root is in sys.path
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -23,18 +22,17 @@ if PROJECT_ROOT not in sys.path:
 
 from backend.database.connection import SessionLocal, init_db
 from backend.database.models import User
-from backend.database.models_reports import SavedReport
-from reports_lifecycle.schemas import (
-    ReportCreateRequest,
-    ReportUpdateRequest,
-    ReportAccessCreateRequest,
-    ReportRunRequest
-)
-from reports_lifecycle.report_service import ReportLifecycleService
-from reports_lifecycle.sharing_service import ReportSharingService
-from reports_lifecycle.version_service import ReportVersionService
 from reports_lifecycle.execution_service import ReportExecutionService
 from reports_lifecycle.export_service import ReportExportService
+from reports_lifecycle.report_service import ReportLifecycleService
+from reports_lifecycle.schemas import (
+    ReportAccessCreateRequest,
+    ReportCreateRequest,
+    ReportRunRequest,
+    ReportUpdateRequest,
+)
+from reports_lifecycle.sharing_service import ReportSharingService
+from reports_lifecycle.version_service import ReportVersionService
 
 st.set_page_config(
     page_title="Report Catalog & Export - HR Analytics AI",
@@ -241,15 +239,14 @@ with tab_manage:
                         except Exception as e:
                             st.error(f"Failed: {e}")
             with col_c:
-                if can_admin:
-                    if st.button("🗑️ Delete Report (Soft-Delete)", type="secondary"):
-                        try:
-                            ReportLifecycleService.delete_report(db, active_report.report_id, current_user)
-                            st.warning(f"Report '{active_report.report_id}' deleted.")
-                            st.session_state["selected_report_id"] = None
-                            st.rerun()
-                        except Exception as e:
-                            st.error(f"Failed: {e}")
+                if can_admin and st.button("🗑️ Delete Report (Soft-Delete)", type="secondary"):
+                    try:
+                        ReportLifecycleService.delete_report(db, active_report.report_id, current_user)
+                        st.warning(f"Report '{active_report.report_id}' deleted.")
+                        st.session_state["selected_report_id"] = None
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Failed: {e}")
 
 # =========================================================================
 # TAB 3: VERSION HISTORY & NON-DESTRUCTIVE RESTORE
@@ -399,7 +396,7 @@ with tab_run:
                     st.error(f"Execution Failed: {run_res.error or run_res.status}")
 
         # Export section
-        if "last_run_rows" in st.session_state and st.session_state["last_run_rows"]:
+        if st.session_state.get("last_run_rows"):
             st.markdown("---")
             st.markdown("#### 📥 Download Sanitized Export")
             if not can_export:

@@ -6,7 +6,8 @@ and preserves the original SQL text intact.
 """
 
 import re
-from typing import List, Dict, Any, Optional
+from typing import Any
+
 import sqlparse
 
 
@@ -17,11 +18,11 @@ class ParsedSQLFileEntry:
         self,
         query_index: int,
         raw_sql: str,
-        extracted_name: Optional[str] = None,
-        extracted_description: Optional[str] = None,
-        extracted_category: Optional[str] = None,
-        extracted_tags: Optional[List[str]] = None,
-        filename: Optional[str] = None
+        extracted_name: str | None = None,
+        extracted_description: str | None = None,
+        extracted_category: str | None = None,
+        extracted_tags: list[str] | None = None,
+        filename: str | None = None
     ):
         self.query_index = query_index
         self.raw_sql = raw_sql.strip()
@@ -35,7 +36,7 @@ class ParsedSQLFileEntry:
     def is_empty(self) -> bool:
         return not bool(self.raw_sql)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "query_index": self.query_index,
             "raw_sql": self.raw_sql,
@@ -50,26 +51,26 @@ class ParsedSQLFileEntry:
 class SQLFileParser:
     """Extracts queries and metadata from .sql and .txt file contents."""
 
-    HEADER_NAME_PATTERNS = [
+    HEADER_NAME_PATTERNS = (
         re.compile(r"--\s*(?:report\s*name|title|name)\s*:\s*(.+)$", re.IGNORECASE | re.MULTILINE),
         re.compile(r"/\*\s*(?:report\s*name|title|name)\s*:\s*(.+?)\*/", re.IGNORECASE | re.DOTALL),
-    ]
+    )
 
-    HEADER_DESC_PATTERNS = [
+    HEADER_DESC_PATTERNS = (
         re.compile(r"--\s*(?:description|desc|purpose)\s*:\s*(.+)$", re.IGNORECASE | re.MULTILINE),
         re.compile(r"/\*\s*(?:description|desc|purpose)\s*:\s*(.+?)\*/", re.IGNORECASE | re.DOTALL),
-    ]
+    )
 
-    HEADER_CAT_PATTERNS = [
+    HEADER_CAT_PATTERNS = (
         re.compile(r"--\s*(?:category|module|type)\s*:\s*(.+)$", re.IGNORECASE | re.MULTILINE),
-    ]
+    )
 
-    HEADER_TAGS_PATTERNS = [
+    HEADER_TAGS_PATTERNS = (
         re.compile(r"--\s*(?:tags|keywords)\s*:\s*(.+)$", re.IGNORECASE | re.MULTILINE),
-    ]
+    )
 
     @classmethod
-    def parse_content(cls, content: str, filename: Optional[str] = None) -> List[ParsedSQLFileEntry]:
+    def parse_content(cls, content: str, filename: str | None = None) -> list[ParsedSQLFileEntry]:
         """Parses file content, separating multiple queries and preserving original SQL."""
         if not content or not content.strip():
             return []
@@ -140,7 +141,7 @@ class SQLFileParser:
         return parsed_entries
 
     @classmethod
-    def parse_file(cls, filepath: str) -> List[ParsedSQLFileEntry]:
+    def parse_file(cls, filepath: str) -> list[ParsedSQLFileEntry]:
         """Reads a file from disk and parses its queries."""
         import os
         filename = os.path.basename(filepath)

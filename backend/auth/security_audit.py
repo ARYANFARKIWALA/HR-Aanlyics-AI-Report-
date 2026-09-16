@@ -2,8 +2,10 @@
 
 import datetime
 import json
-from typing import Optional, Dict, Any
+from typing import Any
+
 from sqlalchemy.orm import Session
+
 from ..database.models_auth import SecurityAuditLog
 
 
@@ -15,10 +17,10 @@ class SecurityAuditService:
         db: Session,
         event_type: str,
         status: str,
-        user_id: Optional[int] = None,
-        username: Optional[str] = None,
-        ip_address: Optional[str] = None,
-        details: Optional[Dict[str, Any] | str] = None,
+        user_id: int | None = None,
+        username: str | None = None,
+        ip_address: str | None = None,
+        details: dict[str, Any] | str | None = None,
     ) -> SecurityAuditLog:
         """Appends a new security audit record to the database."""
         details_str = (

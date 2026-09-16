@@ -16,8 +16,8 @@ Invariant: Parsing strictly analyzes AST syntax and never executes queries.
 """
 
 import re
-from typing import List, Dict, Any, Optional
-import sqlglot
+from typing import Any
+
 from sqlglot import exp, parse_one, transpile
 
 
@@ -26,33 +26,33 @@ class ExtractedSQLMetadata:
 
     def __init__(self):
         self.is_valid: bool = True
-        self.validation_error: Optional[str] = None
+        self.validation_error: str | None = None
         self.statement_type: str = "UNKNOWN"
         self.formatted_sql: str = ""
 
         # Structural Elements
-        self.tables: List[str] = []
-        self.columns: List[str] = []
-        self.joins: List[Dict[str, str]] = []
-        self.filters: List[str] = []
-        self.aggregations: List[Dict[str, str]] = []
-        self.group_by: List[str] = []
-        self.order_by: List[str] = []
-        self.ctes: List[str] = []
+        self.tables: list[str] = []
+        self.columns: list[str] = []
+        self.joins: list[dict[str, str]] = []
+        self.filters: list[str] = []
+        self.aggregations: list[dict[str, str]] = []
+        self.group_by: list[str] = []
+        self.order_by: list[str] = []
+        self.ctes: list[str] = []
         self.subquery_count: int = 0
-        self.limit: Optional[int] = None
+        self.limit: int | None = None
 
         # Domain Logic Detection
-        self.date_conditions: List[str] = []
+        self.date_conditions: list[str] = []
         self.uses_effective_dating: bool = False
-        self.effective_dating_details: List[str] = []
+        self.effective_dating_details: list[str] = []
         self.uses_security_filter: bool = False
-        self.security_filters_details: List[str] = []
+        self.security_filters_details: list[str] = []
         self.has_business_logic: bool = False
-        self.business_logic_details: List[str] = []
+        self.business_logic_details: list[str] = []
 
         # Parameters
-        self.parameters: List[Dict[str, Any]] = []
+        self.parameters: list[dict[str, Any]] = []
 
         # Complexity
         self.complexity_score: float = 1.0
@@ -71,14 +71,14 @@ class ExtractedSQLMetadata:
         return self.uses_effective_dating
 
     @property
-    def effective_dating_clauses(self) -> List[str]:
+    def effective_dating_clauses(self) -> list[str]:
         return self.effective_dating_details
 
     @property
-    def where_conditions(self) -> List[str]:
+    def where_conditions(self) -> list[str]:
         return self.filters
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "is_valid": self.is_valid,
             "validation_error": self.validation_error,
@@ -119,23 +119,23 @@ class SQLParser:
     """Parses and extracts metadata from SQL queries using SQLGlot."""
 
     # Patterns for domain detection
-    EFFECTIVE_DATE_PATTERNS = [
+    EFFECTIVE_DATE_PATTERNS = (
         re.compile(r"effective_start_date", re.IGNORECASE),
         re.compile(r"effective_end_date", re.IGNORECASE),
         re.compile(r"effective_date", re.IGNORECASE),
         re.compile(r"as_of_date", re.IGNORECASE),
         re.compile(r"is_current\s*=\s*(?:1|true)", re.IGNORECASE),
         re.compile(r"ROW_NUMBER\s*\(\s*\)\s*OVER\s*\(\s*PARTITION\s+BY.*ORDER\s+BY\s+.*effective", re.IGNORECASE | re.DOTALL),
-    ]
+    )
 
-    SECURITY_FILTER_PATTERNS = [
+    SECURITY_FILTER_PATTERNS = (
         re.compile(r"\b(?:organization_id|company_id|department_id|location_id|user_id|manager_id)\b", re.IGNORECASE),
         re.compile(r"\b(?:security_scope|tenant_id|org_id|cost_center_id)\b", re.IGNORECASE),
-    ]
+    )
 
-    DATE_COLUMN_PATTERNS = [
+    DATE_COLUMN_PATTERNS = (
         re.compile(r"\b(?:joining_date|termination_date|hire_date|effective_date|start_date|end_date|review_date|created_at|updated_at|current_date|now|sysdate|getdate)\b", re.IGNORECASE),
-    ]
+    )
 
     MUTATION_EXPRESSIONS = (
         exp.Insert, exp.Update, exp.Delete, exp.Drop,
@@ -158,13 +158,13 @@ class SQLParser:
         expression = None
         try:
             expression = parse_one(cleaned, read=read_dialect)
-        except Exception as e_dialect:
+        except Exception:
             # Fallback to generic parsing
             try:
                 expression = parse_one(cleaned)
             except Exception as e_generic:
                 meta.is_valid = False
-                meta.validation_error = f"SQL Syntax/Parser Error: {str(e_generic)}"
+                meta.validation_error = f"SQL Syntax/Parser Error: {e_generic!s}"
                 meta.statement_type = "INVALID"
                 # Still perform regex extraction on raw text so we don't lose all metadata
                 cls._regex_extract_fallback(cleaned, meta)
@@ -189,7 +189,7 @@ class SQLParser:
         for tbl in expression.find_all(exp.Table):
             if tbl.name:
                 tables.append(tbl.name.lower())
-        meta.tables = sorted(list(dict.fromkeys(tables)))
+        meta.tables = sorted(dict.fromkeys(tables))
 
         # 3. Extract Projection Columns
         columns = []
@@ -219,7 +219,6 @@ class SQLParser:
         meta.joins = joins
 
         # 5. Extract Filters (WHERE conditions)
-        filters = []
         where_clause = expression.find(exp.Where)
         if where_clause:
             # Sanitize filter expressions to avoid leaking raw literal values in metadata
@@ -313,7 +312,7 @@ class SQLParser:
             meta.business_logic_details = business_features
 
     @classmethod
-    def _extract_parameters(cls, raw_sql: str) -> List[Dict[str, Any]]:
+    def _extract_parameters(cls, raw_sql: str) -> list[dict[str, Any]]:
         """Identifies parameter placeholders (:param, {param}, %param%)."""
         params = []
         seen = set()
@@ -382,7 +381,7 @@ class SQLParser:
         """Fallback regex extractor if full AST parser fails on malformed SQL."""
         tables = re.findall(r"\bFROM\s+([a-zA-Z0-9_]+)", raw_sql, re.IGNORECASE)
         joins = re.findall(r"\bJOIN\s+([a-zA-Z0-9_]+)", raw_sql, re.IGNORECASE)
-        meta.tables = sorted(list(dict.fromkeys([t.lower() for t in (tables + joins)])))
+        meta.tables = sorted(dict.fromkeys([t.lower() for t in (tables + joins)]))
         meta.parameters = cls._extract_parameters(raw_sql)
         meta.complexity_score = 3.0
         meta.complexity_level = "LOW"

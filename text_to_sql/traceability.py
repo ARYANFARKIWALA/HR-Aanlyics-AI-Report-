@@ -7,10 +7,12 @@ Maps generated SQL clauses back to:
 """
 
 import logging
-from typing import Dict, Any, List, Optional
+from typing import Any
+
 from sqlalchemy.orm import Session
-from backend.database.models_rules import BusinessRule
+
 from backend.database.models_repo import SQLReport
+from backend.database.models_rules import BusinessRule
 
 logger = logging.getLogger("text_to_sql.traceability")
 
@@ -23,9 +25,9 @@ class SQLTraceabilityMapper:
 
     def map_traceability(
         self,
-        applied_rule_ids: List[int],
-        reused_report_id: Optional[int] = None
-    ) -> Dict[str, Any]:
+        applied_rule_ids: list[int],
+        reused_report_id: int | None = None
+    ) -> dict[str, Any]:
         """Collects metadata for all rules and reports linked to generated SQL."""
         rules_metadata = []
         if applied_rule_ids:

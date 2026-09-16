@@ -1,7 +1,8 @@
 """Pydantic schemas for Module 9 - HR Analytics Engine."""
 
-from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field
+from typing import Any
+
+from pydantic import BaseModel
 
 
 class ColumnClassification(BaseModel):
@@ -18,31 +19,31 @@ class ColumnProfile(BaseModel):
     null_count: int
     null_pct: float
     unique_count: int
-    min_val: Optional[Any] = None
-    max_val: Optional[Any] = None
-    mean_val: Optional[float] = None
-    median_val: Optional[float] = None
-    std_val: Optional[float] = None
+    min_val: Any | None = None
+    max_val: Any | None = None
+    mean_val: float | None = None
+    median_val: float | None = None
+    std_val: float | None = None
 
 
 class KPISummary(BaseModel):
     total_records: int
-    active_headcount: Optional[int] = None
-    terminated_headcount: Optional[int] = None
-    attrition_rate_pct: Optional[float] = None
-    retention_rate_pct: Optional[float] = None
-    avg_compensation: Optional[float] = None
-    median_compensation: Optional[float] = None
-    total_payroll: Optional[float] = None
-    avg_tenure_years: Optional[float] = None
-    gender_distribution: Dict[str, float] = {}
-    custom_kpis: Dict[str, Any] = {}
+    active_headcount: int | None = None
+    terminated_headcount: int | None = None
+    attrition_rate_pct: float | None = None
+    retention_rate_pct: float | None = None
+    avg_compensation: float | None = None
+    median_compensation: float | None = None
+    total_payroll: float | None = None
+    avg_tenure_years: float | None = None
+    gender_distribution: dict[str, float] = {}
+    custom_kpis: dict[str, Any] = {}
 
 
 class OutlierItem(BaseModel):
     column_name: str
     row_index: int
-    identifier: Optional[str] = None
+    identifier: str | None = None
     value: float
     method: str  # IQR, Z_SCORE
     lower_bound: float
@@ -54,9 +55,9 @@ class TrendItem(BaseModel):
     time_period: str
     metric_name: str
     value: float
-    previous_value: Optional[float] = None
-    change_absolute: Optional[float] = None
-    change_pct: Optional[float] = None
+    previous_value: float | None = None
+    change_absolute: float | None = None
+    change_pct: float | None = None
     direction: str = "STABLE"  # INCREASING, DECREASING, STABLE
 
 
@@ -70,7 +71,7 @@ class CorrelationItem(BaseModel):
 
 class SegmentationBreakdown(BaseModel):
     dimension: str
-    segments: Dict[str, Dict[str, Any]] = {}
+    segments: dict[str, dict[str, Any]] = {}
 
 
 class DataQualityReport(BaseModel):
@@ -78,7 +79,7 @@ class DataQualityReport(BaseModel):
     total_rows: int
     completeness_pct: float
     anomaly_count: int
-    issues: List[str] = []
+    issues: list[str] = []
 
 
 class InsightItem(BaseModel):
@@ -86,37 +87,37 @@ class InsightItem(BaseModel):
     category: str  # ATTRITION, COMPENSATION, DIVERSITY, PERFORMANCE, DATA_QUALITY
     insight_type: str  # ALERT, TREND, BENCHMARK, RECOMMENDATION
     text: str
-    metric_citations: Dict[str, Any] = {}
+    metric_citations: dict[str, Any] = {}
 
 
 class RecommendedChart(BaseModel):
     chart_type: str  # bar, line, scatter, box, pie, heatmap
     title: str
-    x_axis: Optional[str] = None
-    y_axis: Optional[str] = None
-    color_by: Optional[str] = None
+    x_axis: str | None = None
+    y_axis: str | None = None
+    color_by: str | None = None
     description: str = ""
 
 
 class AnalyticsRequest(BaseModel):
-    execution_id: Optional[str] = None
-    dataset: Optional[List[Dict[str, Any]]] = None
-    target_dimension: Optional[str] = None
-    target_metric: Optional[str] = None
+    execution_id: str | None = None
+    dataset: list[dict[str, Any]] | None = None
+    target_dimension: str | None = None
+    target_metric: str | None = None
 
 
 class AnalyticsResponse(BaseModel):
     analysis_id: str
-    execution_id: Optional[str] = None
+    execution_id: str | None = None
     dataset_shape: str
-    columns: List[str] = []
-    classifications: List[ColumnClassification] = []
-    profiles: List[ColumnProfile] = []
+    columns: list[str] = []
+    classifications: list[ColumnClassification] = []
+    profiles: list[ColumnProfile] = []
     kpis: KPISummary
-    outliers: List[OutlierItem] = []
-    trends: List[TrendItem] = []
-    correlations: List[CorrelationItem] = []
-    segmentations: List[SegmentationBreakdown] = []
+    outliers: list[OutlierItem] = []
+    trends: list[TrendItem] = []
+    correlations: list[CorrelationItem] = []
+    segmentations: list[SegmentationBreakdown] = []
     data_quality: DataQualityReport
-    insights: List[InsightItem] = []
-    recommended_charts: List[RecommendedChart] = []
+    insights: list[InsightItem] = []
+    recommended_charts: list[RecommendedChart] = []

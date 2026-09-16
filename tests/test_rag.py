@@ -1,10 +1,11 @@
 """Unit tests for RAG engine (Policies and SQL Repository Retrieval)."""
 
 import pytest
+
+from backend.database.connection import SessionLocal
 from rag.embeddings import EmbeddingEngine
 from rag.ingestion import DocumentIngester
 from rag.retrieval import rag_retriever
-from backend.database.connection import SessionLocal
 
 
 @pytest.fixture

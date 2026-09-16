@@ -1,4 +1,4 @@
 """Core configuration re-export."""
-from config.settings import settings, AppSettings, EnvironmentType
+from config.settings import AppSettings, EnvironmentType, settings
 
-__all__ = ["settings", "AppSettings", "EnvironmentType"]
+__all__ = ["AppSettings", "EnvironmentType", "settings"]

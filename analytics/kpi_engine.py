@@ -1,8 +1,7 @@
 """Deterministic HR KPI Calculation Engine."""
 
-import datetime
-from typing import Dict, Any, Optional
 import pandas as pd
+
 from .schemas import KPISummary
 
 

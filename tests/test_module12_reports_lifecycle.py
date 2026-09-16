@@ -1,30 +1,23 @@
 """Unit and Integration Tests for Module 12 — Reports, Export, Sharing & Report History."""
 
-import pytest
-import datetime
 import uuid
+
+import pytest
 from fastapi.testclient import TestClient
-from backend.main import app
+
 from backend.database.connection import SessionLocal, init_db
 from backend.database.models import User
-from backend.database.models_reports import (
-    SavedReport,
-    SavedReportVersion,
-    ReportAccess,
-    ReportExecutionRecord
-)
-from reports_lifecycle.schemas import (
-    ReportCreateRequest,
-    ReportUpdateRequest,
-    ReportDuplicateRequest,
-    ReportAccessCreateRequest,
-    ReportRunRequest
-)
-from reports_lifecycle.report_service import ReportLifecycleService
-from reports_lifecycle.sharing_service import ReportSharingService
-from reports_lifecycle.version_service import ReportVersionService
+from backend.main import app
 from reports_lifecycle.execution_service import ReportExecutionService
 from reports_lifecycle.export_service import ReportExportService
+from reports_lifecycle.report_service import ReportLifecycleService
+from reports_lifecycle.schemas import (
+    ReportAccessCreateRequest,
+    ReportCreateRequest,
+    ReportUpdateRequest,
+)
+from reports_lifecycle.sharing_service import ReportSharingService
+from reports_lifecycle.version_service import ReportVersionService
 
 
 @pytest.fixture(scope="function")

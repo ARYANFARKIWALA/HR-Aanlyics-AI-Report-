@@ -1,13 +1,12 @@
 """Database Restoration and Integrity Verification Script for Module 14."""
 
-import os
-import sys
-import shutil
-import hashlib
 import gzip
+import hashlib
 import json
+import os
+import shutil
 import sqlite3
-from typing import Dict, Any, Optional
+from typing import Any
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BACKUP_DIR = os.path.join(PROJECT_ROOT, "storage", "backups")
@@ -22,10 +21,10 @@ def compute_sha256(file_path: str) -> str:
 
 
 def restore_database(
-    backup_file: Optional[str] = None,
-    target_restore_path: Optional[str] = None,
+    backup_file: str | None = None,
+    target_restore_path: str | None = None,
     backup_folder: str = BACKUP_DIR
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Decompresses and restores a database archive, validating its data integrity."""
     manifest_path = os.path.join(backup_folder, "manifest.json")
     
@@ -54,9 +53,8 @@ def restore_database(
     temp_restore_path = target_restore_path + ".restoring"
 
     # 1. Decompress to temporary file
-    with gzip.open(backup_filepath, "rb") as f_in:
-        with open(temp_restore_path, "wb") as f_out:
-            shutil.copyfileobj(f_in, f_out)
+    with gzip.open(backup_filepath, "rb") as f_in, open(temp_restore_path, "wb") as f_out:
+        shutil.copyfileobj(f_in, f_out)
 
     restored_sha256 = compute_sha256(temp_restore_path)
 

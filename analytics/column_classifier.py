@@ -1,7 +1,7 @@
 """Column semantic type classifier for HR datasets."""
 
-from typing import List, Dict
 import pandas as pd
+
 from .schemas import ColumnClassification
 
 CURRENCY_KEYWORDS = {"salary", "base_salary", "compensation", "comp", "bonus", "budget", "payroll", "pay"}
@@ -14,14 +14,14 @@ class ColumnClassifier:
     """Classifies DataFrame columns into semantic reporting types."""
 
     @classmethod
-    def classify(cls, df: pd.DataFrame) -> List[ColumnClassification]:
+    def classify(cls, df: pd.DataFrame) -> list[ColumnClassification]:
         classifications = []
         for col in df.columns:
             col_lower = str(col).lower()
             series = df[col]
 
             # 1. Identifier
-            if col_lower in IDENTIFIER_KEYWORDS or col_lower.endswith("_id") or col_lower.endswith("_number"):
+            if col_lower in IDENTIFIER_KEYWORDS or col_lower.endswith(("_id", "_number")):
                 classifications.append(ColumnClassification(
                     column_name=col,
                     semantic_type="IDENTIFIER",
@@ -29,7 +29,7 @@ class ColumnClassifier:
                     is_metric=False
                 ))
             # 2. Boolean
-            elif pd.api.types.is_bool_dtype(series) or col_lower.startswith("is_") or col_lower.startswith("has_"):
+            elif pd.api.types.is_bool_dtype(series) or col_lower.startswith(("is_", "has_")):
                 classifications.append(ColumnClassification(
                     column_name=col,
                     semantic_type="BOOLEAN",

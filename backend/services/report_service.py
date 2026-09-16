@@ -1,13 +1,16 @@
 """Report generation service coordinating report assembly, PDF, and Excel exports."""
 
-from typing import Dict, Any, List, Optional
-from sqlalchemy.orm import Session
-from ..database.models import User
-from reports.builder import ReportBuilder, ReportData
-from reports.export_pdf import PDFReportExporter
-from reports.export_excel import ExcelReportExporter
-from security.permissions import mask_pii_dataframe
+from typing import Any
+
 import pandas as pd
+from sqlalchemy.orm import Session
+
+from reports.builder import ReportBuilder, ReportData
+from reports.export_excel import ExcelReportExporter
+from reports.export_pdf import PDFReportExporter
+from security.permissions import mask_pii_dataframe
+
+from ..database.models import User
 
 
 class ReportService:
@@ -20,8 +23,8 @@ class ReportService:
         title: str,
         category: str,
         sql_query: str,
-        data_columns: List[str],
-        data_rows: List[Dict[str, Any]],
+        data_columns: list[str],
+        data_rows: list[dict[str, Any]],
         user: User,
         business_rules: str = "Standard payroll and effective-dating rules applied.",
         effective_dating_notes: str = "Current active point-in-time snapshot."

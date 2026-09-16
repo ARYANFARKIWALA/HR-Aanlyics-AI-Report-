@@ -1,12 +1,11 @@
 """Column-level security, wildcard (SELECT *) enforcement, and column expansion."""
 
-from typing import Tuple, List, Set, Dict, Optional
-import sqlglot
-from sqlglot import exp
 from sqlalchemy.orm import Session
+from sqlglot import exp
 
-from backend.database.models import User
 from backend.auth.authorization import AuthorizationService
+from backend.database.models import User
+
 from .schemas import ChecklistItem
 
 
@@ -17,7 +16,7 @@ class ColumnValidator:
     def validate_select_star(
         expression: exp.Expression,
         allow_select_star: bool = False
-    ) -> Tuple[bool, List[ChecklistItem], List[str], List[str]]:
+    ) -> tuple[bool, list[ChecklistItem], list[str], list[str]]:
         """Checks for wildcard projections (SELECT *)."""
         checklist = []
         violations = []
@@ -58,10 +57,10 @@ class ColumnValidator:
     def validate_column_permissions(
         expression: exp.Expression,
         db: Session,
-        user: Optional[User],
+        user: User | None,
         database_id: str,
-        referenced_tables: Set[str]
-    ) -> Tuple[bool, List[ChecklistItem], List[str]]:
+        referenced_tables: set[str]
+    ) -> tuple[bool, list[ChecklistItem], list[str]]:
         """Verifies that user is permitted to query the selected columns under CLS."""
         checklist = []
         violations = []
@@ -89,9 +88,9 @@ class ColumnValidator:
                 check_name="column_level_security",
                 passed=False,
                 severity="BLOCKER",
-                details=f"User role '{user.role}' is not authorized to query restricted columns: {sorted(list(forbidden_cols))}"
+                details=f"User role '{user.role}' is not authorized to query restricted columns: {sorted(forbidden_cols)}"
             ))
-            violations.append(f"Column-Level Security violation: Access denied to column(s) {sorted(list(forbidden_cols))}.")
+            violations.append(f"Column-Level Security violation: Access denied to column(s) {sorted(forbidden_cols)}.")
             return False, checklist, violations
 
         checklist.append(ChecklistItem(

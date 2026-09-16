@@ -2,11 +2,11 @@
 
 import pytest
 from fastapi.testclient import TestClient
-from backend.main import app
+
 from backend.database.connection import SessionLocal, init_db
-from backend.database.models import User
-from evaluation.evaluator import EvaluationEngine
+from backend.main import app
 from evaluation.adversarial_runner import AdversarialSecurityRunner
+from evaluation.evaluator import EvaluationEngine
 from evaluation.schemas import EvaluationRunRequest
 
 

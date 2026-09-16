@@ -1,21 +1,19 @@
 """FastAPI Routes for Module 8 - Query Execution Engine."""
 
-import datetime
-from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from backend.auth.dependencies import get_current_user, require_permission
 from backend.database.connection import get_db
+from backend.database.connection_manager import connection_manager
 from backend.database.models import User
 from backend.database.models_execution import QueryExecutionAuditLog
-from backend.database.connection_manager import connection_manager
-from backend.auth.dependencies import get_current_user, require_permission
+from query_execution.cache import QueryCacheManager
 from query_execution.schemas import (
     ExecuteQueryRequest,
     QueryExecutionResponse,
 )
-from query_execution.service import QueryExecutionService, QueryExecutionError
-from query_execution.cache import QueryCacheManager
+from query_execution.service import QueryExecutionError, QueryExecutionService
 
 router = APIRouter(prefix="/api/query-execution", tags=["Query Execution Engine"])
 
@@ -43,7 +41,7 @@ def execute_query(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Execution error: {str(e)}"
+            detail=f"Execution error: {e!s}"
         )
 
 

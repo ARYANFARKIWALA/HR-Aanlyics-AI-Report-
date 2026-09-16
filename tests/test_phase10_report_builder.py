@@ -1,6 +1,7 @@
 """Comprehensive Unit and Integration Tests for Phase 10 — HR Report Builder."""
 
 import pytest
+
 from backend.database.connection import SessionLocal, init_db
 from backend.database.models import User
 from report_builder.pipeline_service import EndToEndReportBuilderService

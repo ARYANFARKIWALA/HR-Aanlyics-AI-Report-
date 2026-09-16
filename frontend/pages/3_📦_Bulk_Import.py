@@ -13,13 +13,13 @@ PROJECT_ROOT = os.path.dirname(FRONTEND_DIR)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-import streamlit as st
 import pandas as pd
+import streamlit as st
+
 from backend.database.connection import SessionLocal
-from backend.database.models import User
 from backend.database.connection_manager import connection_manager
+from backend.database.models import User
 from backend.services.sql_repository_service import SQLRepositoryService
-from sql.file_parser import SQLFileParser
 
 st.set_page_config(page_title="Bulk SQL Import", page_icon="📦", layout="wide")
 

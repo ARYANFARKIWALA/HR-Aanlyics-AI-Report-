@@ -18,14 +18,15 @@ PROJECT_ROOT = os.path.dirname(FRONTEND_DIR)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-import streamlit as st
 import pandas as pd
+import streamlit as st
+
 from backend.database.connection import SessionLocal, init_db
 from backend.database.models import User
-from backend.database.models_validation import SQLValidationAuditLog
 from backend.database.models_execution import QueryExecutionAuditLog
+from backend.database.models_validation import SQLValidationAuditLog
 from query_execution.schemas import ExecuteQueryRequest
-from query_execution.service import QueryExecutionService, QueryExecutionError
+from query_execution.service import QueryExecutionError, QueryExecutionService
 
 st.set_page_config(
     page_title="Query Execution - HR Analytics AI",
@@ -128,9 +129,9 @@ with tab_exec:
                         st.info("Query executed successfully, returning 0 rows.")
 
                 except QueryExecutionError as qe:
-                    st.error(f"❌ Handshake / Execution Violation: {str(qe)}")
+                    st.error(f"❌ Handshake / Execution Violation: {qe!s}")
                 except Exception as ex:
-                    st.error(f"❌ Execution Exception: {str(ex)}")
+                    st.error(f"❌ Execution Exception: {ex!s}")
 
 # ----------------- 2. EXECUTION HISTORY TAB -----------------
 with tab_history:

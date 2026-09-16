@@ -1,10 +1,10 @@
 """Security, injection defense, and function allowlist validator."""
 
-from typing import Tuple, List, Set
 import re
-import sqlglot
+
 from sqlglot import exp
-from .policy_engine import SAFE_FUNCTIONS, FORBIDDEN_FUNCTIONS
+
+from .policy_engine import FORBIDDEN_FUNCTIONS
 from .schemas import ChecklistItem
 
 
@@ -17,7 +17,7 @@ class SecurityValidator:
         expression: exp.Expression,
         disallow_comments: bool = True,
         max_subquery_depth: int = 3
-    ) -> Tuple[bool, str, List[ChecklistItem], List[str], List[str]]:
+    ) -> tuple[bool, str, list[ChecklistItem], list[str], list[str]]:
         checklist = []
         violations = []
         warnings = []
@@ -67,9 +67,9 @@ class SecurityValidator:
                 check_name="safe_function_allowlist",
                 passed=False,
                 severity="BLOCKER",
-                details=f"Forbidden/dangerous SQL functions: {sorted(list(forbidden_used))}"
+                details=f"Forbidden/dangerous SQL functions: {sorted(forbidden_used)}"
             ))
-            violations.append(f"Security Violation: Forbidden function(s) {sorted(list(forbidden_used))} are blocked.")
+            violations.append(f"Security Violation: Forbidden function(s) {sorted(forbidden_used)} are blocked.")
             return False, sanitized_sql, checklist, violations, warnings
 
         checklist.append(ChecklistItem(

@@ -6,11 +6,20 @@ Defines tables for:
 """
 
 import datetime
+
 from sqlalchemy import (
-    Column, Integer, String, Boolean, DateTime,
-    ForeignKey, Text, Index, JSON
+    JSON,
+    Boolean,
+    Column,
+    DateTime,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
 )
 from sqlalchemy.orm import relationship
+
 from .connection import Base
 
 

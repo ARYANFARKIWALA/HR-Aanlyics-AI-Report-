@@ -9,13 +9,13 @@ Does NOT generate SQL.
 """
 
 import re
-from typing import Dict, Any, List
+from typing import Any, ClassVar
 
 
 class QueryAnalyzer:
     """Extracts semantic intents, entities, and keywords from natural language reporting queries."""
 
-    ENTITY_MAP = {
+    ENTITY_MAP: ClassVar[dict[str, list[str]]] = {
         "employee": ["employee", "staff", "worker", "headcount", "person", "team member"],
         "department": ["department", "dept", "division", "cost center", "business unit"],
         "attrition": ["attrition", "turnover", "separation", "resignation", "terminated", "exits", "exit"],
@@ -25,7 +25,7 @@ class QueryAnalyzer:
         "job": ["job", "role", "title", "position", "profile", "designation"]
     }
 
-    METRIC_MAP = {
+    METRIC_MAP: ClassVar[dict[str, list[str]]] = {
         "attrition": ["attrition", "turnover", "separation", "resignation", "exit rate", "turnover rate", "churn"],
         "salary": ["salary", "base salary", "compensation", "pay", "wage"],
         "bonus": ["bonus", "incentive"],
@@ -34,7 +34,7 @@ class QueryAnalyzer:
         "days_taken": ["days", "leave days", "absence days", "time off"]
     }
 
-    TABLE_HINTS = {
+    TABLE_HINTS: ClassVar[dict[str, str]] = {
         "employee": "employees",
         "department": "departments",
         "attrition": "employees",
@@ -46,7 +46,7 @@ class QueryAnalyzer:
 
 
     @classmethod
-    def analyze(cls, query: str) -> Dict[str, Any]:
+    def analyze(cls, query: str) -> dict[str, Any]:
         """Analyzes question and returns extracted entities, metrics, temporal scope, and candidate tables."""
         q_clean = query.lower()
 

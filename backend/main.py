@@ -3,40 +3,39 @@
 HR Analytics AI Report Builder API.
 """
 
-import os
-from contextlib import asynccontextmanager
 import json
+from contextlib import asynccontextmanager
+
+from dotenv import load_dotenv
 from fastapi import FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
-from dotenv import load_dotenv
 
 load_dotenv()
 
-from .database.connection import init_db, SessionLocal
-from .database.connection_manager import connection_manager
-from .database.seeder import seed_database
 from rag.retrieval import rag_retriever
+
 from .api import (
-    auth_router,
-    query_router,
-    sql_repo_router,
-    rag_router,
     analytics_router,
-    report_router,
-    database_router,
-    sql_repository_router,
-    schema_router,
+    auth_router,
     business_rule_router,
-    text_to_sql_router,
-    sql_validator_router,
+    database_router,
+    evaluation_router,
     query_execution_router,
+    query_router,
+    rag_router,
     report_builder_router,
     report_lifecycle_router,
-    evaluation_router
+    report_router,
+    schema_router,
+    sql_repo_router,
+    sql_repository_router,
+    sql_validator_router,
+    text_to_sql_router,
 )
-
-
+from .database.connection import SessionLocal, init_db
+from .database.connection_manager import connection_manager
+from .database.seeder import seed_database
 
 
 @asynccontextmanager

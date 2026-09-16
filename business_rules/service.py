@@ -11,18 +11,21 @@ Orchestrates:
 
 import datetime
 import logging
-from typing import Dict, Any, List, Optional, Tuple
-from sqlalchemy.orm import Session
-from sqlalchemy import or_, and_, func
+from typing import Any
 
-from backend.database.models_rules import (
-    BusinessRule, BusinessRuleVersion, BusinessRuleAudit,
-    RuleDependency, ReportBusinessRule, RuleTable, RuleColumn
-)
+from sqlalchemy import func, or_
+from sqlalchemy.orm import Session
+
 from backend.database.models_repo import SQLReport
-from .validator import RuleValidator, RuleValidationError
-from .conflict_detector import RuleConflictDetector
-from .duplicate_detector import RuleDuplicateDetector
+from backend.database.models_rules import (
+    BusinessRule,
+    BusinessRuleAudit,
+    BusinessRuleVersion,
+    RuleColumn,
+    RuleTable,
+)
+
+from .validator import RuleValidator
 
 logger = logging.getLogger("business_rules.service")
 
@@ -35,7 +38,7 @@ class BusinessRuleService:
 
     def create_rule(
         self,
-        data: Dict[str, Any],
+        data: dict[str, Any],
         user_name: str = "admin"
     ) -> BusinessRule:
         """Validates and creates a new business rule with version 1 and audit log."""
@@ -116,7 +119,7 @@ class BusinessRuleService:
     def update_rule(
         self,
         rule_id: int,
-        data: Dict[str, Any],
+        data: dict[str, Any],
         user_name: str = "admin"
     ) -> BusinessRule:
         """Updates a rule. If the rule is ACTIVE, creates a new immutable version."""
@@ -333,7 +336,7 @@ class BusinessRuleService:
         self.db.refresh(rule)
         return rule
 
-    def get_active_rules(self, database_id: str = "sqlite_hr_default") -> List[BusinessRule]:
+    def get_active_rules(self, database_id: str = "sqlite_hr_default") -> list[BusinessRule]:
         """Returns ONLY active, current, approved business rules for Module 5 RAG."""
         return (
             self.db.query(BusinessRule)
@@ -349,13 +352,13 @@ class BusinessRuleService:
     def get_rules(
         self,
         database_id: str = "sqlite_hr_default",
-        status: Optional[str] = None,
-        rule_type: Optional[str] = None,
-        priority: Optional[str] = None,
-        table_name: Optional[str] = None,
-        mandatory: Optional[bool] = None,
-        search: Optional[str] = None
-    ) -> List[BusinessRule]:
+        status: str | None = None,
+        rule_type: str | None = None,
+        priority: str | None = None,
+        table_name: str | None = None,
+        mandatory: bool | None = None,
+        search: str | None = None
+    ) -> list[BusinessRule]:
         """Lists rules with comprehensive filtering."""
         query = self.db.query(BusinessRule).filter(
             BusinessRule.database_id == database_id,
@@ -385,7 +388,7 @@ class BusinessRuleService:
 
         return query.order_by(BusinessRule.created_at.desc()).all()
 
-    def get_rule_detail(self, rule_id: int) -> Optional[Dict[str, Any]]:
+    def get_rule_detail(self, rule_id: int) -> dict[str, Any] | None:
         """Returns detailed rule information including versions, audits, and dependencies."""
         rule = self.db.query(BusinessRule).filter_by(id=rule_id).first()
         if not rule:
@@ -449,7 +452,7 @@ class BusinessRuleService:
             "audit_trail": audits
         }
 
-    def detect_rules_from_sql_repository(self, database_id: str = "sqlite_hr_default") -> List[BusinessRule]:
+    def detect_rules_from_sql_repository(self, database_id: str = "sqlite_hr_default") -> list[BusinessRule]:
         """Mines Module 2's SQL reports to discover candidate business rules."""
         reports = self.db.query(SQLReport).filter_by(database_id=database_id).all()
         detected_rules = []
@@ -510,7 +513,7 @@ class BusinessRuleService:
 
         return detected_rules
 
-    def get_dashboard_stats(self, database_id: str = "sqlite_hr_default") -> Dict[str, Any]:
+    def get_dashboard_stats(self, database_id: str = "sqlite_hr_default") -> dict[str, Any]:
         """Computes summary KPI statistics for the business rules dashboard."""
         query = self.db.query(BusinessRule).filter(
             BusinessRule.database_id == database_id,

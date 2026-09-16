@@ -1,12 +1,12 @@
 """Comprehensive Unit and Integration Tests for Phase 8 — Secure Query Execution Engine."""
 
 import pytest
+
 from backend.database.connection import SessionLocal, init_db
-from backend.database.models import User
+from query_execution.schemas import ExecuteQueryRequest
+from query_execution.service import QueryExecutionError, QueryExecutionService
 from sql_validator.schemas import SQLValidationRequest
 from sql_validator.service import SQLValidatorService
-from query_execution.schemas import ExecuteQueryRequest, QueryExecutionResponse
-from query_execution.service import QueryExecutionService, QueryExecutionError
 
 
 @pytest.fixture(scope="module")

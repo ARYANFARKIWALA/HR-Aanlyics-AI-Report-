@@ -1,13 +1,14 @@
 """FastAPI Routes for Module 10 - Report Builder & Visualization."""
 
-from typing import List, Dict, Any, Optional
-from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
+from typing import Any
+
 import pandas as pd
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 
 from backend.auth.dependencies import get_current_user
 from backend.database.models import User
-from report_builder.schemas import ReportDefinition, BuiltReport
+from report_builder.schemas import BuiltReport, ReportDefinition
 from report_builder.service import ReportBuilderService
 from report_builder.template_manager import TemplateManager
 
@@ -15,10 +16,10 @@ router = APIRouter(prefix="/api/report-builder", tags=["Report Builder & Visuali
 
 
 class BuildReportRequest(BaseModel):
-    definition: Optional[ReportDefinition] = None
-    template_key: Optional[str] = None
-    dataset: List[Dict[str, Any]]
-    active_filters: Optional[Dict[str, Any]] = None
+    definition: ReportDefinition | None = None
+    template_key: str | None = None
+    dataset: list[dict[str, Any]]
+    active_filters: dict[str, Any] | None = None
 
 
 @router.get("/templates")

@@ -1,12 +1,17 @@
 """Comprehensive Integration Tests for Phase 14 — Complete End-to-End Integration."""
 
-import pytest
 import uuid
+
+import pytest
+
+from backend.auth.password import hash_password
 from backend.database.connection import SessionLocal, init_db
 from backend.database.models import User
-from backend.services.workflow_orchestrator import EnterpriseWorkflowOrchestrator, WorkflowExecutionError
 from backend.database.models_audit import LifecycleAuditLog
-from backend.auth.password import hash_password
+from backend.services.workflow_orchestrator import (
+    EnterpriseWorkflowOrchestrator,
+    WorkflowExecutionError,
+)
 
 
 @pytest.fixture(scope="module")

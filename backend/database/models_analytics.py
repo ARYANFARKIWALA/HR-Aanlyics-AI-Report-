@@ -1,10 +1,9 @@
 """SQLAlchemy ORM model for Module 9 - HR Analytics Engine Audit."""
 
 import datetime
-from sqlalchemy import (
-    Column, Integer, String, Float, DateTime,
-    ForeignKey, Text, Index
-)
+
+from sqlalchemy import Column, DateTime, Float, ForeignKey, Index, Integer, String, Text
+
 from .connection import Base
 
 

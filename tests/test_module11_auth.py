@@ -1,20 +1,25 @@
 """Unit and Integration Tests for Module 11 — Authentication & Authorization."""
 
-import pytest
 import datetime
+
 import pandas as pd
+import pytest
 from fastapi.testclient import TestClient
-from backend.main import app
-from backend.database.connection import SessionLocal, init_db
-from backend.database.models import User, Department
-from backend.database.models_auth import (
-    Role, Permission, RolePermission, UserDatabaseAccess,
-    ColumnPermission, RowAccessRule, UserSession, SecurityAuditLog
-)
-from backend.auth.password import hash_password, verify_password, validate_password_strength
-from backend.auth.sessions import SessionManager
+
 from backend.auth.authorization import AuthorizationService
-from backend.auth.security_audit import SecurityAuditService
+from backend.auth.password import (
+    hash_password,
+    validate_password_strength,
+    verify_password,
+)
+from backend.auth.sessions import SessionManager
+from backend.database.connection import SessionLocal, init_db
+from backend.database.models import User
+from backend.database.models_auth import (
+    RowAccessRule,
+    UserDatabaseAccess,
+)
+from backend.main import app
 
 
 @pytest.fixture(scope="function")
@@ -45,7 +50,7 @@ def test_password_policy_and_verification():
     assert ok is False
     ok, _ = validate_password_strength("NoSpecialChar123")
     assert ok is False
-    ok, msg = validate_password_strength("ValidP@ssw0rd2026")
+    ok, _msg = validate_password_strength("ValidP@ssw0rd2026")
     assert ok is True
 
     # Hashing & Verification

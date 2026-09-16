@@ -9,8 +9,9 @@ and aggregate counts are inspected.
 """
 
 import logging
-from typing import Dict, Any, List, Optional
-from sqlalchemy import inspect, Engine, text
+from typing import Any
+
+from sqlalchemy import Engine, inspect, text
 
 logger = logging.getLogger("schema.inspector")
 
@@ -22,7 +23,7 @@ class DeepSchemaInspector:
         self.engine = engine
         self.dialect = dialect.lower()
 
-    def inspect_database(self, database_id: str, schema_name: Optional[str] = None) -> Dict[str, Any]:
+    def inspect_database(self, database_id: str, schema_name: str | None = None) -> dict[str, Any]:
         """Performs deep structural metadata discovery across tables and views.
 
         Args:
@@ -48,7 +49,7 @@ class DeepSchemaInspector:
             logger.warning(f"Error fetching view names: {e}")
             view_names = []
 
-        discovered_tables: List[Dict[str, Any]] = []
+        discovered_tables: list[dict[str, Any]] = []
 
         # Process standard tables
         for tbl in table_names:
@@ -86,8 +87,8 @@ class DeepSchemaInspector:
         inspector: Any,
         name: str,
         table_type: str,
-        schema_name: Optional[str]
-    ) -> Dict[str, Any]:
+        schema_name: str | None
+    ) -> dict[str, Any]:
         """Inspects an individual table or view."""
         # Columns
         raw_columns = []

@@ -8,11 +8,12 @@ Validates:
 - Security rule priority invariants
 """
 
-import sqlglot
-from typing import Dict, Any, List, Optional
-from sqlalchemy.orm import Session
-from backend.database.models_schema import SchemaTable, SchemaColumn
+from typing import Any
 
+import sqlglot
+from sqlalchemy.orm import Session
+
+from backend.database.models_schema import SchemaColumn, SchemaTable
 
 VALID_RULE_TYPES = {
     "EMPLOYEE_STATUS", "EFFECTIVE_DATING", "SALARY", "ATTENDANCE", "LEAVE",
@@ -26,7 +27,6 @@ VALID_SCOPES = {"GLOBAL", "DATABASE", "TABLE", "COLUMN", "REPORT", "DEPARTMENT",
 
 class RuleValidationError(ValueError):
     """Raised when a business rule fails syntactic or semantic validation."""
-    pass
 
 
 class RuleValidator:
@@ -35,10 +35,10 @@ class RuleValidator:
     @classmethod
     def validate_rule(
         cls,
-        rule_data: Dict[str, Any],
-        db: Optional[Session] = None,
-        database_id: Optional[str] = None
-    ) -> Dict[str, Any]:
+        rule_data: dict[str, Any],
+        db: Session | None = None,
+        database_id: str | None = None
+    ) -> dict[str, Any]:
         """Validates all aspects of a business rule.
 
         Raises:
@@ -51,13 +51,13 @@ class RuleValidator:
         rule_type = (rule_data.get("rule_type") or "").upper()
         if rule_type not in VALID_RULE_TYPES:
             raise RuleValidationError(
-                f"Invalid rule type '{rule_type}'. Allowed types: {sorted(list(VALID_RULE_TYPES))}"
+                f"Invalid rule type '{rule_type}'. Allowed types: {sorted(VALID_RULE_TYPES)}"
             )
 
         priority = (rule_data.get("priority") or "MEDIUM").upper()
         if priority not in VALID_PRIORITIES:
             raise RuleValidationError(
-                f"Invalid priority '{priority}'. Allowed: {sorted(list(VALID_PRIORITIES))}"
+                f"Invalid priority '{priority}'. Allowed: {sorted(VALID_PRIORITIES)}"
             )
 
         expr = rule_data.get("rule_expression")
@@ -104,7 +104,7 @@ class RuleValidator:
             if not parsed:
                 raise RuleValidationError(f"Could not parse SQL expression: '{expression}'")
         except Exception as e:
-            raise RuleValidationError(f"Invalid SQL/logical expression syntax: '{expression}'. Details: {str(e)}")
+            raise RuleValidationError(f"Invalid SQL/logical expression syntax: '{expression}'. Details: {e!s}")
 
     @classmethod
     def validate_schema_references(
@@ -112,7 +112,7 @@ class RuleValidator:
         db: Session,
         database_id: str,
         table_name: str,
-        column_name: Optional[str] = None
+        column_name: str | None = None
     ):
         """Validates that referenced tables and columns exist in the discovered schema."""
         tbl = (

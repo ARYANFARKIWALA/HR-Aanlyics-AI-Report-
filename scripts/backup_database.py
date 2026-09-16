@@ -1,7 +1,6 @@
 """Wrapper script for database backup."""
 
-import sys
-from scripts.backup_db import backup_database, main
+from scripts.backup_db import main
 
 if __name__ == "__main__":
     main()

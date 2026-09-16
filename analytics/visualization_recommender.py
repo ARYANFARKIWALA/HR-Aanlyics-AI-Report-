@@ -1,15 +1,15 @@
 """Visualization recommender determining optimal chart types."""
 
-from typing import List
-from .schemas import RecommendedChart, ColumnClassification
+
+from .schemas import ColumnClassification, RecommendedChart
 
 
 class VisualizationRecommender:
     """Recommends executive charts based on column semantic types and data shapes."""
 
     @classmethod
-    def recommend(cls, classifications: List[ColumnClassification]) -> List[RecommendedChart]:
-        recommendations: List[RecommendedChart] = []
+    def recommend(cls, classifications: list[ColumnClassification]) -> list[RecommendedChart]:
+        recommendations: list[RecommendedChart] = []
 
         date_cols = [c.column_name for c in classifications if c.semantic_type == "DATE"]
         cat_cols = [c.column_name for c in classifications if c.semantic_type == "CATEGORICAL"]

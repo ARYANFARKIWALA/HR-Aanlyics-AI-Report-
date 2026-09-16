@@ -21,12 +21,13 @@ PROJECT_ROOT = os.path.dirname(FRONTEND_DIR)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-import streamlit as st
 import pandas as pd
+import streamlit as st
+
 from backend.database.connection import SessionLocal, init_db
 from backend.database.connection_manager import connection_manager
-from text_to_sql.service import TextToSQLService
 from text_to_sql.schemas import TextToSQLRequest
+from text_to_sql.service import TextToSQLService
 
 st.set_page_config(
     page_title="AI Report Builder - HR Analytics AI",
@@ -118,7 +119,7 @@ if generate_btn and query_input:
             st.markdown(f"- **Entities Used:** `{', '.join(resp.tables_used)}`")
             st.markdown(f"- **Columns Selected:** `{', '.join(resp.columns_used[:10])}`")
             st.markdown(f"- **Target Dialect:** `{resp.dialect}`")
-            st.markdown(f"- **Read-Only Invariant:** Verified")
+            st.markdown("- **Read-Only Invariant:** Verified")
 
         # Tabs for Explanation, Applied Rules, and Query Plan
         tab_exp, tab_rules, tab_plan = st.tabs([

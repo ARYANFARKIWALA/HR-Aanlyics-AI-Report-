@@ -7,24 +7,25 @@ Executes validated SQL against the database engine with:
 - Clean pandas DataFrame and Dict formatting
 """
 
-import time
 import re
-from typing import Dict, Any, List, Optional
+import time
+from typing import Any
+
 import pandas as pd
 from sqlalchemy import text
-from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
 
 
 class SQLExecutionResult:
     def __init__(
         self,
         success: bool,
-        columns: List[str],
-        data: List[Dict[str, Any]],
+        columns: list[str],
+        data: list[dict[str, Any]],
         row_count: int,
         execution_time_ms: float,
-        error: Optional[str] = None,
+        error: str | None = None,
         executed_sql: str = ""
     ):
         self.success = success
@@ -35,7 +36,7 @@ class SQLExecutionResult:
         self.error = error
         self.executed_sql = executed_sql
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "success": self.success,
             "columns": self.columns,
@@ -64,8 +65,8 @@ class SQLExecutor:
         session: Session,
         sql_text: str,
         limit: int = DEFAULT_LIMIT,
-        expected_schema_hash: Optional[str] = None,
-        current_schema_hash: Optional[str] = None
+        expected_schema_hash: str | None = None,
+        current_schema_hash: str | None = None
     ) -> SQLExecutionResult:
         """Executes a validated read-only SQL query safely."""
         start_time = time.time()
@@ -131,6 +132,6 @@ class SQLExecutor:
                 data=[],
                 row_count=0,
                 execution_time_ms=elapsed_ms,
-                error=f"Unexpected Execution Error: {str(exc)}",
+                error=f"Unexpected Execution Error: {exc!s}",
                 executed_sql=cleaned_sql
             )

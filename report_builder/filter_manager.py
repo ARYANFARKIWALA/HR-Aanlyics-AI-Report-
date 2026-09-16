@@ -1,7 +1,9 @@
 """Interactive global filter engine for report dashboards."""
 
-from typing import Dict, Any, List
+from typing import Any
+
 import pandas as pd
+
 from .schemas import FilterConfig
 
 
@@ -9,7 +11,7 @@ class FilterManager:
     """Applies dynamic dashboard filter predicates across report datasets."""
 
     @classmethod
-    def apply_filters(cls, df: pd.DataFrame, active_filters: Dict[str, Any]) -> pd.DataFrame:
+    def apply_filters(cls, df: pd.DataFrame, active_filters: dict[str, Any]) -> pd.DataFrame:
         if df.empty or not active_filters:
             return df
 
@@ -30,9 +32,9 @@ class FilterManager:
         return filtered_df
 
     @classmethod
-    def discover_filters(cls, df: pd.DataFrame) -> List[FilterConfig]:
+    def discover_filters(cls, df: pd.DataFrame) -> list[FilterConfig]:
         """Auto-discovers filter controls based on low-cardinality categorical columns."""
-        filters: List[FilterConfig] = []
+        filters: list[FilterConfig] = []
         if df.empty:
             return filters
 

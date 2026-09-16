@@ -19,12 +19,17 @@ PROJECT_ROOT = os.path.dirname(FRONTEND_DIR)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
+import streamlit as st
+
 from backend.database.connection import SessionLocal, init_db
-from backend.database.models import Employee, Department, JobProfile, CompensationHistory
-from report_builder.schemas import ReportDefinition
+from backend.database.models import (
+    CompensationHistory,
+    Department,
+    Employee,
+    JobProfile,
+)
 from report_builder.service import ReportBuilderService
 from report_builder.template_manager import TemplateManager
 
@@ -82,9 +87,9 @@ st.sidebar.markdown("---")
 st.sidebar.subheader("🔍 Interactive Global Filters")
 
 # Extract filter options
-all_depts = sorted(list(base_df["department"].unique()))
-all_locations = sorted(list(base_df["work_location"].unique()))
-all_statuses = sorted(list(base_df["status"].unique()))
+all_depts = sorted(base_df["department"].unique())
+all_locations = sorted(base_df["work_location"].unique())
+all_statuses = sorted(base_df["status"].unique())
 
 sel_depts = st.sidebar.multiselect("Department Filter", all_depts, default=[])
 sel_locations = st.sidebar.multiselect("Work Location Filter", all_locations, default=[])

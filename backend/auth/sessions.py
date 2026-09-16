@@ -1,9 +1,10 @@
 """Server-side session management, idle timeout, and brute-force lockout."""
 
-import secrets
 import datetime
-from typing import Optional, Tuple, List
+import secrets
+
 from sqlalchemy.orm import Session
+
 from ..database.models import User
 from ..database.models_auth import UserSession
 from .security_audit import SecurityAuditService
@@ -17,7 +18,7 @@ class SessionManager:
     """Handles session creation, validation, idle timeouts, and account lockouts."""
 
     @staticmethod
-    def is_account_locked(user: User) -> Tuple[bool, int]:
+    def is_account_locked(user: User) -> tuple[bool, int]:
         """Checks if a user's account is currently locked out."""
         if not user.locked_until:
             return False, 0
@@ -37,8 +38,8 @@ class SessionManager:
     def record_login_failure(
         db: Session,
         user: User,
-        ip_address: Optional[str] = None
-    ) -> Tuple[bool, str]:
+        ip_address: str | None = None
+    ) -> tuple[bool, str]:
         """Increments failed login counter and triggers lockout if threshold reached."""
         user.failed_login_attempts = (user.failed_login_attempts or 0) + 1
         now = datetime.datetime.now(datetime.UTC)
@@ -77,8 +78,8 @@ class SessionManager:
     def record_login_success(
         db: Session,
         user: User,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
         idle_minutes: int = DEFAULT_SESSION_IDLE_MINUTES
     ) -> UserSession:
         """Resets failed login counters and generates a new session token."""
@@ -117,7 +118,7 @@ class SessionManager:
         db: Session,
         session_token: str,
         idle_minutes: int = DEFAULT_SESSION_IDLE_MINUTES
-    ) -> Optional[UserSession]:
+    ) -> UserSession | None:
         """Validates session token and refreshes idle expiration window."""
         session = db.query(UserSession).filter(
             UserSession.session_token == session_token

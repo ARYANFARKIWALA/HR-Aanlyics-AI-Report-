@@ -13,15 +13,16 @@ Implements:
 5. Discovered schema as the single source of truth for M7 validation and M8 execution.
 """
 
-import os
-import json
 import base64
-from typing import Dict, Any, Optional, Tuple, List
+import os
+from typing import Any
+
 from cryptography.fernet import Fernet
-from sqlalchemy import create_engine, text, Engine
-from sqlalchemy.orm import sessionmaker, Session
-from .dialect import DatabaseType, get_dialect_rules, SQLDialectRules
-from .schema_manager import SchemaManager, DiscoveredSchema
+from sqlalchemy import Engine, create_engine, text
+from sqlalchemy.orm import Session, sessionmaker
+
+from .dialect import SQLDialectRules, get_dialect_rules
+from .schema_manager import DiscoveredSchema, SchemaManager
 
 # Encryption key for securing connection credentials (M14)
 # Generate deterministic or environment-provided Fernet key
@@ -64,10 +65,10 @@ class ConnectionManager:
     """Manages multi-engine connectors, schema discovery, and credential encryption."""
 
     def __init__(self):
-        self._engines: Dict[str, Engine] = {}
-        self._session_makers: Dict[str, sessionmaker] = {}
-        self._configs: Dict[str, DatabaseConnectionConfig] = {}
-        self._schemas: Dict[str, DiscoveredSchema] = {}
+        self._engines: dict[str, Engine] = {}
+        self._session_makers: dict[str, sessionmaker] = {}
+        self._configs: dict[str, DatabaseConnectionConfig] = {}
+        self._schemas: dict[str, DiscoveredSchema] = {}
         self._default_db_id: str = "sqlite_hr_default"
 
         # Initialize default embedded HR SQLite database
@@ -87,7 +88,7 @@ class ConnectionManager:
     # -------------------------------------------------------------
     # Component 1: Test Connection (Reachability, Auth, Access Check)
     # -------------------------------------------------------------
-    def test_connection(self, db_type: str, connection_url: str) -> Tuple[bool, str, Dict[str, Any]]:
+    def test_connection(self, db_type: str, connection_url: str) -> tuple[bool, str, dict[str, Any]]:
         """Tests reachability and credentials without persisting or modifying state.
         
         Returns:
@@ -111,7 +112,7 @@ class ConnectionManager:
                 "limit_syntax": dialect_rules.limit_syntax
             }
         except Exception as exc:
-            return False, f"Connection test failed: {str(exc)}", {}
+            return False, f"Connection test failed: {exc!s}", {}
         finally:
             if test_engine:
                 test_engine.dispose()
@@ -148,19 +149,19 @@ class ConnectionManager:
     # -------------------------------------------------------------
     # Accessors requiring explicit database_id
     # -------------------------------------------------------------
-    def get_engine(self, database_id: Optional[str] = None) -> Engine:
+    def get_engine(self, database_id: str | None = None) -> Engine:
         target_id = database_id or self._default_db_id
         if target_id not in self._engines:
             raise KeyError(f"Database ID '{target_id}' is not registered or connected.")
         return self._engines[target_id]
 
-    def get_session(self, database_id: Optional[str] = None) -> Session:
+    def get_session(self, database_id: str | None = None) -> Session:
         target_id = database_id or self._default_db_id
         if target_id not in self._session_makers:
             raise KeyError(f"Database ID '{target_id}' is not registered or connected.")
         return self._session_makers[target_id]()
 
-    def get_schema(self, database_id: Optional[str] = None) -> DiscoveredSchema:
+    def get_schema(self, database_id: str | None = None) -> DiscoveredSchema:
         target_id = database_id or self._default_db_id
         if target_id not in self._schemas:
             # Attempt re-discovery
@@ -169,7 +170,7 @@ class ConnectionManager:
             self._schemas[target_id] = SchemaManager.discover_schema(target_id, engine, cfg.db_type)
         return self._schemas[target_id]
 
-    def get_dialect_rules(self, database_id: Optional[str] = None) -> SQLDialectRules:
+    def get_dialect_rules(self, database_id: str | None = None) -> SQLDialectRules:
         target_id = database_id or self._default_db_id
         cfg = self._configs.get(target_id)
         db_type = cfg.db_type if cfg else "sqlite"
@@ -183,7 +184,7 @@ class ConnectionManager:
     # -------------------------------------------------------------
     # Credentials / Knowledge Split (Safe UI / API Listing)
     # -------------------------------------------------------------
-    def list_databases_safe(self) -> List[Dict[str, Any]]:
+    def list_databases_safe(self) -> list[dict[str, Any]]:
         """Returns registered databases WITHOUT exposing credentials/connection strings."""
         result = []
         for db_id, cfg in self._configs.items():

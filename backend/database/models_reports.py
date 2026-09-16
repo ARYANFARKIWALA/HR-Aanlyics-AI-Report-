@@ -1,11 +1,20 @@
 """SQLAlchemy ORM models for Module 12 - Reports, Versioning, Sharing ACLs, and History."""
 
 import datetime
+
 from sqlalchemy import (
-    Column, Integer, Float, String, Boolean, DateTime,
-    ForeignKey, Text, Index
+    Boolean,
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
 )
 from sqlalchemy.orm import relationship
+
 from .connection import Base
 
 

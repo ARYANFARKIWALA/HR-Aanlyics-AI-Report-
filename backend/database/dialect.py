@@ -11,7 +11,7 @@ Establishes:
 """
 
 from enum import Enum
-from typing import Dict, Any
+from typing import Any
 
 
 class DatabaseType(str, Enum):
@@ -73,7 +73,7 @@ class SQLDialectRules:
             return f"ROUND(MONTHS_BETWEEN(COALESCE({end_date_col}, {self.current_date_expr}), {start_date_col}) / 12, 1)"
         return f"(COALESCE({end_date_col}, {self.current_date_expr}) - {start_date_col})"
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "dialect_name": self.dialect_name,
             "limit_syntax": self.limit_syntax,
@@ -84,7 +84,7 @@ class SQLDialectRules:
         }
 
 
-DIALECT_REGISTRY: Dict[DatabaseType, SQLDialectRules] = {
+DIALECT_REGISTRY: dict[DatabaseType, SQLDialectRules] = {
     DatabaseType.SQLITE: SQLDialectRules(
         dialect_name="sqlite",
         limit_syntax="LIMIT",

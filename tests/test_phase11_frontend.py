@@ -1,7 +1,6 @@
 """Comprehensive Tests for Phase 11 — Complete Streamlit Frontend."""
 
 import ast
-import pytest
 import os
 
 

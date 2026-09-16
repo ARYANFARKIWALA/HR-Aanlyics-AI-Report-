@@ -1,12 +1,12 @@
 """Comprehensive Unit and Integration Tests for Phase 13 — Audit Logging & Monitoring."""
 
-import pytest
 import json
-from backend.database.connection import SessionLocal, init_db
-from backend.audit.service import EnterpriseAuditService
-from backend.audit.sanitizer import AuditDataSanitizer
+
+import pytest
+
 from backend.audit.metrics_service import AdminMonitoringService
-from backend.database.models_audit import LifecycleAuditLog
+from backend.audit.service import EnterpriseAuditService
+from backend.database.connection import SessionLocal, init_db
 
 
 @pytest.fixture(scope="module")

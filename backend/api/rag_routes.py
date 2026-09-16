@@ -1,19 +1,19 @@
 """RAG Knowledge Base & Policy Retrieval API routes (Module 5)."""
 
-from typing import Optional, Dict, Any, List
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from backend.database.connection import get_db
-from rag.rag_service import RAGService
-from rag.schemas import (
-    RAGSearchRequest, RAGContextResponse,
-    Phase5RetrievalRequest, Phase5RetrievalResponse
-)
-from rag.retrieval import rag_retriever
-
 from rag.ingestion import DocumentIngester
+from rag.rag_service import RAGService
+from rag.retrieval import rag_retriever
+from rag.schemas import (
+    Phase5RetrievalRequest,
+    Phase5RetrievalResponse,
+    RAGContextResponse,
+    RAGSearchRequest,
+)
 
 router = APIRouter(prefix="/api/rag", tags=["Module 5 - RAG Knowledge Base"])
 
@@ -25,7 +25,7 @@ class IngestRequest(BaseModel):
 class ContextQueryRequest(BaseModel):
     query: str = Field(..., min_length=2, description="Natural language question")
     database_id: str = Field("sqlite_hr_default", description="Target database identifier")
-    top_k: Optional[int] = Field(8, ge=1, le=30, description="Max chunks to retrieve")
+    top_k: int | None = Field(8, ge=1, le=30, description="Max chunks to retrieve")
 
 
 class PolicyQuestionRequest(BaseModel):
@@ -136,7 +136,7 @@ def get_rag_context(req: ContextQueryRequest, db: Session = Depends(get_db)):
 
 
 @router.get("/stats", summary="Get knowledge base statistics")
-def get_rag_stats(database_id: Optional[str] = None, db: Session = Depends(get_db)):
+def get_rag_stats(database_id: str | None = None, db: Session = Depends(get_db)):
     """Returns total documents, chunks, and source type distributions."""
     svc = RAGService(db)
     return svc.get_stats(database_id=database_id)

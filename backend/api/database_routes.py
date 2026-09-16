@@ -1,10 +1,10 @@
 """Module 1: Database Connection & Schema Management API routes."""
 
-from typing import Optional, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from ..database.connection_manager import connection_manager, DatabaseConnectionConfig
+
 from ..auth.dependencies import get_current_user, require_role
+from ..database.connection_manager import DatabaseConnectionConfig, connection_manager
 from ..database.models import User
 
 router = APIRouter(prefix="/api/database", tags=["Module 1: Database & Schema"])
@@ -20,7 +20,7 @@ class RegisterConnectionRequest(BaseModel):
     display_name: str
     db_type: str
     connection_url: str
-    description: Optional[str] = ""
+    description: str | None = ""
 
 
 @router.get("/list")

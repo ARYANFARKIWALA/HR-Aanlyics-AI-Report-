@@ -1,15 +1,16 @@
 """Statistical data profiler for query result sets."""
 
-from typing import List
+
 import pandas as pd
-from .schemas import ColumnProfile, ColumnClassification
+
+from .schemas import ColumnClassification, ColumnProfile
 
 
 class DataProfiler:
     """Computes comprehensive summary statistics across all columns in a dataset."""
 
     @staticmethod
-    def profile(df: pd.DataFrame, classifications: List[ColumnClassification]) -> List[ColumnProfile]:
+    def profile(df: pd.DataFrame, classifications: list[ColumnClassification]) -> list[ColumnProfile]:
         profiles = []
         total_rows = len(df)
         cls_map = {c.column_name: c.semantic_type for c in classifications}

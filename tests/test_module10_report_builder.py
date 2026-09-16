@@ -1,22 +1,22 @@
 """Unit and Integration Tests for Module 10 — Report Builder & Visualization."""
 
-import pytest
 import pandas as pd
+import pytest
 from fastapi.testclient import TestClient
+
 from backend.main import app
-from report_builder.schemas import (
-    ReportDefinition,
-    KPICardConfig,
-    ChartConfig,
-    TableConfig,
-    TableColumnConfig
-)
 from report_builder.chart_builder import ChartBuilder
-from report_builder.kpi_builder import KPIBuilder
-from report_builder.table_builder import TableBuilder
 from report_builder.filter_manager import FilterManager
-from report_builder.template_manager import TemplateManager
+from report_builder.kpi_builder import KPIBuilder
+from report_builder.schemas import (
+    ChartConfig,
+    KPICardConfig,
+    TableColumnConfig,
+    TableConfig,
+)
 from report_builder.service import ReportBuilderService
+from report_builder.table_builder import TableBuilder
+from report_builder.template_manager import TemplateManager
 
 
 @pytest.fixture(scope="module")

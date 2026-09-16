@@ -7,16 +7,18 @@ Standard JSON envelopes:
   Error:   { "success": false, "error": { "code": "...", "message": "..." } }
 """
 
-from typing import Optional, List, Dict, Any
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from typing import Any
+
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
+from rag.schema_knowledge_builder import SchemaKnowledgeBuilder
+from schema.service import SchemaIntelligenceService
+
+from ..auth.dependencies import get_current_user
 from ..database.connection import get_db
 from ..database.models import User
-from ..auth.dependencies import get_current_user, require_role
-from schema.service import SchemaIntelligenceService
-from rag.schema_knowledge_builder import SchemaKnowledgeBuilder
 
 router = APIRouter(prefix="/api/schema", tags=["Module 3: Schema & Business Metadata Intelligence"])
 
@@ -29,25 +31,25 @@ class DiscoverSchemaRequest(BaseModel):
 
 
 class TableUpdateMetadataRequest(BaseModel):
-    business_name: Optional[str] = None
-    description: Optional[str] = None
-    business_entity: Optional[str] = None
-    status: Optional[str] = None
+    business_name: str | None = None
+    description: str | None = None
+    business_entity: str | None = None
+    status: str | None = None
 
 
 class ColumnUpdateMetadataRequest(BaseModel):
-    business_name: Optional[str] = None
-    description: Optional[str] = None
-    business_definition: Optional[str] = None
-    hr_concept: Optional[str] = None
-    is_sensitive: Optional[bool] = None
-    sensitive_category: Optional[str] = None
-    is_date_field: Optional[bool] = None
-    date_role: Optional[str] = None
-    is_metric: Optional[bool] = None
-    default_aggregation: Optional[str] = None
-    is_dimension: Optional[bool] = None
-    status: Optional[str] = None
+    business_name: str | None = None
+    description: str | None = None
+    business_definition: str | None = None
+    hr_concept: str | None = None
+    is_sensitive: bool | None = None
+    sensitive_category: str | None = None
+    is_date_field: bool | None = None
+    date_role: str | None = None
+    is_metric: bool | None = None
+    default_aggregation: str | None = None
+    is_dimension: bool | None = None
+    status: str | None = None
 
 
 class ManualRelationshipRequest(BaseModel):
@@ -56,10 +58,10 @@ class ManualRelationshipRequest(BaseModel):
     source_column: str
     target_table: str
     target_column: str
-    relationship_type: Optional[str] = "MANY_TO_ONE"
+    relationship_type: str | None = "MANY_TO_ONE"
 
 
-def success_response(data: Any) -> Dict[str, Any]:
+def success_response(data: Any) -> dict[str, Any]:
     return {"success": True, "data": data}
 
 
@@ -87,7 +89,7 @@ def trigger_discovery(
     except ValueError as e:
         error_response("DISCOVERY_FAILED", str(e), status_code=400)
     except Exception as e:
-        error_response("INTERNAL_ERROR", f"Schema discovery failed: {str(e)}", status_code=500)
+        error_response("INTERNAL_ERROR", f"Schema discovery failed: {e!s}", status_code=500)
 
 
 @router.post("/refresh")
@@ -104,7 +106,7 @@ def trigger_refresh(
     except ValueError as e:
         error_response("REFRESH_FAILED", str(e), status_code=400)
     except Exception as e:
-        error_response("INTERNAL_ERROR", f"Schema refresh failed: {str(e)}", status_code=500)
+        error_response("INTERNAL_ERROR", f"Schema refresh failed: {e!s}", status_code=500)
 
 
 # -------------------------------------------------------------
@@ -127,9 +129,9 @@ def get_schema_health(
 @router.get("/tables")
 def list_tables(
     database_id: str = Query("sqlite_hr_default"),
-    entity_type: Optional[str] = Query(None),
-    status: Optional[str] = Query(None),
-    search: Optional[str] = Query(None),
+    entity_type: str | None = Query(None),
+    status: str | None = Query(None),
+    search: str | None = Query(None),
     db: Session = Depends(get_db)
 ):
     """Lists discovered tables with importance levels, entity classifications, and verification status."""
@@ -257,7 +259,7 @@ def verify_column(
 @router.get("/relationships")
 def list_relationships(
     database_id: str = Query("sqlite_hr_default"),
-    source: Optional[str] = Query(None),
+    source: str | None = Query(None),
     db: Session = Depends(get_db)
 ):
     """Lists relationships across database tables (Foreign Keys, SQL Usage, Manual)."""

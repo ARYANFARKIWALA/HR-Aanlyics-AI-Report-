@@ -1,17 +1,12 @@
 """Module 6: AI Text-to-SQL Engine FastAPI Routes."""
 
-from typing import Optional, Dict, Any, List
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from backend.database.connection import get_db
+from text_to_sql.schemas import TextToSQLRequest, TextToSQLResponse
 from text_to_sql.service import TextToSQLService
-from text_to_sql.schemas import (
-    TextToSQLRequest,
-    TextToSQLResponse,
-    QueryPlan
-)
 
 router = APIRouter(prefix="/api/text-to-sql", tags=["Module 6 - AI Text-to-SQL Engine"])
 

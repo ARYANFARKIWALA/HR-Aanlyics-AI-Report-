@@ -1,14 +1,16 @@
 """Unit and Integration Tests for Module 7 — SQL Validator & Security Engine."""
 
-import pytest
 import datetime
 import hashlib
+
+import pytest
 from fastapi.testclient import TestClient
-from backend.main import app
+
 from backend.database.connection import SessionLocal, init_db
 from backend.database.models import User
 from backend.database.models_auth import ColumnPermission
 from backend.database.models_validation import SQLValidationAuditLog
+from backend.main import app
 from sql_validator.schemas import SQLValidationRequest
 from sql_validator.service import SQLValidatorService
 

@@ -1,11 +1,14 @@
 """Phase 15: AI Evaluation Framework & Golden Dataset Verification Tests."""
 
 import os
-import json
+
 import pytest
+
 from backend.database.connection import SessionLocal, init_db
-from evaluation.evaluator import EvaluationEngine, GOLDEN_DATASET_100_PATH, EVAL_REPORT_PATH
-from evaluation.schemas import EvaluationRunRequest
+from evaluation.evaluator import (
+    EVAL_REPORT_PATH,
+    EvaluationEngine,
+)
 
 
 @pytest.fixture(scope="module")

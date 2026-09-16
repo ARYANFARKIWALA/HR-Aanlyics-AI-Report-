@@ -8,10 +8,13 @@ Structures retrieved knowledge into an injection-safe, prioritized context for M
 """
 
 import logging
-from typing import Dict, Any, List, Optional
+from typing import Any
+
 from sqlalchemy.orm import Session
+
 from backend.database.models_rules import BusinessRule
 from business_rules.conflict_detector import RuleConflictDetector
+
 from .schemas import RAGContextResponse
 
 logger = logging.getLogger("rag.context_builder")
@@ -26,7 +29,7 @@ class ContextBuilder:
     def build_context(
         self,
         query: str,
-        retrieved_chunks: List[Dict[str, Any]],
+        retrieved_chunks: list[dict[str, Any]],
         database_id: str = "sqlite_hr_default",
         database_type: str = "sqlite"
     ) -> RAGContextResponse:
@@ -147,8 +150,8 @@ class ContextBuilder:
             database_id=database_id,
             database_type=database_type,
             retrieved_documents=retrieved_chunks,
-            relevant_tables=sorted(list(tables_set)),
-            relevant_columns=sorted(list(cols_set)),
+            relevant_tables=sorted(tables_set),
+            relevant_columns=sorted(cols_set),
             business_rules=[c for c in mandatory_rule_chunks],
             security_rules=[c for c in security_chunks],
             effective_dating_rules=[c for c in effective_dating_chunks],

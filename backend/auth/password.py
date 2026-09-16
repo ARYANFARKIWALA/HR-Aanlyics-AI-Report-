@@ -1,10 +1,9 @@
 """Password hashing, verification, and policy enforcement."""
 
-import os
 import hashlib
 import hmac
+import os
 import re
-from typing import Tuple
 
 SALT = os.getenv("AUTH_STATIC_SALT", "hr_secure_static_salt_2026")
 ITERATIONS = int(os.getenv("AUTH_HASH_ITERATIONS", "100000"))
@@ -27,7 +26,7 @@ def verify_password(plain_password: str, hashed_password: str, salt: str = SALT)
     return hmac.compare_digest(calculated, hashed_password)
 
 
-def validate_password_strength(password: str) -> Tuple[bool, str]:
+def validate_password_strength(password: str) -> tuple[bool, str]:
     """
     Validates enterprise password policy:
     - At least 8 characters

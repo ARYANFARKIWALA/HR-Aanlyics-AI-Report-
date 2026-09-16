@@ -1,6 +1,7 @@
 """Pydantic schemas for Module 8 - Query Execution Engine."""
 
-from typing import List, Dict, Any, Optional
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -12,7 +13,7 @@ class QueryColumnMeta(BaseModel):
 
 class ExecuteQueryRequest(BaseModel):
     validation_id: str = Field(..., description="Cryptographic approval token issued strictly by Module 7")
-    parameters: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Safe parameterized values")
+    parameters: dict[str, Any] | None = Field(default_factory=dict, description="Safe parameterized values")
     page: int = Field(default=1, ge=1)
     page_size: int = Field(default=100, ge=1, le=1000)
     bypass_cache: bool = False
@@ -24,9 +25,9 @@ class QueryExecutionResponse(BaseModel):
     validation_id: str
     database_id: str
     status: str  # SUCCESS, FAILED, TIMEOUT, CANCELLED
-    columns: List[str] = []
-    column_metadata: List[QueryColumnMeta] = []
-    rows: List[Dict[str, Any]] = []
+    columns: list[str] = []
+    column_metadata: list[QueryColumnMeta] = []
+    rows: list[dict[str, Any]] = []
     row_count: int = 0
     total_rows: int = 0
     page: int = 1
@@ -36,9 +37,9 @@ class QueryExecutionResponse(BaseModel):
     cached: bool = False
     sql_hash: str
     executed_at: str
-    error_message: Optional[str] = None
+    error_message: str | None = None
 
-    def to_standard_dict(self) -> Dict[str, Any]:
+    def to_standard_dict(self) -> dict[str, Any]:
         """Returns the canonical standardized result payload required by Phase 8."""
         return {
             "columns": self.columns,

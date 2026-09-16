@@ -16,12 +16,12 @@ PROJECT_ROOT = os.path.dirname(FRONTEND_DIR)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-import streamlit as st
 import pandas as pd
+import streamlit as st
+
 from backend.database.connection import SessionLocal
-from backend.database.models import User
-from backend.database.models_repo import SQLReport
 from backend.database.connection_manager import connection_manager
+from backend.database.models import User
 from backend.services.sql_repository_service import SQLRepositoryService
 
 st.set_page_config(page_title="SQL Knowledge Repository", page_icon="📚", layout="wide")

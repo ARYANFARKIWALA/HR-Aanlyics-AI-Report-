@@ -1,6 +1,6 @@
 """Module 1: Database Connection & Schema Management."""
 
-from backend.database.connection_manager import connection_manager, ConnectionManager
-from backend.database.connection import get_db, SessionLocal, init_db, Base
+from backend.database.connection import Base, SessionLocal, get_db, init_db
+from backend.database.connection_manager import ConnectionManager, connection_manager
 
-__all__ = ["connection_manager", "ConnectionManager", "get_db", "SessionLocal", "init_db", "Base"]
+__all__ = ["Base", "ConnectionManager", "SessionLocal", "connection_manager", "get_db", "init_db"]

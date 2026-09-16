@@ -1,8 +1,9 @@
 """Time-series trend analyzer computing YoY, MoM, and trajectory indicators."""
 
-from typing import List
+
 import pandas as pd
-from .schemas import TrendItem, ColumnClassification
+
+from .schemas import ColumnClassification, TrendItem
 
 
 class TrendAnalyzer:
@@ -12,9 +13,9 @@ class TrendAnalyzer:
     def analyze_trends(
         cls,
         df: pd.DataFrame,
-        classifications: List[ColumnClassification]
-    ) -> List[TrendItem]:
-        trend_items: List[TrendItem] = []
+        classifications: list[ColumnClassification]
+    ) -> list[TrendItem]:
+        trend_items: list[TrendItem] = []
         if df.empty:
             return trend_items
 

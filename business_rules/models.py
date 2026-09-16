@@ -2,20 +2,20 @@
 
 from backend.database.models_rules import (
     BusinessRule,
-    BusinessRuleVersion,
     BusinessRuleAudit,
-    RuleDependency,
+    BusinessRuleVersion,
     ReportBusinessRule,
-    RuleTable,
     RuleColumn,
+    RuleDependency,
+    RuleTable,
 )
 
 __all__ = [
     "BusinessRule",
-    "BusinessRuleVersion",
     "BusinessRuleAudit",
-    "RuleDependency",
+    "BusinessRuleVersion",
     "ReportBusinessRule",
-    "RuleTable",
     "RuleColumn",
+    "RuleDependency",
+    "RuleTable",
 ]

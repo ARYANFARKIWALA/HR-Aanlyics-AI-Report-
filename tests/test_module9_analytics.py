@@ -1,22 +1,22 @@
 """Unit and Integration Tests for Module 9 — HR Analytics Engine."""
 
-import pytest
 import pandas as pd
+import pytest
 from fastapi.testclient import TestClient
-from backend.main import app
-from backend.database.connection import SessionLocal, init_db
-from analytics.schemas import AnalyticsRequest
-from analytics.service import HRAnalyticsService
+
 from analytics.column_classifier import ColumnClassifier
-from analytics.profiler import DataProfiler
+from analytics.correlation import CorrelationAnalyzer
+from analytics.data_quality import DataQualityAuditor
+from analytics.insight_engine import InsightEngine
 from analytics.kpi_engine import KPIEngine
 from analytics.outlier_detection import OutlierDetector
-from analytics.trend_analysis import TrendAnalyzer
-from analytics.correlation import CorrelationAnalyzer
+from analytics.schemas import AnalyticsRequest
 from analytics.segmentation import SegmentationEngine
-from analytics.data_quality import DataQualityAuditor
+from analytics.service import HRAnalyticsService
+from analytics.trend_analysis import TrendAnalyzer
 from analytics.visualization_recommender import VisualizationRecommender
-from analytics.insight_engine import InsightEngine
+from backend.database.connection import SessionLocal, init_db
+from backend.main import app
 
 
 @pytest.fixture(scope="function")

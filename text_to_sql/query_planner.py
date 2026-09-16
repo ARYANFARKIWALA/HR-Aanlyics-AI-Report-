@@ -7,11 +7,12 @@ retrieved RAG context:
 - Incorporates mandatory rules and effective-dating policies into the plan.
 """
 
-import re
 import logging
-from typing import Dict, Any, List, Optional, Tuple
-from .schemas import QueryPlan, ClarificationRequest
+import re
+
 from rag.schemas import RAGContextResponse
+
+from .schemas import ClarificationRequest, QueryPlan
 
 logger = logging.getLogger("text_to_sql.query_planner")
 
@@ -91,8 +92,8 @@ class QueryPlanner:
         query: str,
         context: RAGContextResponse,
         user_role: str = "admin",
-        user_department: Optional[str] = None,
-        date_context: Optional[str] = None
+        user_department: str | None = None,
+        date_context: str | None = None
     ) -> QueryPlan:
         """Formulates QueryPlan incorporating RAG retrieved rules and schema knowledge."""
         q_lower = query.lower().strip()

@@ -1,14 +1,16 @@
 """Execution pipeline enforcing the Re-run Revalidation Invariant for Module 12."""
 
 import datetime
-from typing import Optional, List
+
 from sqlalchemy.orm import Session
+
 from backend.database.models import User
-from backend.database.models_reports import SavedReport, ReportExecutionRecord
-from sql_validator.service import SQLValidatorService
-from sql_validator.schemas import SQLValidationRequest
-from query_execution.service import QueryExecutionService
+from backend.database.models_reports import ReportExecutionRecord, SavedReport
 from query_execution.schemas import ExecuteQueryRequest
+from query_execution.service import QueryExecutionService
+from sql_validator.schemas import SQLValidationRequest
+from sql_validator.service import SQLValidatorService
+
 from .schemas import ReportRunRequest, ReportRunResponse
 from .version_service import ReportVersionService
 
@@ -22,7 +24,7 @@ class ReportExecutionService:
         db: Session,
         report: SavedReport,
         user: User,
-        run_req: Optional[ReportRunRequest] = None
+        run_req: ReportRunRequest | None = None
     ) -> ReportRunResponse:
         """Executes a report while strictly maintaining the Re-run Revalidation Invariant.
         
@@ -127,7 +129,7 @@ class ReportExecutionService:
         db: Session,
         report: SavedReport,
         limit: int = 50
-    ) -> List[ReportExecutionRecord]:
+    ) -> list[ReportExecutionRecord]:
         """Lists historical executions for a report, most recent first."""
         return db.query(ReportExecutionRecord).filter(
             ReportExecutionRecord.saved_report_id == report.id

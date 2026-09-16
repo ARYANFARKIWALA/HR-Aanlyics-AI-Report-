@@ -1,8 +1,10 @@
 """Enterprise Audit Logger for Compliance and Observability."""
 
-from typing import Optional, List, Dict, Any
 import datetime
+from typing import Any
+
 from sqlalchemy.orm import Session
+
 from backend.database.models import AuditLog
 
 
@@ -16,12 +18,12 @@ class AuditLogger:
         username: str,
         user_role: str,
         natural_query: str,
-        generated_sql: Optional[str],
+        generated_sql: str | None,
         execution_time_ms: float,
         row_count: int,
         status: str = "SUCCESS",
-        error_details: Optional[str] = None,
-        user_id: Optional[int] = None
+        error_details: str | None = None,
+        user_id: int | None = None
     ) -> AuditLog:
         """Persists audit record to the database."""
         try:
@@ -47,7 +49,7 @@ class AuditLogger:
             return None
 
     @classmethod
-    def get_recent_logs(cls, session: Session, limit: int = 50) -> List[Dict[str, Any]]:
+    def get_recent_logs(cls, session: Session, limit: int = 50) -> list[dict[str, Any]]:
         """Retrieves recent audit logs for security review."""
         logs = session.query(AuditLog).order_by(AuditLog.timestamp.desc()).limit(limit).all()
         return [

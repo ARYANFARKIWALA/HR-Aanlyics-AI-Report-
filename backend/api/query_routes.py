@@ -1,17 +1,18 @@
 """Natural language and SQL query API routes."""
 
-from typing import Optional, Dict, Any, List
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from ..database.connection import get_db
-from ..database.models import User
-from ..auth.dependencies import get_current_user
-from ..services.query_service import QueryService
-from sql.validator import SQLValidator
+
+from ai.text_to_sql import TextToSQLService
 from sql.executor import SQLExecutor
 from sql.parser import SQLParser
-from ai.text_to_sql import TextToSQLService
+from sql.validator import SQLValidator
+
+from ..auth.dependencies import get_current_user
+from ..database.connection import get_db
+from ..database.models import User
+from ..services.query_service import QueryService
 
 router = APIRouter(prefix="/api/query", tags=["Query Assistant"])
 
@@ -26,7 +27,7 @@ class SQLExplainRequest(BaseModel):
 
 class DirectSQLExecuteRequest(BaseModel):
     sql: str
-    limit: Optional[int] = 500
+    limit: int | None = 500
 
 
 @router.post("/ask")
@@ -73,7 +74,7 @@ def execute_direct_sql(
     db: Session = Depends(get_db)
 ):
     """Executes a direct SQL query after strict guardrail validation."""
-    is_valid, msg, analysis = SQLValidator.validate(
+    is_valid, msg, _analysis = SQLValidator.validate(
         req.sql,
         user_role=current_user.role,
         user_dept_id=current_user.department_id

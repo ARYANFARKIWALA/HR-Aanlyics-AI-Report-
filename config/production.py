@@ -4,17 +4,15 @@ Enforces zero-default-secrets, fail-fast validation in production mode,
 and structured logging configuration.
 """
 
-import os
-import sys
-import logging
 import json
-from typing import Dict, Any, List, Optional
-from config.settings import AppSettings, EnvironmentType
+import logging
+import sys
+
+from config.settings import AppSettings
 
 
 class ProductionConfigError(Exception):
     """Raised when critical production secrets or configurations are absent."""
-    pass
 
 
 class ProductionConfiguration:

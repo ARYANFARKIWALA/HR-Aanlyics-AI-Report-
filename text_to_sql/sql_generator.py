@@ -6,14 +6,14 @@ Generates safe, explainable, dialect-aware SQL by:
 3. Transpiling to target engine dialect (PostgreSQL, SQLite, MySQL, SQL Server, Oracle).
 """
 
-import re
 import logging
-from typing import Dict, Any, List, Optional
+
 import sqlglot
 
-from .schemas import QueryPlan
-from .dialect import DialectTransformer
 from rag.schemas import RAGContextResponse
+
+from .dialect import DialectTransformer
+from .schemas import QueryPlan
 
 logger = logging.getLogger("text_to_sql.sql_generator")
 
@@ -56,9 +56,9 @@ class SQLGenerator:
 
         # Filters from mandatory context rules
         for rule in context.business_rules:
-            expr = rule.get("text", "")
+            rule.get("text", "")
             # If text has expression or condition
-            rule_id = rule.get("rule_id")
+            rule.get("rule_id")
             # We already have rule expressions attached or handled in plan.filters
 
         where_clause = f"WHERE {' AND '.join(where_conditions)}" if where_conditions else ""

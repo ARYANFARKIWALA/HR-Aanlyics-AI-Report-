@@ -1,6 +1,7 @@
 """Comprehensive Unit and Integration Tests for Phase 7 — SQL Validation and Security Engine."""
 
 import pytest
+
 from backend.database.connection import SessionLocal, init_db
 from sql_validator.schemas import SQLValidationRequest
 from sql_validator.service import SQLValidatorService

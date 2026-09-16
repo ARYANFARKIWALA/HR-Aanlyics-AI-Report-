@@ -20,13 +20,14 @@ PROJECT_ROOT = os.path.dirname(FRONTEND_DIR)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-import streamlit as st
 import pandas as pd
+import streamlit as st
+
 from backend.database.connection import SessionLocal, init_db
 from backend.database.connection_manager import connection_manager
-from backend.database.models_schema import SchemaTable, SchemaRelationship
-from schema.service import SchemaIntelligenceService
+from backend.database.models_schema import SchemaRelationship, SchemaTable
 from rag.schema_knowledge_builder import SchemaKnowledgeBuilder
+from schema.service import SchemaIntelligenceService
 
 st.set_page_config(
     page_title="Schema & Metadata Explorer - HR Analytics AI",
@@ -188,15 +189,13 @@ with tab_tables:
             with c_h4:
                 status_badge = "🟢 VERIFIED" if tbl_detail["status"] == "VERIFIED" else "🟡 AUTO_DISCOVERED"
                 st.write(f"**Status:** {status_badge}")
-                if tbl_detail["status"] != "VERIFIED":
-                    if st.button("✅ Mark Table & Columns Verified", key=f"v_tbl_{tbl_detail['id']}"):
-                        service.verify_table(tbl_detail["id"])
-                        st.success("Table and columns marked as VERIFIED!")
-                        st.rerun()
+                if tbl_detail["status"] != "VERIFIED" and st.button("✅ Mark Table & Columns Verified", key=f"v_tbl_{tbl_detail['id']}"):
+                    service.verify_table(tbl_detail["id"])
+                    st.success("Table and columns marked as VERIFIED!")
+                    st.rerun()
 
             # Table Metadata Edit Expander
-            with st.expander("✏️ Edit Table Business Metadata"):
-                with st.form(f"edit_tbl_form_{tbl_detail['id']}"):
+            with st.expander("✏️ Edit Table Business Metadata"), st.form(f"edit_tbl_form_{tbl_detail['id']}"):
                     new_bname = st.text_input("Business Name", value=tbl_detail.get("business_name") or "")
                     new_desc = st.text_area("Description", value=tbl_detail.get("description") or "")
                     new_entity = st.selectbox(

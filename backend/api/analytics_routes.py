@@ -1,17 +1,17 @@
 """Analytics and KPI metrics API routes (Module 9)."""
 
-from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from analytics.metrics import HRMetricsCalculator
+from analytics.schemas import AnalyticsRequest, AnalyticsResponse
+from analytics.service import HRAnalyticsService
+from security.audit import AuditLogger
+
+from ..auth.dependencies import get_current_user, require_permission, require_role
 from ..database.connection import get_db
 from ..database.models import User
 from ..database.models_analytics import AnalyticsAuditLog
-from ..auth.dependencies import get_current_user, require_role, require_permission
-from analytics.metrics import HRMetricsCalculator
-from analytics.schemas import AnalyticsRequest, AnalyticsResponse, KPISummary
-from analytics.service import HRAnalyticsService
-from security.audit import AuditLogger
 
 router = APIRouter(prefix="/api/analytics", tags=["HR Analytics Engine"])
 

@@ -10,14 +10,14 @@ Provides heuristic, dictionary, and semantic mappings of database schemas to:
 """
 
 import re
-from typing import Dict, Any, Tuple, Optional, List
+from typing import Any, ClassVar
 
 
 class HRMetadataMapper:
     """Semantic mapping engine for HR databases."""
 
     # Entity classification keywords
-    ENTITY_PATTERNS = {
+    ENTITY_PATTERNS: ClassVar[dict[str, list[str]]] = {
         "EMPLOYEE": [r"employ", r"staff", r"worker", r"person", r"headcount"],
         "DEPARTMENT": [r"department", r"dept", r"division", r"cost_center", r"business_unit"],
         "JOB_POSITION": [r"job", r"position", r"designation", r"role_profile", r"profile"],
@@ -32,7 +32,7 @@ class HRMetadataMapper:
     }
 
     # Common business definitions for HR columns
-    COLUMN_DEFINITIONS = {
+    COLUMN_DEFINITIONS: ClassVar[dict[str, str]] = {
         "employee_number": "Unique organizational alphanumeric identifier assigned to each employee.",
         "first_name": "Legal given name of the worker.",
         "last_name": "Family name or surname of the worker.",
@@ -143,7 +143,7 @@ class HRMetadataMapper:
         data_type: str,
         is_primary_key: bool = False,
         is_foreign_key: bool = False
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Infers metric/dimension role, date role, sensitivity, and HR concept."""
         col_lower = column_name.lower().strip()
         norm_type = cls.normalize_data_type(data_type)
@@ -174,15 +174,12 @@ class HRMetadataMapper:
         default_agg = "NONE"
         is_dimension = False
 
-        if is_primary_key or is_foreign_key:
-            is_dimension = True
-            is_metric = False
-        elif is_date_field:
+        if is_primary_key or is_foreign_key or is_date_field:
             is_dimension = True
             is_metric = False
         elif norm_type in ["INTEGER", "DECIMAL"]:
             # Exclude ID or code-like integers
-            if col_lower.endswith("_id") or col_lower.endswith("_no") or col_lower.endswith("_code"):
+            if col_lower.endswith(("_id", "_no", "_code")):
                 is_dimension = True
             elif any(x in col_lower for x in ["salary", "bonus", "budget", "amount", "cost", "wage", "compensation"]):
                 is_metric = True
@@ -229,9 +226,9 @@ class HRMetadataMapper:
         definition = cls.COLUMN_DEFINITIONS.get(col_lower)
         if not definition:
             if is_primary_key:
-                definition = f"Primary unique identifier for records in this table."
+                definition = "Primary unique identifier for records in this table."
             elif is_foreign_key:
-                definition = f"Foreign key reference link to related entity."
+                definition = "Foreign key reference link to related entity."
             elif is_metric:
                 definition = f"Quantitative measure of {col_lower.replace('_', ' ')}."
             else:
@@ -278,7 +275,7 @@ class HRMetadataMapper:
         return "DIMENSIONAL_ATTRIBUTE"
 
     @classmethod
-    def detect_effective_dating(cls, column_names: List[str]) -> bool:
+    def detect_effective_dating(cls, column_names: list[str]) -> bool:
         """Detects whether a table employs effective dating conventions."""
         cols = [c.lower() for c in column_names]
         has_start = any(x in cols for x in ["effective_start_date", "valid_from", "effective_date"])

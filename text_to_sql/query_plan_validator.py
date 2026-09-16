@@ -7,9 +7,11 @@ Validates that a QueryPlan conforms to:
 """
 
 import logging
-from typing import Dict, Any, List, Set, Optional
-from .schemas import QueryPlan
+from typing import Any
+
 from rag.schemas import RAGContextResponse
+
+from .schemas import QueryPlan
 
 logger = logging.getLogger("text_to_sql.query_plan_validator")
 
@@ -21,9 +23,9 @@ class QueryPlanValidator:
     def validate_plan(
         cls,
         plan: QueryPlan,
-        allowed_tables: Set[str],
+        allowed_tables: set[str],
         context: RAGContextResponse
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Ensures query plan entities exist and mandatory policies are respected."""
         errors = []
         warnings = []

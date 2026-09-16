@@ -6,10 +6,12 @@ Detects contradictory logic between business rules, such as:
 - IS NULL vs IS NOT NULL contradictions
 """
 
-import re
 import logging
-from typing import Dict, Any, List, Optional
+import re
+from typing import Any
+
 from sqlalchemy.orm import Session
+
 from backend.database.models_rules import BusinessRule
 
 logger = logging.getLogger("business_rules.conflict")
@@ -21,11 +23,11 @@ class RuleConflictDetector:
     @classmethod
     def detect_conflicts(
         cls,
-        candidate_rule: Dict[str, Any],
+        candidate_rule: dict[str, Any],
         db: Session,
-        database_id: Optional[str] = None,
-        exclude_rule_id: Optional[int] = None
-    ) -> List[Dict[str, Any]]:
+        database_id: str | None = None,
+        exclude_rule_id: int | None = None
+    ) -> list[dict[str, Any]]:
         """Compares a candidate rule against currently active rules for contradictions."""
         db_id = candidate_rule.get("database_id") or database_id or "sqlite_hr_default"
         table_name = (candidate_rule.get("table_name") or "").lower().strip()
@@ -52,11 +54,15 @@ class RuleConflictDetector:
 
             # Match column targets
             same_col = False
-            if cand_col and r_col and cand_col == r_col:
+            if cand_col and r_col and cand_col == r_col or (
+                table_name
+                and rule.table_name
+                and table_name == rule.table_name.lower()
+                and column_name
+                and rule.column_name
+                and column_name == rule.column_name.lower()
+            ):
                 same_col = True
-            elif table_name and rule.table_name and table_name == rule.table_name.lower():
-                if column_name and rule.column_name and column_name == rule.column_name.lower():
-                    same_col = True
 
             if same_col and cand_op and r_op:
                 # Contradictory equality: col = 'ACTIVE' vs col = 'INACTIVE' or col = 'A'
@@ -86,7 +92,7 @@ class RuleConflictDetector:
         return conflicts
 
     @classmethod
-    def _extract_predicate_parts(cls, expr: str) -> (Optional[str], Optional[str], Optional[str]):
+    def _extract_predicate_parts(cls, expr: str) -> (str | None, str | None, str | None):
         """Extracts column, operator, and value from simple equality or null predicates."""
         clean = expr.strip()
 

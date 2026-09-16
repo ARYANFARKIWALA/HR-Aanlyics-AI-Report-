@@ -1,22 +1,19 @@
 """Export Service supporting CSV, multi-tab Excel, and boardroom PDF with CLS masking."""
 
-import io
 import csv
 import datetime
-from typing import List, Dict, Any, Optional
-import pandas as pd
+import io
+from typing import Any
+
 import openpyxl
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+import pandas as pd
+from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
-
-from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import (
-    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-)
+from reportlab.lib.pagesizes import landscape, letter
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
-from sqlalchemy.orm import Session
 from backend.database.models import User
 from backend.database.models_reports import SavedReport
 from security.permissions import mask_pii_dataframe
@@ -42,9 +39,9 @@ class ReportExportService:
     @classmethod
     def prepare_sanitized_dataframe(
         cls,
-        columns: List[str],
-        rows: List[Dict[str, Any]],
-        user: Optional[User] = None
+        columns: list[str],
+        rows: list[dict[str, Any]],
+        user: User | None = None
     ) -> pd.DataFrame:
         """Applies column-level masking and sanitization to dataset based on user role."""
         if not rows:
@@ -64,9 +61,9 @@ class ReportExportService:
     def export_csv(
         cls,
         report: SavedReport,
-        columns: List[str],
-        rows: List[Dict[str, Any]],
-        user: Optional[User] = None
+        columns: list[str],
+        rows: list[dict[str, Any]],
+        user: User | None = None
     ) -> bytes:
         """Exports sanitized report data as UTF-8 CSV."""
         df = cls.prepare_sanitized_dataframe(columns, rows, user)
@@ -78,10 +75,10 @@ class ReportExportService:
     def export_excel(
         cls,
         report: SavedReport,
-        columns: List[str],
-        rows: List[Dict[str, Any]],
-        user: Optional[User] = None,
-        kpis: Optional[Dict[str, Any]] = None
+        columns: list[str],
+        rows: list[dict[str, Any]],
+        user: User | None = None,
+        kpis: dict[str, Any] | None = None
     ) -> bytes:
         """Exports sanitized report data as a styled multi-sheet Excel workbook."""
         df = cls.prepare_sanitized_dataframe(columns, rows, user)
@@ -174,9 +171,9 @@ class ReportExportService:
     def export_pdf(
         cls,
         report: SavedReport,
-        columns: List[str],
-        rows: List[Dict[str, Any]],
-        user: Optional[User] = None
+        columns: list[str],
+        rows: list[dict[str, Any]],
+        user: User | None = None
     ) -> bytes:
         """Exports sanitized report data as an executive PDF document."""
         df = cls.prepare_sanitized_dataframe(columns, rows, user)

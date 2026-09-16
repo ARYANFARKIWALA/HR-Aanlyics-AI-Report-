@@ -1,8 +1,10 @@
 """Multidimensional segmentation and cohort slicing engine."""
 
-from typing import List, Dict, Any
+from typing import Any
+
 import pandas as pd
-from .schemas import SegmentationBreakdown, ColumnClassification
+
+from .schemas import ColumnClassification, SegmentationBreakdown
 
 
 class SegmentationEngine:
@@ -12,9 +14,9 @@ class SegmentationEngine:
     def segment(
         cls,
         df: pd.DataFrame,
-        classifications: List[ColumnClassification]
-    ) -> List[SegmentationBreakdown]:
-        breakdowns: List[SegmentationBreakdown] = []
+        classifications: list[ColumnClassification]
+    ) -> list[SegmentationBreakdown]:
+        breakdowns: list[SegmentationBreakdown] = []
         if df.empty:
             return breakdowns
 
@@ -25,11 +27,11 @@ class SegmentationEngine:
         target_dims = dim_cols[:3]
 
         for dim in target_dims:
-            segments: Dict[str, Dict[str, Any]] = {}
+            segments: dict[str, dict[str, Any]] = {}
             grouped = df.groupby(dim, observed=True)
 
             for group_name, group_df in grouped:
-                seg_data: Dict[str, Any] = {"headcount": int(len(group_df))}
+                seg_data: dict[str, Any] = {"headcount": len(group_df)}
 
                 for m in metric_cols[:2]:
                     s = pd.to_numeric(group_df[m], errors="coerce").dropna()

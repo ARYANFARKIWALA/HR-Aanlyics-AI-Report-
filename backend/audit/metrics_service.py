@@ -1,12 +1,13 @@
 """Admin Monitoring and Telemetry Metrics Service (Module 13)."""
 
-from typing import Dict, Any, List
-from sqlalchemy.orm import Session
+from typing import Any
+
 from sqlalchemy import func
+from sqlalchemy.orm import Session
 
 from backend.database.models_audit import LifecycleAuditLog
-from backend.database.models_validation import SQLValidationAuditLog
 from backend.database.models_execution import QueryExecutionAuditLog
+from backend.database.models_validation import SQLValidationAuditLog
 
 
 class AdminMonitoringService:
@@ -15,7 +16,7 @@ class AdminMonitoringService:
     def __init__(self, db: Session):
         self.db = db
 
-    def get_monitoring_summary(self) -> Dict[str, Any]:
+    def get_monitoring_summary(self) -> dict[str, Any]:
         """
         Computes all required monitoring metrics:
         - AI requests

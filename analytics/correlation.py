@@ -1,8 +1,9 @@
 """Bivariate Pearson and Spearman correlation analyzer."""
 
-from typing import List
+
 import pandas as pd
-from .schemas import CorrelationItem, ColumnClassification
+
+from .schemas import ColumnClassification, CorrelationItem
 
 
 class CorrelationAnalyzer:
@@ -12,9 +13,9 @@ class CorrelationAnalyzer:
     def analyze_correlations(
         cls,
         df: pd.DataFrame,
-        classifications: List[ColumnClassification]
-    ) -> List[CorrelationItem]:
-        items: List[CorrelationItem] = []
+        classifications: list[ColumnClassification]
+    ) -> list[CorrelationItem]:
+        items: list[CorrelationItem] = []
         metric_cols = [c.column_name for c in classifications if c.semantic_type in ["NUMERIC", "CURRENCY"]]
 
         if len(metric_cols) < 2 or len(df) < 5:

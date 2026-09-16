@@ -17,12 +17,13 @@ if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
 import streamlit as st
+
 from backend.database.connection import SessionLocal
-from backend.database.models import User
 from backend.database.connection_manager import connection_manager
+from backend.database.models import User
 from backend.services.sql_repository_service import SQLRepositoryService
-from sql.parser import SQLParser
 from sql.file_parser import SQLFileParser
+from sql.parser import SQLParser
 
 st.set_page_config(page_title="Add SQL Report", page_icon="➕", layout="wide")
 

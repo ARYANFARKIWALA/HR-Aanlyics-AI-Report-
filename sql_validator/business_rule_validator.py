@@ -1,10 +1,10 @@
 """Business rule compliance validator for HR Analytics."""
 
-from typing import Tuple, List, Set, Optional
-import sqlglot
-from sqlglot import exp
 from sqlalchemy.orm import Session
+from sqlglot import exp
+
 from backend.database.models_rules import BusinessRule
+
 from .schemas import ChecklistItem
 
 
@@ -16,8 +16,8 @@ class BusinessRuleValidator:
         expression: exp.Expression,
         db: Session,
         database_id: str,
-        referenced_tables: Set[str]
-    ) -> Tuple[bool, List[ChecklistItem], List[str], List[str]]:
+        referenced_tables: set[str]
+    ) -> tuple[bool, list[ChecklistItem], list[str], list[str]]:
         checklist = []
         violations = []
         warnings = []

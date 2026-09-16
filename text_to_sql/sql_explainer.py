@@ -4,9 +4,9 @@ Translates complex SQL queries, joins, and filters into clear,
 jargon-free business explanations for HR stakeholders.
 """
 
-import re
 import logging
-from typing import Dict, Any, List, Optional
+from typing import Any
+
 import sqlglot
 from sqlglot import exp
 
@@ -20,8 +20,8 @@ class SQLExplainer:
     def explain_sql(
         cls,
         sql: str,
-        query_plan: Optional[Dict[str, Any]] = None,
-        applied_rules: Optional[List[Dict[str, Any]]] = None,
+        query_plan: dict[str, Any] | None = None,
+        applied_rules: list[dict[str, Any]] | None = None,
         dialect: str = "sqlite"
     ) -> str:
         """Constructs an intuitive plain-English explanation of the SQL statement."""
@@ -38,9 +38,9 @@ class SQLExplainer:
 
         # 2. Selected Metrics & Dimensions
         if parsed:
-            select_exprs = [s.sql() for s in parsed.find_all(exp.Select)]
+            [s.sql() for s in parsed.find_all(exp.Select)]
             tables = [t.name for t in parsed.find_all(exp.Table)]
-            unique_tables = sorted(list(set(tables)))
+            unique_tables = sorted(set(tables))
 
             sections.append(f"**Data Sources:** Retrieves data from `{', '.join(unique_tables)}`.")
 

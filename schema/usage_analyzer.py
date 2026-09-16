@@ -7,10 +7,14 @@ Analyzes SQL query patterns from Module 2's SQL repository to:
 """
 
 import logging
-from typing import Dict, Any, List, Set, Tuple
+from typing import Any
+
 from sqlalchemy.orm import Session
-from backend.database.models_repo import SQLReport, SQLReportMetadata
-from backend.database.models_schema import SchemaUsageMetric, SchemaRelationship, SchemaTable
+
+from backend.database.models_repo import SQLReport
+from backend.database.models_schema import (
+    SchemaUsageMetric,
+)
 
 logger = logging.getLogger("schema.usage_analyzer")
 
@@ -21,7 +25,7 @@ class SchemaUsageAnalyzer:
     def __init__(self, db: Session):
         self.db = db
 
-    def analyze_repository_usage(self, database_id: str) -> Dict[str, Any]:
+    def analyze_repository_usage(self, database_id: str) -> dict[str, Any]:
         """Analyzes all active/approved reports for a database_id and computes usage frequencies.
 
         Returns:
@@ -40,9 +44,9 @@ class SchemaUsageAnalyzer:
             .all()
         )
 
-        table_counts: Dict[str, int] = {}
-        column_counts: Dict[str, int] = {}
-        join_patterns: Dict[Tuple[str, str, str, str], int] = {}
+        table_counts: dict[str, int] = {}
+        column_counts: dict[str, int] = {}
+        join_patterns: dict[tuple[str, str, str, str], int] = {}
 
         for r in reports:
             meta = r.metadata_rel
@@ -120,9 +124,9 @@ class SchemaUsageAnalyzer:
     def _record_usage_metrics(
         self,
         database_id: str,
-        table_counts: Dict[str, int],
-        column_counts: Dict[str, int],
-        join_patterns: Dict[Tuple[str, str, str, str], int]
+        table_counts: dict[str, int],
+        column_counts: dict[str, int],
+        join_patterns: dict[tuple[str, str, str, str], int]
     ):
         """Persists aggregated usage metrics into schema_usage_metrics table."""
         try:
@@ -190,7 +194,7 @@ class SchemaUsageAnalyzer:
         column_count: int,
         fk_count: int,
         query_usage_count: int
-    ) -> Tuple[float, str]:
+    ) -> tuple[float, str]:
         """Calculates a normalized 0-100 table importance score and categorical level.
 
         Formula components:

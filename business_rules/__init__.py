@@ -1,29 +1,29 @@
 """Module 4: Business Rule Management Package."""
 
-from .models import (
-    BusinessRule,
-    BusinessRuleVersion,
-    BusinessRuleAudit,
-    RuleDependency,
-    ReportBusinessRule,
-    RuleTable,
-    RuleColumn,
-)
-from .validator import RuleValidator
 from .conflict_detector import RuleConflictDetector
 from .duplicate_detector import RuleDuplicateDetector
+from .models import (
+    BusinessRule,
+    BusinessRuleAudit,
+    BusinessRuleVersion,
+    ReportBusinessRule,
+    RuleColumn,
+    RuleDependency,
+    RuleTable,
+)
 from .service import BusinessRuleService
+from .validator import RuleValidator
 
 __all__ = [
     "BusinessRule",
-    "BusinessRuleVersion",
     "BusinessRuleAudit",
-    "RuleDependency",
-    "ReportBusinessRule",
-    "RuleTable",
-    "RuleColumn",
-    "RuleValidator",
-    "RuleConflictDetector",
-    "RuleDuplicateDetector",
     "BusinessRuleService",
+    "BusinessRuleVersion",
+    "ReportBusinessRule",
+    "RuleColumn",
+    "RuleConflictDetector",
+    "RuleDependency",
+    "RuleDuplicateDetector",
+    "RuleTable",
+    "RuleValidator",
 ]

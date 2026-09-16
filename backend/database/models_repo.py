@@ -5,11 +5,20 @@ parameters, approval workflows, and categories. Does NOT store actual HR employe
 """
 
 import datetime
+
 from sqlalchemy import (
-    Column, Integer, String, Float, Boolean, DateTime,
-    ForeignKey, Text, Index, Enum
+    Boolean,
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
 )
 from sqlalchemy.orm import relationship
+
 from .connection import Base
 
 

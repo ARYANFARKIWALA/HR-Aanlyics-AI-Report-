@@ -6,17 +6,19 @@ bulk file import, and RAG knowledge generation with standard JSON envelopes:
   Error:   { "success": false, "error": { "code": "...", "message": "..." } }
 """
 
-from typing import Optional, List, Dict, Any
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status
+from typing import Any
+
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
+from rag.sql_knowledge_builder import SQLKnowledgeBuilder
+
+from ..auth.dependencies import get_current_user, require_role
 from ..database.connection import get_db
 from ..database.models import User
-from ..database.models_repo import SQLReport, SQLCategory
-from ..auth.dependencies import get_current_user, require_role
+from ..database.models_repo import SQLCategory, SQLReport
 from ..services.sql_repository_service import SQLRepositoryService
-from rag.sql_knowledge_builder import SQLKnowledgeBuilder
 
 router = APIRouter(prefix="/api/sql-reports", tags=["Module 2: SQL Knowledge Repository"])
 
@@ -28,24 +30,24 @@ class ReportCreateRequest(BaseModel):
     report_name: str = Field(..., min_length=1)
     sql_query: str = Field(..., min_length=1)
     database_id: str
-    description: Optional[str] = ""
-    business_purpose: Optional[str] = ""
-    category: Optional[str] = "Other"
-    tags: Optional[List[str]] = []
-    organization_id: Optional[str] = "org_default"
+    description: str | None = ""
+    business_purpose: str | None = ""
+    category: str | None = "Other"
+    tags: list[str] | None = []
+    organization_id: str | None = "org_default"
 
 
 class ReportUpdateRequest(BaseModel):
-    report_name: Optional[str] = None
-    description: Optional[str] = None
-    business_purpose: Optional[str] = None
-    category: Optional[str] = None
-    sql_query: Optional[str] = None
-    change_description: Optional[str] = "Updated report."
+    report_name: str | None = None
+    description: str | None = None
+    business_purpose: str | None = None
+    category: str | None = None
+    sql_query: str | None = None
+    change_description: str | None = "Updated report."
 
 
 class ApprovalDecisionRequest(BaseModel):
-    comment: Optional[str] = "Approved."
+    comment: str | None = "Approved."
 
 
 class RejectionDecisionRequest(BaseModel):
@@ -58,7 +60,7 @@ class VersionCompareRequest(BaseModel):
 
 
 # Standard Response Helpers
-def success_response(data: Any) -> Dict[str, Any]:
+def success_response(data: Any) -> dict[str, Any]:
     return {"success": True, "data": data}
 
 
@@ -141,13 +143,13 @@ def create_sql_report(
 # -------------------------------------------------------------
 @router.get("")
 def list_and_search_reports(
-    q: Optional[str] = None,
-    database_id: Optional[str] = None,
-    category: Optional[str] = None,
-    status_filter: Optional[str] = None,
-    complexity: Optional[str] = None,
-    uses_effective_dating: Optional[bool] = None,
-    uses_security_filter: Optional[bool] = None,
+    q: str | None = None,
+    database_id: str | None = None,
+    category: str | None = None,
+    status_filter: str | None = None,
+    complexity: str | None = None,
+    uses_effective_dating: bool | None = None,
+    uses_security_filter: bool | None = None,
     organization_id: str = "org_default",
     limit: int = 100,
     current_user: User = Depends(get_current_user),
@@ -431,7 +433,7 @@ def compare_report_versions(
 @router.post("/import")
 async def import_sql_file(
     database_id: str = Form(...),
-    category: Optional[str] = Form("Other"),
+    category: str | None = Form("Other"),
     file: UploadFile = File(...),
     current_user: User = Depends(require_role(["admin", "hr_manager"])),
     db: Session = Depends(get_db)
@@ -471,7 +473,7 @@ async def import_sql_file(
 @router.post("/bulk-import")
 async def bulk_import_sql_files(
     database_id: str = Form(...),
-    files: List[UploadFile] = File(...),
+    files: list[UploadFile] = File(...),
     current_user: User = Depends(require_role(["admin", "hr_manager"])),
     db: Session = Depends(get_db)
 ):

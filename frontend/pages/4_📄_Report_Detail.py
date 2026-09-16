@@ -9,9 +9,9 @@ Displays:
 - LlamaIndex-ready RAG Knowledge Document preview
 """
 
+import json
 import os
 import sys
-import json
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 FRONTEND_DIR = os.path.dirname(CURRENT_DIR)
@@ -19,11 +19,12 @@ PROJECT_ROOT = os.path.dirname(FRONTEND_DIR)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-import streamlit as st
 import pandas as pd
+import streamlit as st
+
 from backend.database.connection import SessionLocal
 from backend.database.models import User
-from backend.database.models_repo import SQLReport, SQLReportVersion
+from backend.database.models_repo import SQLReport
 from backend.services.sql_repository_service import SQLRepositoryService
 from rag.sql_knowledge_builder import SQLKnowledgeBuilder
 
@@ -132,7 +133,8 @@ with detail_tabs[1]:
 
             if meta.aggregations_json:
                 aggs = json.loads(meta.aggregations_json)
-                st.write(f"**Aggregations:** {[f'{a.get('function')}({a.get('column')})' for a in aggs]}")
+                agg_list = [f"{a.get('function')}({a.get('column')})" for a in aggs]
+                st.write(f"**Aggregations:** {agg_list}")
 
     with col_d2:
         st.markdown("##### 🔗 Joins & Relationships")

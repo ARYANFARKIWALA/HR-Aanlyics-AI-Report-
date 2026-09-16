@@ -1,10 +1,12 @@
 """Plotly Chart Builder for Report Visualizations."""
 
 import json
-from typing import Dict, Any, Optional
+from typing import Any
+
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+
 from .schemas import ChartConfig
 
 
@@ -12,7 +14,7 @@ class ChartBuilder:
     """Constructs publication-grade Plotly interactive visualizations."""
 
     @classmethod
-    def build_chart(cls, df: pd.DataFrame, config: ChartConfig) -> Dict[str, Any]:
+    def build_chart(cls, df: pd.DataFrame, config: ChartConfig) -> dict[str, Any]:
         """Builds a Plotly figure dictionary from DataFrame and config."""
         if df.empty:
             empty_fig = go.Figure()
@@ -115,13 +117,13 @@ class ChartBuilder:
 
         except Exception as e:
             err_fig = go.Figure()
-            err_fig.update_layout(title=f"{config.title} (Render Error: {str(e)})")
+            err_fig.update_layout(title=f"{config.title} (Render Error: {e!s})")
             return json.loads(err_fig.to_json())
 
         fig.update_layout(
             height=config.height,
             showlegend=config.show_legend,
-            margin=dict(l=40, r=40, t=50, b=40),
+            margin={"l": 40, "r": 40, "t": 50, "b": 40},
             template="plotly_white"
         )
 

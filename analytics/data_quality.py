@@ -1,7 +1,8 @@
 """Data quality and integrity assessment engine."""
 
-from typing import List
+
 import pandas as pd
+
 from .schemas import DataQualityReport
 
 
@@ -20,7 +21,7 @@ class DataQualityAuditor:
                 issues=[]
             )
 
-        issues: List[str] = []
+        issues: list[str] = []
         anomaly_count = 0
 
         # 1. Completeness

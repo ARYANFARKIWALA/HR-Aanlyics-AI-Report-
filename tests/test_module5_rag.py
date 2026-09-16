@@ -15,16 +15,14 @@ Tests:
 
 import pytest
 from fastapi.testclient import TestClient
+
 from backend.database.connection import SessionLocal, init_db
-from backend.database.seeder import seed_database
 from backend.database.models_rules import BusinessRule
-from backend.database.models_repo import SQLReport
-from backend.database.models_rag import RAGDocument, RAGChunk
-from rag.embedding_service import EmbeddingService
-from rag.chunker import SemanticChunker
-from rag.vector_store import VectorStore
-from rag.rag_service import RAGService
+from backend.database.seeder import seed_database
 from backend.main import app
+from rag.chunker import SemanticChunker
+from rag.embedding_service import EmbeddingService
+from rag.rag_service import RAGService
 
 client = TestClient(app)
 

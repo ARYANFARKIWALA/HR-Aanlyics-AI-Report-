@@ -1,8 +1,9 @@
 """Statement structure and read-only type validator."""
 
-from typing import Tuple, List, Optional
 import re
+
 from sqlglot import exp
+
 from .parser import SQLParseResult
 from .schemas import ChecklistItem
 
@@ -18,7 +19,7 @@ class StatementValidator:
     """Enforces single-statement and strict read-only execution invariants."""
 
     @staticmethod
-    def validate(parse_result: SQLParseResult) -> Tuple[bool, List[ChecklistItem], List[str]]:
+    def validate(parse_result: SQLParseResult) -> tuple[bool, list[ChecklistItem], list[str]]:
         checklist = []
         violations = []
 

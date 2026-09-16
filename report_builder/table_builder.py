@@ -1,7 +1,9 @@
 """Table Builder for styled tabular reporting."""
 
-from typing import Dict, Any, List
+from typing import Any
+
 import pandas as pd
+
 from .schemas import TableConfig
 
 
@@ -9,7 +11,7 @@ class TableBuilder:
     """Formats report data tables with sorting, column types, and conditional badges."""
 
     @classmethod
-    def build_table(cls, df: pd.DataFrame, config: TableConfig) -> Dict[str, Any]:
+    def build_table(cls, df: pd.DataFrame, config: TableConfig) -> dict[str, Any]:
         if df.empty:
             return {
                 "table_id": config.table_id,

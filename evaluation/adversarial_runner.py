@@ -1,11 +1,12 @@
 """Adversarial Penetration & Prompt Injection Defense Tester for Module 13."""
 
-from typing import List
-from sqlalchemy.orm import Session
-from sql_validator.service import SQLValidatorService
-from sql_validator.schemas import SQLValidationRequest
-from .schemas import AdversarialTestResult
 
+from sqlalchemy.orm import Session
+
+from sql_validator.schemas import SQLValidationRequest
+from sql_validator.service import SQLValidatorService
+
+from .schemas import AdversarialTestResult
 
 ADVERSARIAL_ATTACK_SUITE = [
     {
@@ -50,10 +51,10 @@ class AdversarialSecurityRunner:
     """Stress tests Module 7 SQL Validator and zero-trust gating under adversarial attacks."""
 
     @classmethod
-    def run_penetration_tests(cls, db: Session) -> List[AdversarialTestResult]:
+    def run_penetration_tests(cls, db: Session) -> list[AdversarialTestResult]:
         """Runs the adversarial test suite and verifies all attacks are blocked."""
         validator = SQLValidatorService(db=db)
-        results: List[AdversarialTestResult] = []
+        results: list[AdversarialTestResult] = []
 
         for attack in ADVERSARIAL_ATTACK_SUITE:
             atype = attack["attack_type"]

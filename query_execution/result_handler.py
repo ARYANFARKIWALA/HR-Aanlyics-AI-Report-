@@ -2,9 +2,10 @@
 
 import datetime
 from decimal import Decimal
-from typing import List, Dict, Any, Tuple
+
 import pandas as pd
 from sqlalchemy import CursorResult
+
 from .schemas import QueryColumnMeta
 
 MAX_RESULT_ROWS = 10000
@@ -17,7 +18,7 @@ class ResultHandler:
     def process_cursor(
         cursor: CursorResult,
         max_rows: int = MAX_RESULT_ROWS
-    ) -> Tuple[pd.DataFrame, List[str], List[QueryColumnMeta]]:
+    ) -> tuple[pd.DataFrame, list[str], list[QueryColumnMeta]]:
         """
         Fetches up to max_rows and preserves types (Decimal, Date, Datetime, Int, Float, Bool).
         """
@@ -40,7 +41,7 @@ class ResultHandler:
         df = pd.DataFrame(records, columns=columns) if records else pd.DataFrame(columns=columns)
 
         # Build column metadata
-        column_meta: List[QueryColumnMeta] = []
+        column_meta: list[QueryColumnMeta] = []
         for col in columns:
             dtype_str = "string"
             if not df.empty:

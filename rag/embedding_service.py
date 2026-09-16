@@ -7,11 +7,10 @@ Supports:
 Produces normalized float vectors suitable for cosine similarity and pgvector.
 """
 
-import os
-import math
 import hashlib
+import math
+import os
 import re
-from typing import List, Optional
 
 EMBEDDING_DIM = 128
 
@@ -19,7 +18,7 @@ EMBEDDING_DIM = 128
 class EmbeddingService:
     """Configurable embedding generator."""
 
-    def __init__(self, model_name: Optional[str] = None):
+    def __init__(self, model_name: str | None = None):
         self.model_name = model_name or os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
         self._st_model = None
         self._initialize_model()
@@ -32,7 +31,7 @@ class EmbeddingService:
         except Exception:
             self._st_model = None
 
-    def generate_embedding(self, text: str) -> List[float]:
+    def generate_embedding(self, text: str) -> list[float]:
         """Generates a normalized dense embedding vector for a single text string."""
         if not text or not text.strip():
             return [0.0] * EMBEDDING_DIM
@@ -47,12 +46,12 @@ class EmbeddingService:
         # Deterministic semantic projection fallback
         return self._dense_hash_projection(text, dim=EMBEDDING_DIM)
 
-    def generate_embeddings(self, texts: List[str]) -> List[List[float]]:
+    def generate_embeddings(self, texts: list[str]) -> list[list[float]]:
         """Generates embeddings for a batch of text strings."""
         return [self.generate_embedding(t) for t in texts]
 
     @classmethod
-    def _dense_hash_projection(cls, text: str, dim: int = 128) -> List[float]:
+    def _dense_hash_projection(cls, text: str, dim: int = 128) -> list[float]:
         """Generates a unit-normalized dense semantic vector using n-gram feature hashing."""
         clean = re.sub(r"[^\w\s]", " ", text.lower())
         tokens = clean.split()
@@ -78,7 +77,7 @@ class EmbeddingService:
         return [round(x / norm, 6) for x in vector]
 
     @classmethod
-    def cosine_similarity(cls, vec_a: List[float], vec_b: List[float]) -> float:
+    def cosine_similarity(cls, vec_a: list[float], vec_b: list[float]) -> float:
         """Computes cosine similarity between two unit vectors."""
         if not vec_a or not vec_b:
             return 0.0

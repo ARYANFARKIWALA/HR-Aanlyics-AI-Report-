@@ -1,17 +1,16 @@
 """Pre-configured enterprise HR report templates."""
 
-from typing import Dict, List, Optional, Any
+from typing import Any
+
 from .schemas import (
-    ReportDefinition,
-    KPICardConfig,
     ChartConfig,
-    TableConfig,
+    KPICardConfig,
+    ReportDefinition,
     TableColumnConfig,
-    FilterConfig,
-    InsightCalloutConfig
+    TableConfig,
 )
 
-TEMPLATES: Dict[str, ReportDefinition] = {
+TEMPLATES: dict[str, ReportDefinition] = {
     "executive_overview": ReportDefinition(
         report_id="tpl_exec_overview",
         title="Executive HR Leadership Overview",
@@ -101,7 +100,7 @@ class TemplateManager:
     """Manages pre-built HR report templates."""
 
     @classmethod
-    def list_templates(cls) -> List[Dict[str, Any]]:
+    def list_templates(cls) -> list[dict[str, Any]]:
         return [
             {
                 "key": key,
@@ -116,5 +115,5 @@ class TemplateManager:
         ]
 
     @classmethod
-    def get_template(cls, key: str) -> Optional[ReportDefinition]:
+    def get_template(cls, key: str) -> ReportDefinition | None:
         return TEMPLATES.get(key)

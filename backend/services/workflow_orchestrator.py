@@ -17,30 +17,30 @@ Integrates all 14 architectural layers into a unified, zero-bypass pipeline:
 14. Save audit records across lifecycle
 """
 
-import time
 import datetime
-from typing import Optional, Dict, Any, List
+import time
+from typing import Any
+
 from sqlalchemy.orm import Session
 
-from backend.database.models import User
-from backend.database.connection_manager import connection_manager
+from analytics.reusable_services import HRAnalyticsEngine
+from backend.audit.service import EnterpriseAuditService
 from backend.auth.authorization import AuthorizationService
+from backend.database.connection_manager import connection_manager
+from backend.database.models import User
 from business_rules.service import BusinessRuleService
-from rag.rag_service import RAGService
-from text_to_sql.schemas import TextToSQLRequest
-from text_to_sql.service import TextToSQLService
-from sql_validator.schemas import SQLValidationRequest
-from sql_validator.service import SQLValidatorService
 from query_execution.schemas import ExecuteQueryRequest
 from query_execution.service import QueryExecutionService
-from analytics.reusable_services import HRAnalyticsEngine
+from rag.rag_service import RAGService
 from report_builder.pipeline_service import EndToEndReportBuilderService
-from backend.audit.service import EnterpriseAuditService
+from sql_validator.schemas import SQLValidationRequest
+from sql_validator.service import SQLValidatorService
+from text_to_sql.schemas import TextToSQLRequest
+from text_to_sql.service import TextToSQLService
 
 
 class WorkflowExecutionError(Exception):
     """Raised when any module in the 14-step workflow violates policy or fails."""
-    pass
 
 
 class EnterpriseWorkflowOrchestrator:
@@ -62,10 +62,10 @@ class EnterpriseWorkflowOrchestrator:
         database_id: str = "sqlite_hr_default",
         username: str = "admin",
         client_ip: str = "127.0.0.1"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Executes the exact 14-stage workflow requested in Phase 14."""
         workflow_start = time.time()
-        stage_logs: List[Dict[str, Any]] = []
+        stage_logs: list[dict[str, Any]] = []
 
         def log_stage(step_num: int, name: str, details: Any):
             stage_logs.append({

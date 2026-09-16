@@ -1,6 +1,7 @@
 """Unit tests for Report Builder, PDF export, and Excel export."""
 
 import pytest
+
 from backend.database.connection import SessionLocal
 from backend.database.models import User
 from backend.services.report_service import ReportService

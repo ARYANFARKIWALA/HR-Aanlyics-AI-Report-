@@ -1,10 +1,19 @@
 """SQLAlchemy ORM model for Module 8 - Query Execution Engine Audit."""
 
 import datetime
+
 from sqlalchemy import (
-    Column, Integer, String, Float, Boolean, DateTime,
-    ForeignKey, Text, Index
+    Boolean,
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
 )
+
 from .connection import Base
 
 

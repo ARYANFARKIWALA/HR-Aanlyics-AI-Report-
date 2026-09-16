@@ -5,14 +5,16 @@ historical enterprise business logic, joins, and effective-dating rules.
 """
 
 import re
-from typing import Dict, Any, Optional
+from typing import Any
+
 from sqlalchemy.orm import Session
-from .model import llm_client
-from .prompts.system_prompts import TEXT_TO_SQL_SYSTEM_PROMPT
-from .prompts.explainer_prompts import SQL_EXPLAINER_PROMPT
+
 from rag.retrieval import rag_retriever
 from sql.validator import SQLValidator
-from sql.parser import SQLParser
+
+from .model import llm_client
+from .prompts.explainer_prompts import SQL_EXPLAINER_PROMPT
+from .prompts.system_prompts import TEXT_TO_SQL_SYSTEM_PROMPT
 
 
 class TextToSQLService:
@@ -24,8 +26,8 @@ class TextToSQLService:
         natural_query: str,
         db_session: Session,
         user_role: str = "admin",
-        user_dept_id: Optional[int] = None
-    ) -> Dict[str, Any]:
+        user_dept_id: int | None = None
+    ) -> dict[str, Any]:
         """Translates natural language to SQL using semantic repository matching + LLM."""
         # 1. Check if RAG is initialized
         if not rag_retriever._initialized or not rag_retriever.sql_docs:
@@ -79,11 +81,10 @@ Return ONLY valid read-only SQL.
             user_dept_id=user_dept_id
         )
 
-        if not is_valid:
+        if not is_valid and top_match:
             # If invalid and we had a template, fall back safely
-            if top_match:
-                filtered_sql = top_match["raw_sql"]
-                is_valid, validation_msg, analysis = SQLValidator.validate(filtered_sql, user_role, user_dept_id)
+            filtered_sql = top_match["raw_sql"]
+            is_valid, validation_msg, analysis = SQLValidator.validate(filtered_sql, user_role, user_dept_id)
 
         # 7. Generate Plain-English explanation for business users
         explanation = cls.explain_sql(filtered_sql, analysis.to_dict())
@@ -100,7 +101,7 @@ Return ONLY valid read-only SQL.
         }
 
     @classmethod
-    def explain_sql(cls, sql_text: str, analysis_dict: Dict[str, Any]) -> str:
+    def explain_sql(cls, sql_text: str, analysis_dict: dict[str, Any]) -> str:
         """Explains query semantics, joins, and filters in plain English for business users."""
         prompt = f"""Please explain this SQL query for an executive HR business audience:
 

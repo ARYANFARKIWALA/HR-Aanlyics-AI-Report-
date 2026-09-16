@@ -1,11 +1,21 @@
 """SQLAlchemy ORM Data Models for HR Analytics and Enterprise SQL Catalog."""
 
 import datetime
+
 from sqlalchemy import (
-    Column, Integer, String, Float, Boolean, Date, DateTime,
-    ForeignKey, Text, Index
+    Boolean,
+    Column,
+    Date,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
 )
 from sqlalchemy.orm import relationship
+
 from .connection import Base
 
 

@@ -8,11 +8,11 @@ Establishes:
 5. Credentials/Knowledge Split: Outputs structural metadata only, never secrets/PII
 """
 
-import hashlib
-import json
 import datetime
-from typing import Dict, Any, List, Set, Optional
-from sqlalchemy import inspect, Engine, text
+import hashlib
+from typing import Any
+
+from sqlalchemy import Engine, inspect, text
 
 
 class DiscoveredSchema:
@@ -22,7 +22,7 @@ class DiscoveredSchema:
         self,
         database_id: str,
         dialect: str,
-        tables: List[Dict[str, Any]],
+        tables: list[dict[str, Any]],
         schema_hash: str,
         discovered_at: str
     ):
@@ -33,8 +33,8 @@ class DiscoveredSchema:
         self.discovered_at = discovered_at
 
         # Build fast lookup sets for validation allowlists (M7)
-        self.table_allowlist: Set[str] = {t["table_name"].lower() for t in tables}
-        self.column_allowlist_map: Dict[str, Set[str]] = {
+        self.table_allowlist: set[str] = {t["table_name"].lower() for t in tables}
+        self.column_allowlist_map: dict[str, set[str]] = {
             t["table_name"].lower(): {c["name"].lower() for c in t["columns"]}
             for t in tables
         }
@@ -48,7 +48,7 @@ class DiscoveredSchema:
             return False
         return column_name.lower() in self.column_allowlist_map[tbl]
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "database_id": self.database_id,
             "dialect": self.dialect,
@@ -56,7 +56,7 @@ class DiscoveredSchema:
             "discovered_at": self.discovered_at,
             "table_count": len(self.tables),
             "tables": self.tables,
-            "table_allowlist": sorted(list(self.table_allowlist)),
+            "table_allowlist": sorted(self.table_allowlist),
         }
 
     def to_rag_schema_text(self) -> str:

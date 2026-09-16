@@ -20,14 +20,15 @@ PROJECT_ROOT = os.path.dirname(FRONTEND_DIR)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-import streamlit as st
 import pandas as pd
+import streamlit as st
+
+from analytics.schemas import AnalyticsRequest
+from analytics.service import HRAnalyticsService
 from backend.database.connection import SessionLocal, init_db
 from backend.database.models import User
 from backend.database.models_execution import QueryExecutionAuditLog
 from query_execution.cache import QueryCacheManager
-from analytics.schemas import AnalyticsRequest
-from analytics.service import HRAnalyticsService
 
 st.set_page_config(
     page_title="HR Analytics Engine - Enterprise HR",
@@ -75,7 +76,12 @@ if source_mode == "Recent Module 8 Execution":
 
 if source_mode == "Standard Enterprise Demo Cohort":
     # Construct a realistic rich HR dataset
-    from backend.database.models import Employee, Department, JobProfile, CompensationHistory
+    from backend.database.models import (
+        CompensationHistory,
+        Department,
+        Employee,
+        JobProfile,
+    )
     emps = db.query(Employee).all()
     rows = []
     for e in emps:

@@ -1,7 +1,9 @@
 """Document ingestion for HR policies and SQL repository knowledge."""
 
-from typing import List, Dict, Any
+from typing import Any, ClassVar
+
 from sqlalchemy.orm import Session
+
 from backend.database.models import SQLRepository
 
 
@@ -12,7 +14,7 @@ class PolicyDocument:
         self.category = category
         self.content = content
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "doc_id": self.doc_id,
             "title": self.title,
@@ -24,7 +26,7 @@ class PolicyDocument:
 class DocumentIngester:
     """Ingests enterprise HR policies and catalogs SQL repository knowledge."""
 
-    SAMPLE_POLICIES = [
+    SAMPLE_POLICIES: ClassVar[list[PolicyDocument]] = [
         PolicyDocument(
             doc_id="POL-001",
             title="Remote and Hybrid Workplace Policy",
@@ -62,11 +64,11 @@ Employees with compa-ratio above 1.20 receive lump-sum performance bonuses rathe
     ]
 
     @classmethod
-    def get_all_policies(cls) -> List[PolicyDocument]:
+    def get_all_policies(cls) -> list[PolicyDocument]:
         return cls.SAMPLE_POLICIES
 
     @classmethod
-    def get_sql_repository_documents(cls, session: Session) -> List[Dict[str, Any]]:
+    def get_sql_repository_documents(cls, session: Session) -> list[dict[str, Any]]:
         """Retrieves and packages all enterprise SQL templates for vector indexing."""
         records = session.query(SQLRepository).all()
         docs = []

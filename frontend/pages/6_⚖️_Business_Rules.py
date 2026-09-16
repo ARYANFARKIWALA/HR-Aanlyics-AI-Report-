@@ -20,13 +20,14 @@ PROJECT_ROOT = os.path.dirname(FRONTEND_DIR)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-import streamlit as st
 import pandas as pd
+import streamlit as st
+
 from backend.database.connection import SessionLocal, init_db
 from backend.database.connection_manager import connection_manager
-from business_rules.service import BusinessRuleService
 from business_rules.conflict_detector import RuleConflictDetector
 from business_rules.duplicate_detector import RuleDuplicateDetector
+from business_rules.service import BusinessRuleService
 from business_rules.validator import RuleValidationError
 
 st.set_page_config(
@@ -137,28 +138,24 @@ with tab_review:
 
                 # Approval / Rejection Actions
                 act_col1, act_col2 = st.columns(2)
-                with act_col1:
-                    with st.expander("✅ Approve Rule"):
-                        with st.form(f"approve_form_{r.id}"):
-                            appr_comment = st.text_input("Approval Comment", value="Confirmed and approved with HR policy.")
-                            appr_btn = st.form_submit_button("Approve & Activate Rule")
-                            if appr_btn:
-                                service.approve_rule(r.id, comment=appr_comment, user_name="admin")
-                                st.success(f"Rule {r.rule_code} approved and marked ACTIVE!")
-                                st.rerun()
+                with act_col1, st.expander("✅ Approve Rule"), st.form(f"approve_form_{r.id}"):
+                    appr_comment = st.text_input("Approval Comment", value="Confirmed and approved with HR policy.")
+                    appr_btn = st.form_submit_button("Approve & Activate Rule")
+                    if appr_btn:
+                        service.approve_rule(r.id, comment=appr_comment, user_name="admin")
+                        st.success(f"Rule {r.rule_code} approved and marked ACTIVE!")
+                        st.rerun()
 
-                with act_col2:
-                    with st.expander("❌ Reject Rule"):
-                        with st.form(f"reject_form_{r.id}"):
-                            rej_reason = st.text_area("Rejection Reason (Mandatory)", placeholder="Explain why this rule is not general organizational policy...")
-                            rej_btn = st.form_submit_button("Reject Rule")
-                            if rej_btn:
-                                if not rej_reason or len(rej_reason.strip()) < 3:
-                                    st.error("Rejection reason is mandatory.")
-                                else:
-                                    service.reject_rule(r.id, reason=rej_reason, user_name="admin")
-                                    st.warning(f"Rule {r.rule_code} marked REJECTED.")
-                                    st.rerun()
+                with act_col2, st.expander("❌ Reject Rule"), st.form(f"reject_form_{r.id}"):
+                    rej_reason = st.text_area("Rejection Reason (Mandatory)", placeholder="Explain why this rule is not general organizational policy...")
+                    rej_btn = st.form_submit_button("Reject Rule")
+                    if rej_btn:
+                        if not rej_reason or len(rej_reason.strip()) < 3:
+                            st.error("Rejection reason is mandatory.")
+                        else:
+                            service.reject_rule(r.id, reason=rej_reason, user_name="admin")
+                            st.warning(f"Rule {r.rule_code} marked REJECTED.")
+                            st.rerun()
                 st.divider()
 
 # -------------------------------------------------------------

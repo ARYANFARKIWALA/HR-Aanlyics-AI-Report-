@@ -3,7 +3,6 @@
 import os
 import subprocess
 import sys
-import pytest
 
 
 def test_all_14_documentation_files_exist_and_comprehensive():
@@ -51,7 +50,8 @@ def test_canonical_demonstration_script_execution():
         cwd=project_root,
         capture_output=True,
         text=True,
-        timeout=60
+        timeout=60,
+        check=False
     )
 
     assert res.returncode == 0, f"Demonstration failed with stderr: {res.stderr}"

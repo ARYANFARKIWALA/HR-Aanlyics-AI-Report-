@@ -1,9 +1,8 @@
 """Interquartile Range (IQR) and Z-score outlier detection."""
 
-from typing import List, Optional
 import pandas as pd
-import numpy as np
-from .schemas import OutlierItem, ColumnClassification
+
+from .schemas import ColumnClassification, OutlierItem
 
 
 class OutlierDetector:
@@ -13,9 +12,9 @@ class OutlierDetector:
     def detect_outliers(
         cls,
         df: pd.DataFrame,
-        classifications: List[ColumnClassification]
-    ) -> List[OutlierItem]:
-        outliers: List[OutlierItem] = []
+        classifications: list[ColumnClassification]
+    ) -> list[OutlierItem]:
+        outliers: list[OutlierItem] = []
         if len(df) < 4:
             return outliers
 

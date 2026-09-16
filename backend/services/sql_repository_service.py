@@ -13,20 +13,27 @@ Orchestrates:
 import datetime
 import difflib
 import json
-from typing import Dict, Any, List, Optional, Tuple
-from sqlalchemy.orm import Session
-from sqlalchemy import func, or_
+from typing import Any
 
-from ..database.models import User, AuditLog
-from ..database.models_repo import (
-    SQLReport, SQLReportMetadata, SQLReportParameter,
-    SQLReportVersion, SQLApproval, SQLCategory, Tag, SQLReportTag
-)
-from ..database.connection_manager import connection_manager
-from sql.parser import SQLParser, ExtractedSQLMetadata
-from sql.normalizer import SQLNormalizer
-from sql.file_parser import SQLFileParser, ParsedSQLFileEntry
+from sqlalchemy import func, or_
+from sqlalchemy.orm import Session
+
 from rag.sql_knowledge_builder import SQLKnowledgeBuilder, SQLKnowledgeDocument
+from sql.file_parser import SQLFileParser
+from sql.normalizer import SQLNormalizer
+from sql.parser import ExtractedSQLMetadata, SQLParser
+
+from ..database.connection_manager import connection_manager
+from ..database.models import AuditLog, User
+from ..database.models_repo import (
+    SQLApproval,
+    SQLReport,
+    SQLReportMetadata,
+    SQLReportParameter,
+    SQLReportTag,
+    SQLReportVersion,
+    Tag,
+)
 
 
 class SQLRepositoryService:
@@ -55,9 +62,9 @@ class SQLRepositoryService:
         description: str = "",
         business_purpose: str = "",
         category: str = "Other",
-        tags: Optional[List[str]] = None,
+        tags: list[str] | None = None,
         organization_id: str = "org_default"
-    ) -> Tuple[SQLReport, Dict[str, Any]]:
+    ) -> tuple[SQLReport, dict[str, Any]]:
         """Imports and catalogs an existing SQL report without executing it."""
         # Get target database dialect from Module 1
         dialect_rules = connection_manager.get_dialect_rules(database_id)
@@ -194,9 +201,9 @@ class SQLRepositoryService:
         content: str,
         database_id: str,
         user: User,
-        filename: Optional[str] = None,
+        filename: str | None = None,
         default_category: str = "Other"
-    ) -> List[Tuple[SQLReport, Dict[str, Any]]]:
+    ) -> list[tuple[SQLReport, dict[str, Any]]]:
         """Parses .sql file content and imports all detected queries."""
         entries = SQLFileParser.parse_content(content, filename=filename)
         results = []
@@ -219,10 +226,10 @@ class SQLRepositoryService:
     def bulk_import(
         cls,
         session: Session,
-        files_dict: Dict[str, str],  # {filename: content}
+        files_dict: dict[str, str],  # {filename: content}
         database_id: str,
         user: User
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Bulk imports multiple .sql files and generates diagnostic summary."""
         total_files = len(files_dict)
         imported_count = 0
@@ -287,11 +294,11 @@ class SQLRepositoryService:
         session: Session,
         report_id: int,
         user: User,
-        report_name: Optional[str] = None,
-        description: Optional[str] = None,
-        business_purpose: Optional[str] = None,
-        category: Optional[str] = None,
-        sql_query: Optional[str] = None,
+        report_name: str | None = None,
+        description: str | None = None,
+        business_purpose: str | None = None,
+        category: str | None = None,
+        sql_query: str | None = None,
         change_description: str = "Updated report."
     ) -> SQLReport:
         """Updates report metadata, and if SQL changed, creates a new version record."""
@@ -391,7 +398,7 @@ class SQLRepositoryService:
         report_id: int,
         v1_num: int,
         v2_num: int
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generates unified diff comparison between two versions of an SQL report."""
         v1 = session.query(SQLReportVersion).filter(
             SQLReportVersion.report_id == report_id,
@@ -549,8 +556,8 @@ class SQLRepositoryService:
         cls,
         session: Session,
         organization_id: str = "org_default",
-        database_id: Optional[str] = None
-    ) -> List[SQLKnowledgeDocument]:
+        database_id: str | None = None
+    ) -> list[SQLKnowledgeDocument]:
         """Extracts RAG-ready knowledge documents for all APPROVED reports."""
         q = session.query(SQLReport).filter(
             SQLReport.organization_id == organization_id,
@@ -573,16 +580,16 @@ class SQLRepositoryService:
     def search_reports(
         cls,
         session: Session,
-        query: Optional[str] = None,
-        database_id: Optional[str] = None,
-        category: Optional[str] = None,
-        status: Optional[str] = None,
-        complexity: Optional[str] = None,
-        uses_effective_dating: Optional[bool] = None,
-        uses_security_filter: Optional[bool] = None,
+        query: str | None = None,
+        database_id: str | None = None,
+        category: str | None = None,
+        status: str | None = None,
+        complexity: str | None = None,
+        uses_effective_dating: bool | None = None,
+        uses_security_filter: bool | None = None,
         organization_id: str = "org_default",
         limit: int = 50
-    ) -> List[SQLReport]:
+    ) -> list[SQLReport]:
         """Multi-facet search and filter across the repository."""
         q = session.query(SQLReport).outerjoin(SQLReportMetadata, SQLReport.id == SQLReportMetadata.report_id)
         q = q.filter(SQLReport.organization_id == organization_id)
@@ -624,7 +631,7 @@ class SQLRepositoryService:
         cls,
         session: Session,
         organization_id: str = "org_default"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Calculates KPI statistics for the SQL Repository Dashboard."""
         base_q = session.query(SQLReport).filter(SQLReport.organization_id == organization_id)
 
@@ -691,9 +698,9 @@ class SQLRepositoryService:
     def _log_action(
         cls,
         session: Session,
-        user: Optional[User],
+        user: User | None,
         action: str,
-        report_id: Optional[int],
+        report_id: int | None,
         details: str
     ):
         try:

@@ -1,4 +1,4 @@
 """Configuration package initialization."""
-from .settings import settings, AppSettings, EnvironmentType
+from .settings import AppSettings, EnvironmentType, settings
 
-__all__ = ["settings", "AppSettings", "EnvironmentType"]
+__all__ = ["AppSettings", "EnvironmentType", "settings"]

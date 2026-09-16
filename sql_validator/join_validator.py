@@ -1,8 +1,8 @@
 """Join validator detecting Cartesian products and excessive join complexity."""
 
-from typing import Tuple, List
-import sqlglot
+
 from sqlglot import exp
+
 from .schemas import ChecklistItem
 
 
@@ -14,7 +14,7 @@ class JoinValidator:
         expression: exp.Expression,
         max_joins: int = 5,
         disallow_cartesian: bool = True
-    ) -> Tuple[bool, List[ChecklistItem], List[str], List[str]]:
+    ) -> tuple[bool, list[ChecklistItem], list[str], list[str]]:
         checklist = []
         violations = []
         warnings = []

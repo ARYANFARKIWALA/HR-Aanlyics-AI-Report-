@@ -1,9 +1,9 @@
 """Database schema allowlist validator and hallucination detector."""
 
-from typing import Tuple, List, Set, Dict, Optional
-import sqlglot
 from sqlglot import exp
+
 from backend.database.connection_manager import connection_manager
+
 from .schemas import ChecklistItem
 
 DEFAULT_FALLBACK_TABLES = {
@@ -17,7 +17,7 @@ class SchemaValidator:
     """Verifies that all tables and columns referenced exist in the database catalog."""
 
     @staticmethod
-    def get_catalog_schema(database_id: str) -> Tuple[Set[str], Dict[str, Set[str]]]:
+    def get_catalog_schema(database_id: str) -> tuple[set[str], dict[str, set[str]]]:
         """Fetches known tables and columns for a given registered database."""
         try:
             schema = connection_manager.get_schema(database_id)
@@ -34,10 +34,10 @@ class SchemaValidator:
         cls,
         expression: exp.Expression,
         database_id: str = "sqlite_hr_default"
-    ) -> Tuple[bool, List[ChecklistItem], List[str], Set[str]]:
+    ) -> tuple[bool, list[ChecklistItem], list[str], set[str]]:
         checklist = []
         violations = []
-        referenced_tables: Set[str] = set()
+        referenced_tables: set[str] = set()
 
         allowed_tables, allowed_columns = cls.get_catalog_schema(database_id)
 
@@ -69,9 +69,9 @@ class SchemaValidator:
                 check_name="schema_table_allowlist",
                 passed=False,
                 severity="BLOCKER",
-                details=f"Unknown/unauthorized tables: {sorted(list(unknown_tables))}"
+                details=f"Unknown/unauthorized tables: {sorted(unknown_tables)}"
             ))
-            violations.append(f"Schema hallucination: Table(s) {sorted(list(unknown_tables))} do not exist in database '{database_id}'.")
+            violations.append(f"Schema hallucination: Table(s) {sorted(unknown_tables)} do not exist in database '{database_id}'.")
             return False, checklist, violations, referenced_tables
 
         checklist.append(ChecklistItem(
@@ -100,9 +100,8 @@ class SchemaValidator:
                     actual_table = table_alias_map.get(tbl_ref, tbl_ref)
                     if actual_table in cte_aliases:
                         continue
-                    if actual_table in allowed_columns:
-                        if col_name not in allowed_columns[actual_table]:
-                            unknown_columns.add(f"{actual_table}.{col_name}")
+                    if actual_table in allowed_columns and col_name not in allowed_columns[actual_table]:
+                        unknown_columns.add(f"{actual_table}.{col_name}")
                 elif len(referenced_tables) == 1:
                     single_tbl = next(iter(referenced_tables))
                     if single_tbl in allowed_columns and col_name not in allowed_columns[single_tbl]:
@@ -113,9 +112,9 @@ class SchemaValidator:
                 check_name="schema_column_allowlist",
                 passed=False,
                 severity="BLOCKER",
-                details=f"Unknown columns referenced: {sorted(list(unknown_columns))}"
+                details=f"Unknown columns referenced: {sorted(unknown_columns)}"
             ))
-            violations.append(f"Schema hallucination: Column(s) {sorted(list(unknown_columns))} do not exist in schema catalog.")
+            violations.append(f"Schema hallucination: Column(s) {sorted(unknown_columns)} do not exist in schema catalog.")
             return False, checklist, violations, referenced_tables
 
         checklist.append(ChecklistItem(

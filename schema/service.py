@@ -7,19 +7,27 @@ drift/snapshot management, and health scoring.
 
 import datetime
 import logging
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Any
+
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
-from sqlalchemy import or_, and_, func
 
 from backend.database.connection_manager import connection_manager
 from backend.database.models_schema import (
-    SchemaTable, SchemaColumn, SchemaRelationship, SchemaIndex,
-    SchemaConstraint, SchemaSnapshot, SchemaChange, SchemaUsageMetric
+    SchemaChange,
+    SchemaColumn,
+    SchemaConstraint,
+    SchemaIndex,
+    SchemaRelationship,
+    SchemaSnapshot,
+    SchemaTable,
+    SchemaUsageMetric,
 )
-from .inspector import DeepSchemaInspector
+
 from .hr_mapping import HRMetadataMapper
-from .usage_analyzer import SchemaUsageAnalyzer
+from .inspector import DeepSchemaInspector
 from .snapshot import SchemaSnapshotManager
+from .usage_analyzer import SchemaUsageAnalyzer
 
 logger = logging.getLogger("schema.service")
 
@@ -30,7 +38,7 @@ class SchemaIntelligenceService:
     def __init__(self, db: Session):
         self.db = db
 
-    def discover_schema(self, database_id: str, user_id: Optional[int] = None) -> Dict[str, Any]:
+    def discover_schema(self, database_id: str, user_id: int | None = None) -> dict[str, Any]:
         """Discovers or refreshes database schema with deep HR intelligence and human edit preservation.
 
         Flow:
@@ -65,8 +73,8 @@ class SchemaIntelligenceService:
             for t in self.db.query(SchemaTable).filter_by(database_id=database_id).all()
         }
 
-        discovered_tables_models: List[SchemaTable] = []
-        relationships_to_create: List[Dict[str, Any]] = []
+        discovered_tables_models: list[SchemaTable] = []
+        relationships_to_create: list[dict[str, Any]] = []
 
         # 4 & 5 & 6: Process and persist tables and columns
         for tbl in raw_discovery.get("tables", []):
@@ -75,7 +83,7 @@ class SchemaIntelligenceService:
             row_count = tbl.get("row_count_approx", 0)
             col_list = tbl.get("columns", [])
             fks = tbl.get("foreign_keys", [])
-            pks = tbl.get("primary_keys", [])
+            tbl.get("primary_keys", [])
 
             # Check for existing table to preserve human modifications
             existing_tbl = existing_tables.get(tbl_name)
@@ -349,11 +357,11 @@ class SchemaIntelligenceService:
             "changes_detected": changes_detected
         }
 
-    def refresh_schema(self, database_id: str, user_id: Optional[int] = None) -> Dict[str, Any]:
+    def refresh_schema(self, database_id: str, user_id: int | None = None) -> dict[str, Any]:
         """Re-inspects the database, updates metadata while preserving human edits, and returns changes."""
         return self.discover_schema(database_id=database_id, user_id=user_id)
 
-    def get_schema_health(self, database_id: str) -> Dict[str, Any]:
+    def get_schema_health(self, database_id: str) -> dict[str, Any]:
         """Calculates schema completeness, verification percentage, and AI readiness score."""
         tables = self.db.query(SchemaTable).filter_by(database_id=database_id).all()
         table_count = len(tables)
@@ -427,10 +435,10 @@ class SchemaIntelligenceService:
     def get_tables(
         self,
         database_id: str,
-        entity_type: Optional[str] = None,
-        status: Optional[str] = None,
-        search: Optional[str] = None
-    ) -> List[Dict[str, Any]]:
+        entity_type: str | None = None,
+        status: str | None = None,
+        search: str | None = None
+    ) -> list[dict[str, Any]]:
         """Lists tables for a database with filtering and stats."""
         query = self.db.query(SchemaTable).filter(SchemaTable.database_id == database_id)
 
@@ -478,7 +486,7 @@ class SchemaIntelligenceService:
             })
         return results
 
-    def get_table_detail(self, table_id: int) -> Optional[Dict[str, Any]]:
+    def get_table_detail(self, table_id: int) -> dict[str, Any] | None:
         """Returns deep details of a table including its columns, relationships, indexes, and usage."""
         table = self.db.query(SchemaTable).filter_by(id=table_id).first()
         if not table:
@@ -599,9 +607,9 @@ class SchemaIntelligenceService:
     def update_table_metadata(
         self,
         table_id: int,
-        data: Dict[str, Any],
-        user_id: Optional[int] = None
-    ) -> Optional[SchemaTable]:
+        data: dict[str, Any],
+        user_id: int | None = None
+    ) -> SchemaTable | None:
         """Allows humans/admins to edit business name, description, and entity type."""
         table = self.db.query(SchemaTable).filter_by(id=table_id).first()
         if not table:
@@ -626,9 +634,9 @@ class SchemaIntelligenceService:
     def update_column_metadata(
         self,
         column_id: int,
-        data: Dict[str, Any],
-        user_id: Optional[int] = None
-    ) -> Optional[SchemaColumn]:
+        data: dict[str, Any],
+        user_id: int | None = None
+    ) -> SchemaColumn | None:
         """Allows humans to edit column business name, definition, sensitivity, and metric roles."""
         col = self.db.query(SchemaColumn).filter_by(id=column_id).first()
         if not col:
@@ -647,7 +655,7 @@ class SchemaIntelligenceService:
         self.db.refresh(col)
         return col
 
-    def verify_table(self, table_id: int, user_id: Optional[int] = None) -> Optional[SchemaTable]:
+    def verify_table(self, table_id: int, user_id: int | None = None) -> SchemaTable | None:
         """Marks table and all its columns as VERIFIED."""
         table = self.db.query(SchemaTable).filter_by(id=table_id).first()
         if not table:
@@ -664,7 +672,7 @@ class SchemaIntelligenceService:
         self.db.refresh(table)
         return table
 
-    def verify_column(self, column_id: int, user_id: Optional[int] = None) -> Optional[SchemaColumn]:
+    def verify_column(self, column_id: int, user_id: int | None = None) -> SchemaColumn | None:
         """Marks an individual column as VERIFIED."""
         col = self.db.query(SchemaColumn).filter_by(id=column_id).first()
         if not col:
@@ -678,8 +686,8 @@ class SchemaIntelligenceService:
     def get_relationships(
         self,
         database_id: str,
-        source: Optional[str] = None
-    ) -> List[Dict[str, Any]]:
+        source: str | None = None
+    ) -> list[dict[str, Any]]:
         """Lists relationships across database tables with optional source filter."""
         query = self.db.query(SchemaRelationship).filter(SchemaRelationship.database_id == database_id)
         if source and source.upper() != "ALL":
@@ -707,8 +715,8 @@ class SchemaIntelligenceService:
     def add_manual_relationship(
         self,
         database_id: str,
-        data: Dict[str, Any],
-        user_id: Optional[int] = None
+        data: dict[str, Any],
+        user_id: int | None = None
     ) -> SchemaRelationship:
         """Allows administrator to define a custom join link between tables."""
         src_tbl = self.db.query(SchemaTable).filter_by(database_id=database_id, table_name=data["source_table"]).first()
@@ -763,7 +771,7 @@ class SchemaIntelligenceService:
         self.db.commit()
         return True
 
-    def get_schema_changes(self, database_id: str, limit: int = 50) -> List[Dict[str, Any]]:
+    def get_schema_changes(self, database_id: str, limit: int = 50) -> list[dict[str, Any]]:
         """Retrieves recent schema drift and change history."""
         changes = (
             self.db.query(SchemaChange)
@@ -785,7 +793,7 @@ class SchemaIntelligenceService:
             for c in changes
         ]
 
-    def get_snapshots(self, database_id: str) -> List[Dict[str, Any]]:
+    def get_snapshots(self, database_id: str) -> list[dict[str, Any]]:
         """Lists historical snapshots for a database."""
         snapshots = (
             self.db.query(SchemaSnapshot)
@@ -806,7 +814,7 @@ class SchemaIntelligenceService:
             for s in snapshots
         ]
 
-    def get_usage_metrics(self, database_id: str) -> Dict[str, Any]:
+    def get_usage_metrics(self, database_id: str) -> dict[str, Any]:
         """Retrieves table, column, and join query frequencies mined from Module 2."""
         metrics = (
             self.db.query(SchemaUsageMetric)
@@ -824,7 +832,7 @@ class SchemaIntelligenceService:
             "top_joins": [{"name": m.entity_name, "count": m.query_count} for m in joins[:10]],
         }
 
-    def search_schema(self, database_id: str, query_term: str) -> Dict[str, Any]:
+    def search_schema(self, database_id: str, query_term: str) -> dict[str, Any]:
         """Searches tables and columns across technical names, business names, definitions, and concepts."""
         term = f"%{query_term}%"
 

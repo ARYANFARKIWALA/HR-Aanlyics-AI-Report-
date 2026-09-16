@@ -1,19 +1,20 @@
 """FastAPI security dependencies for authentication and RBAC/ABAC."""
 
-from typing import List, Optional
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
+
 from ..database.connection import get_db
 from ..database.models import User
-from .jwt_handler import decode_access_token
 from .authorization import AuthorizationService
+from .jwt_handler import decode_access_token
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login", auto_error=False)
 
 
 def get_current_user(
-    token: Optional[str] = Depends(oauth2_scheme),
+    token: str | None = Depends(oauth2_scheme),
     db: Session = Depends(get_db)
 ) -> User:
     """Retrieves current authenticated user from JWT token."""
@@ -48,7 +49,7 @@ def get_current_user(
     return user
 
 
-def require_role(allowed_roles: List[str]):
+def require_role(allowed_roles: list[str]):
     """Decorator dependency enforcing role-based authorization."""
     def role_checker(current_user: User = Depends(get_current_user)) -> User:
         if current_user.role not in allowed_roles:

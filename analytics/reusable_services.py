@@ -4,16 +4,17 @@ Provides robust, production-grade statistical and organizational HR calculations
 using Pandas without altering raw query results without documentation.
 """
 
-from typing import Dict, Any, List, Optional, Tuple
-import pandas as pd
+from typing import Any
+
 import numpy as np
+import pandas as pd
 
 
 class HRAnalyticsEngine:
     """Core analytical calculation engine for enterprise HR metrics."""
 
     @staticmethod
-    def calculate_totals(df: pd.DataFrame, column: str) -> Dict[str, Any]:
+    def calculate_totals(df: pd.DataFrame, column: str) -> dict[str, Any]:
         """Calculates sum total for numeric column."""
         if column not in df.columns or df.empty:
             return {"metric": "total", "column": column, "value": 0.0, "transformation": "none"}
@@ -26,7 +27,7 @@ class HRAnalyticsEngine:
         }
 
     @staticmethod
-    def calculate_averages(df: pd.DataFrame, column: str) -> Dict[str, Any]:
+    def calculate_averages(df: pd.DataFrame, column: str) -> dict[str, Any]:
         """Calculates arithmetic mean for numeric column."""
         if column not in df.columns or df.empty:
             return {"metric": "average", "column": column, "value": 0.0, "transformation": "none"}
@@ -42,7 +43,7 @@ class HRAnalyticsEngine:
     def calculate_percentages(
         df: pd.DataFrame,
         dimension_col: str,
-        metric_col: Optional[str] = None
+        metric_col: str | None = None
     ) -> pd.DataFrame:
         """Calculates percentage composition across categories."""
         res_df = df.copy()
@@ -78,7 +79,7 @@ class HRAnalyticsEngine:
         df: pd.DataFrame,
         date_col: str,
         metric_col: str
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Calculates period-over-period trend analysis."""
         trends = []
         if df.empty or date_col not in df.columns or metric_col not in df.columns:
@@ -123,8 +124,8 @@ class HRAnalyticsEngine:
     @staticmethod
     def calculate_group_analysis(
         df: pd.DataFrame,
-        group_cols: List[str],
-        agg_dict: Dict[str, Any]
+        group_cols: list[str],
+        agg_dict: dict[str, Any]
     ) -> pd.DataFrame:
         """Performs multi-dimensional group aggregation."""
         if df.empty or not all(c in df.columns for c in group_cols):
@@ -165,9 +166,9 @@ class HRAnalyticsEngine:
     @staticmethod
     def calculate_headcount(
         df: pd.DataFrame,
-        status_col: Optional[str] = "status",
+        status_col: str | None = "status",
         active_val: str = "Active"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Calculates total, active, and terminated headcount counts."""
         total = len(df)
         if status_col and status_col in df.columns:
@@ -190,7 +191,7 @@ class HRAnalyticsEngine:
         status_col: str = "status",
         active_val: str = "Active",
         terminated_val: str = "Terminated"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Calculates organizational attrition percentage."""
         if df.empty or status_col not in df.columns:
             return {"attrition_rate_pct": 0.0, "retention_rate_pct": 100.0, "transformation": "none"}
@@ -212,7 +213,7 @@ class HRAnalyticsEngine:
         df: pd.DataFrame,
         status_col: str = "status",
         terminated_val: str = "Terminated"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Calculates turnover counts and proportions."""
         return HRAnalyticsEngine.calculate_attrition_rate(
             df=df,
@@ -224,8 +225,8 @@ class HRAnalyticsEngine:
     def calculate_tenure(
         df: pd.DataFrame,
         hire_date_col: str = "hire_date",
-        termination_date_col: Optional[str] = "termination_date"
-    ) -> Dict[str, Any]:
+        termination_date_col: str | None = "termination_date"
+    ) -> dict[str, Any]:
         """Calculates tenure statistics in years."""
         if df.empty or hire_date_col not in df.columns:
             return {"avg_tenure_years": 0.0, "median_tenure_years": 0.0, "transformation": "none"}
@@ -254,7 +255,7 @@ class HRAnalyticsEngine:
         }
 
     @staticmethod
-    def recommend_visualizations(df: pd.DataFrame) -> List[Dict[str, Any]]:
+    def recommend_visualizations(df: pd.DataFrame) -> list[dict[str, Any]]:
         """
         Recommends charts based on canonical mapping rules:
         - Time series -> Line chart

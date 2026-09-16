@@ -6,11 +6,21 @@ Does NOT store actual HR employee data.
 """
 
 import datetime
+
 from sqlalchemy import (
-    Column, Integer, String, Float, Boolean, DateTime,
-    ForeignKey, Text, Index, JSON
+    JSON,
+    Boolean,
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
 )
 from sqlalchemy.orm import relationship
+
 from .connection import Base
 
 

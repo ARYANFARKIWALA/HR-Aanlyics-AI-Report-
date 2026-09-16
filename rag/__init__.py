@@ -3,4 +3,4 @@ from .embeddings import EmbeddingEngine
 from .ingestion import DocumentIngester, PolicyDocument
 from .retrieval import RAGRetriever
 
-__all__ = ["EmbeddingEngine", "DocumentIngester", "PolicyDocument", "RAGRetriever"]
+__all__ = ["DocumentIngester", "EmbeddingEngine", "PolicyDocument", "RAGRetriever"]

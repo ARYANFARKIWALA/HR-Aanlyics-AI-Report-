@@ -4,26 +4,29 @@ Implements all CRUD, approval, rejection, versioning, conflict detection,
 and active rule query endpoints.
 """
 
-from typing import Optional, List, Dict, Any
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from typing import Any
+
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
+from backend.auth.dependencies import get_current_user
 from backend.database.connection import get_db
 from backend.database.models import User
-from backend.auth.dependencies import get_current_user, require_role
-from business_rules.service import BusinessRuleService
-from business_rules.schemas import (
-    RuleCreateRequest, RuleUpdateRequest, RuleApprovalRequest,
-    RuleRejectionRequest, RuleVersionCreateRequest
-)
 from business_rules.conflict_detector import RuleConflictDetector
 from business_rules.duplicate_detector import RuleDuplicateDetector
+from business_rules.schemas import (
+    RuleApprovalRequest,
+    RuleCreateRequest,
+    RuleRejectionRequest,
+    RuleUpdateRequest,
+)
+from business_rules.service import BusinessRuleService
 from business_rules.validator import RuleValidationError
 
 router = APIRouter(prefix="/api/business-rules", tags=["Module 4: Business Rule Management"])
 
 
-def success_response(data: Any) -> Dict[str, Any]:
+def success_response(data: Any) -> dict[str, Any]:
     return {"success": True, "data": data}
 
 
@@ -77,8 +80,8 @@ def get_active_rules(
 @router.get("/conflicts")
 def scan_conflicts(
     rule_expression: str = Query(..., min_length=2),
-    table_name: Optional[str] = Query(None),
-    column_name: Optional[str] = Query(None),
+    table_name: str | None = Query(None),
+    column_name: str | None = Query(None),
     database_id: str = Query("sqlite_hr_default"),
     db: Session = Depends(get_db)
 ):
@@ -99,7 +102,7 @@ def scan_conflicts(
 @router.get("/duplicates")
 def scan_duplicates(
     rule_expression: str = Query(..., min_length=2),
-    natural_language_rule: Optional[str] = Query(""),
+    natural_language_rule: str | None = Query(""),
     database_id: str = Query("sqlite_hr_default"),
     db: Session = Depends(get_db)
 ):
@@ -160,12 +163,12 @@ def create_business_rule(
 @router.get("")
 def list_business_rules(
     database_id: str = Query("sqlite_hr_default"),
-    status: Optional[str] = Query(None),
-    rule_type: Optional[str] = Query(None),
-    priority: Optional[str] = Query(None),
-    table_name: Optional[str] = Query(None),
-    mandatory: Optional[bool] = Query(None),
-    search: Optional[str] = Query(None),
+    status: str | None = Query(None),
+    rule_type: str | None = Query(None),
+    priority: str | None = Query(None),
+    table_name: str | None = Query(None),
+    mandatory: bool | None = Query(None),
+    search: str | None = Query(None),
     db: Session = Depends(get_db)
 ):
     """Lists business rules with facet filters."""

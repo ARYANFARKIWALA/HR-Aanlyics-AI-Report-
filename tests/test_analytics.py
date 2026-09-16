@@ -1,8 +1,9 @@
 """Unit tests for HR Analytics and KPI calculations."""
 
 import pytest
-from backend.database.connection import SessionLocal
+
 from analytics.metrics import HRMetricsCalculator
+from backend.database.connection import SessionLocal
 
 
 @pytest.fixture

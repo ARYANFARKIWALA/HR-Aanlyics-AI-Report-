@@ -9,27 +9,27 @@ Enforces:
 6. Effective-dating integrity checks.
 """
 
-from typing import List, Dict, Any, Tuple
 import re
+from typing import Any
+
 from .parser import SQLParser, SQLQueryAnalysis
 
 
 class SQLValidationError(Exception):
     """Raised when a SQL query violates security or semantic guardrails."""
-    pass
 
 
 class SQLValidator:
     """Enforces enterprise security guardrails on all incoming queries."""
 
-    FORBIDDEN_KEYWORDS = [
+    FORBIDDEN_KEYWORDS = (
         "DROP", "DELETE", "UPDATE", "INSERT", "ALTER", "TRUNCATE",
         "REPLACE", "CREATE", "EXEC", "EXECUTE", "GRANT", "REVOKE",
         "ATTACH", "DETACH", "PRAGMA", "VACUUM", "INTO OUTFILE",
         "LOAD_FILE", "XP_CMDSHELL", "SHUTDOWN"
-    ]
+    )
 
-    ALLOWED_TABLES = {
+    ALLOWED_TABLES = frozenset({
         "employees",
         "departments",
         "compensation_history",
@@ -39,7 +39,7 @@ class SQLValidator:
         "attrition_records",
         "sql_repository",
         "audit_logs"
-    }
+    })
 
     @classmethod
     def validate(
@@ -48,7 +48,7 @@ class SQLValidator:
         user_role: str = "admin",
         user_dept_id: int | None = None,
         discovered_schema: Any = None
-    ) -> Tuple[bool, str, SQLQueryAnalysis]:
+    ) -> tuple[bool, str, SQLQueryAnalysis]:
         """Validates query against safety guardrails and Module 1 schema allowlist.
         
         Returns:
@@ -78,7 +78,7 @@ class SQLValidator:
 
         # Must start with SELECT or WITH (for CTEs)
         stripped_start = cleaned_sql.lstrip().upper()
-        if not (stripped_start.startswith("SELECT") or stripped_start.startswith("WITH")):
+        if not (stripped_start.startswith(("SELECT", "WITH"))):
             return False, "Queries must begin with SELECT or WITH (CTE).", analysis
 
         # 5. Whitelist tables against Module 1 discovered schema (or fallback set)

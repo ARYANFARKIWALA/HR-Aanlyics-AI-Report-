@@ -5,11 +5,12 @@ Executes vector similarity search with hard metadata filtering (database_id, is_
 """
 
 import logging
-from typing import Dict, Any, List, Optional, Tuple
-from sqlalchemy.orm import Session
-from sqlalchemy import or_, and_
+from typing import Any
 
-from backend.database.models_rag import RAGDocument, RAGChunk
+from sqlalchemy.orm import Session
+
+from backend.database.models_rag import RAGChunk, RAGDocument
+
 from .embedding_service import EmbeddingService
 
 logger = logging.getLogger("rag.vector_store")
@@ -24,8 +25,8 @@ class VectorStore:
 
     def store_document_and_chunks(
         self,
-        doc_data: Dict[str, Any],
-        chunks: List[Any]
+        doc_data: dict[str, Any],
+        chunks: list[Any]
     ) -> RAGDocument:
         """Stores a parent RAG document and its associated semantic chunks."""
         # 1. Check if document already exists
@@ -90,9 +91,9 @@ class VectorStore:
         query: str,
         database_id: str,
         top_k: int = 8,
-        source_types: Optional[List[str]] = None,
-        filter_tables: Optional[List[str]] = None
-    ) -> List[Tuple[RAGChunk, float]]:
+        source_types: list[str] | None = None,
+        filter_tables: list[str] | None = None
+    ) -> list[tuple[RAGChunk, float]]:
         """Performs vector similarity search filtered strictly by database_id and active status."""
         query_vec = self.embedding_service.generate_embedding(query)
 
@@ -105,7 +106,7 @@ class VectorStore:
             q = q.filter(RAGChunk.source_type.in_(source_types))
 
         candidates = q.all()
-        scored_chunks: List[Tuple[RAGChunk, float]] = []
+        scored_chunks: list[tuple[RAGChunk, float]] = []
 
         for ch in candidates:
             ch_vec = ch.embedding_json
